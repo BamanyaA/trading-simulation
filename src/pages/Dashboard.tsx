@@ -44,6 +44,20 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
   const [isTrading, setIsTrading] = useState(false);
 
   useEffect(() => {
+    // Auto-promote bootstrapped admin if needed
+    if (user.email === "habeshatilaye@gmail.com" && profile && profile.role !== "admin") {
+      const promote = async () => {
+        try {
+          await updateDoc(doc(db, "users", user.uid), { role: "admin" });
+          toast.success("Admin rights granted!");
+          refreshProfile();
+        } catch (e) {
+          console.error("Auto-promotion failed", e);
+        }
+      };
+      promote();
+    }
+
     // Listen to transactions
     const q = query(
       collection(db, "transactions"),

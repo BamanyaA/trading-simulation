@@ -31,7 +31,7 @@ export default function Navbar({ user, profile }: NavbarProps) {
         <div className="hidden md:flex items-center gap-8">
           <Link to="/" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">Home</Link>
           <Link to="/about" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">About</Link>
-          {profile?.role === "admin" && (
+          {(profile?.role === "admin" || user?.email === "habeshatilaye@gmail.com") && (
             <Link to="/admin" className="text-sm font-medium text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1">
               <Settings className="w-4 h-4" /> Admin
             </Link>
