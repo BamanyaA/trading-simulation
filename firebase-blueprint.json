@@ -6,11 +6,15 @@
       "type": "object",
       "properties": {
         "email": { "type": "string", "format": "email" },
+        "fullName": { "type": "string" },
+        "address": { "type": "string" },
+        "phoneNumber": { "type": "string" },
+        "verificationDoc": { "type": "string", "description": "Base64 or URL of ID document" },
         "balance": { "type": "number", "description": "User's current wallet balance" },
         "role": { "type": "string", "enum": ["user", "admin"] },
         "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["email", "balance", "role", "createdAt"]
+      "required": ["email", "fullName", "address", "verificationDoc", "balance", "role", "createdAt"]
     },
     "Transaction": {
       "title": "Transaction Record",

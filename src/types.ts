@@ -3,6 +3,10 @@ export type UserRole = "user" | "admin";
 export interface UserProfile {
   id: string;
   email: string;
+  fullName: string;
+  address: string;
+  phoneNumber: string;
+  verificationDoc: string; // Base64 or URL
   balance: number;
   role: UserRole;
   createdAt: any; // Firestore Timestamp

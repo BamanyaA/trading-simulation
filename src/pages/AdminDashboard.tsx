@@ -30,11 +30,15 @@ import {
   CheckCircle2,
   MessageSquare,
   Send,
-  User
+  User,
+  FileText,
+  X,
+  MapPin,
+  Phone
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { formatCurrency, cn } from "../lib/utils";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 
 export default function AdminDashboard() {
   const [users, setUsers] = useState<UserProfile[]>([]);
@@ -47,6 +51,7 @@ export default function AdminDashboard() {
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState<"users" | "transactions" | "settings" | "support">("users");
   const [customAmounts, setCustomAmounts] = useState<Record<string, string>>({});
+  const [selectedUserKYC, setSelectedUserKYC] = useState<UserProfile | null>(null);
 
   // Chat states
   const [allMessages, setAllMessages] = useState<SupportMessage[]>([]);
@@ -319,6 +324,13 @@ export default function AdminDashboard() {
                               >
                                 <ShieldCheck className="w-4 h-4" />
                               </button>
+                              <button
+                                onClick={() => setSelectedUserKYC(u)}
+                                className="p-2 bg-blue-600/10 hover:bg-blue-600 text-blue-500 hover:text-white rounded-lg transition-all"
+                                title="View User Info"
+                              >
+                                <FileText className="w-4 h-4" />
+                              </button>
                             </div>
                           </td>
                       </tr>
@@ -528,6 +540,98 @@ export default function AdminDashboard() {
         )}
 
       </div>
+
+      <AnimatePresence>
+        {selectedUserKYC && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedUserKYC(null)}
+              className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm shadow-2xl"
+            />
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="relative w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"
+            >
+              <div className="p-6 border-b border-white/5 bg-slate-800/50 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-blue-600/20 text-blue-500 rounded-xl flex items-center justify-center">
+                    <User className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-white">User Verification Records</h3>
+                    <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold font-mono">{selectedUserKYC.email}</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setSelectedUserKYC(null)}
+                  className="p-2 hover:bg-white/5 rounded-xl text-slate-400 hover:text-white transition-all shadow-xl"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-8 space-y-10">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="space-y-1 bg-slate-950 p-4 rounded-2xl border border-slate-800 shadow-xl">
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Legal Full Name</label>
+                    <p className="text-white font-medium">{selectedUserKYC.fullName || "Not provided"}</p>
+                  </div>
+                  <div className="space-y-1 bg-slate-950 p-4 rounded-2xl border border-slate-800 shadow-xl">
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Phone Number</label>
+                    <div className="flex items-start gap-2">
+                       <Phone className="w-4 h-4 text-slate-500 mt-0.5 shrink-0" />
+                       <p className="text-white font-medium text-sm">{selectedUserKYC.phoneNumber || "Not provided"}</p>
+                    </div>
+                  </div>
+                  <div className="space-y-1 bg-slate-950 p-4 rounded-2xl border border-slate-800 shadow-xl">
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Residential Address</label>
+                    <div className="flex items-start gap-2">
+                       <MapPin className="w-4 h-4 text-slate-500 mt-0.5 shrink-0" />
+                       <p className="text-white font-medium text-sm">{selectedUserKYC.address || "Not provided"}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                    <FileText className="w-4 h-4" />
+                    ID / Passport / License
+                  </label>
+                  {selectedUserKYC.verificationDoc ? (
+                    <div className="rounded-3xl border border-slate-800 bg-slate-950 overflow-hidden shadow-2xl relative group">
+                      <img 
+                        src={selectedUserKYC.verificationDoc} 
+                        alt="KYC Document" 
+                        className="w-full h-auto object-contain cursor-zoom-in group-hover:scale-[1.02] transition-transform duration-500"
+                        onClick={() => window.open(selectedUserKYC.verificationDoc, "_blank")}
+                      />
+                      <div className="absolute inset-0 bg-blue-600/0 group-hover:bg-blue-600/5 transition-colors pointer-events-none" />
+                    </div>
+                  ) : (
+                    <div className="p-12 text-center bg-slate-950 rounded-3xl border border-slate-800 text-slate-500 italic">
+                      No verification document found for this user.
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              <div className="p-6 bg-slate-800/30 border-t border-white/5 flex justify-end">
+                <button 
+                  onClick={() => setSelectedUserKYC(null)}
+                  className="px-8 py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl transition-all shadow-xl"
+                >
+                  Close Records
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
