@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { db } from "../firebase";
 import { 
   collection, 
@@ -7,11 +7,14 @@ import {
   onSnapshot, 
   updateDoc, 
   doc, 
-  getDocs, 
+  getDoc, 
   setDoc,
-  where
+  where,
+  increment,
+  serverTimestamp,
+  addDoc
 } from "firebase/firestore";
-import { UserProfile, Transaction, PlatformSettings } from "../types";
+import { UserProfile, Transaction, PlatformSettings, SupportMessage } from "../types";
 import { 
   Users, 
   Wallet, 
@@ -23,7 +26,11 @@ import {
   Save, 
   Search,
   ChevronRight,
-  TrendingUp
+  TrendingUp,
+  CheckCircle2,
+  MessageSquare,
+  Send,
+  User
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { formatCurrency, cn } from "../lib/utils";
@@ -31,14 +38,21 @@ import { motion } from "motion/react";
 
 export default function AdminDashboard() {
   const [users, setUsers] = useState<UserProfile[]>([]);
-  const [withdrawals, setWithdrawals] = useState<Transaction[]>([]);
+  const [pendingTxs, setPendingTxs] = useState<Transaction[]>([]);
   const [settings, setSettings] = useState<PlatformSettings>({
     btc_address: "",
     eth_address: "",
     xrp_address: ""
   });
   const [search, setSearch] = useState("");
-  const [activeTab, setActiveTab] = useState<"users" | "withdrawals" | "settings">("users");
+  const [activeTab, setActiveTab] = useState<"users" | "transactions" | "settings" | "support">("users");
+  const [customAmounts, setCustomAmounts] = useState<Record<string, string>>({});
+
+  // Chat states
+  const [allMessages, setAllMessages] = useState<SupportMessage[]>([]);
+  const [selectedUserChat, setSelectedUserChat] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState("");
+  const [isSending, setIsSending] = useState(false);
 
   useEffect(() => {
     // Listen to users
@@ -46,40 +60,74 @@ export default function AdminDashboard() {
       setUsers(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as UserProfile)));
     });
 
-    // Listen to pending withdrawals
+    // Listen to pending transactions
     const q = query(
       collection(db, "transactions"),
-      where("type", "==", "withdraw"),
       where("status", "==", "pending")
     );
     const txUnsub = onSnapshot(q, (snapshot) => {
-      setWithdrawals(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Transaction)));
+      setPendingTxs(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Transaction)));
     });
 
     // Fetch settings
     const fetchSettings = async () => {
-      const docSnap = await getDocs(collection(db, "settings"));
-      const addrDoc = docSnap.docs.find(d => d.id === "addresses");
-      if (addrDoc) {
-        setSettings(addrDoc.data() as PlatformSettings);
+      try {
+        const docSnap = await getDoc(doc(db, "settings", "addresses"));
+        if (docSnap.exists()) {
+          setSettings(docSnap.data() as PlatformSettings);
+        }
+      } catch (e) {
+        console.error("Settings fetch failed", e);
       }
     };
 
     fetchSettings();
+
+    // Listen to ALL support messages
+    const chatQ = query(collection(db, "support_messages"), orderBy("createdAt", "asc"));
+    const chatUnsub = onSnapshot(chatQ, (snapshot) => {
+      setAllMessages(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as SupportMessage)));
+    });
+
     return () => {
       usersUnsub();
       txUnsub();
+      chatUnsub();
     };
   }, []);
 
-  const handleUpdateBalance = async (userId: string, currentBalance: number, delta: number) => {
+  const handleUpdateBalance = async (userId: string, delta: number) => {
     try {
       await updateDoc(doc(db, "users", userId), {
-        balance: currentBalance + delta
+        balance: increment(delta)
       });
       toast.success("Balance updated");
+      // Clear custom amount field
+      setCustomAmounts(prev => ({ ...prev, [userId]: "" }));
     } catch (error: any) {
       toast.error(error.message);
+    }
+  };
+
+  const handleSetBalance = async (userId: string, amount: number) => {
+    try {
+      await updateDoc(doc(db, "users", userId), {
+        balance: amount
+      });
+      toast.success(`Balance set to ${formatCurrency(amount)}`);
+      setCustomAmounts(prev => ({ ...prev, [userId]: "" }));
+    } catch (error: any) {
+      toast.error(error.message);
+    }
+  };
+
+  const handleToggleRole = async (user: UserProfile) => {
+    try {
+      const newRole = user.role === "admin" ? "user" : "admin";
+      await updateDoc(doc(db, "users", user.id), { role: newRole });
+      toast.success(`User role updated to ${newRole}`);
+    } catch (error: any) {
+      toast.error("Failed to update role: " + error.message);
     }
   };
 
@@ -92,10 +140,46 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleProcessWithdrawal = async (txId: string, status: "completed" | "failed") => {
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!replyText.trim() || !selectedUserChat) return;
+
+    setIsSending(true);
     try {
-      await updateDoc(doc(db, "transactions", txId), { status });
-      toast.success(`Withdrawal ${status}`);
+      await addDoc(collection(db, "support_messages"), {
+        userId: selectedUserChat,
+        senderId: "admin",
+        text: replyText,
+        isAdmin: true,
+        createdAt: serverTimestamp(),
+      });
+      setReplyText("");
+    } catch (error: any) {
+      toast.error("Failed to send reply: " + error.message);
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  const handleProcessTransaction = async (tx: Transaction, status: "completed" | "failed") => {
+    try {
+      await updateDoc(doc(db, "transactions", tx.id), { status });
+      
+      // If it's a deposit and being completed, add the balance
+      if (tx.type === "deposit" && status === "completed") {
+        await updateDoc(doc(db, "users", tx.userId), {
+          balance: increment(tx.amount)
+        });
+      }
+      
+      // If it's a withdrawal and being failed/rejected, return the balance
+      if (tx.type === "withdraw" && status === "failed") {
+        await updateDoc(doc(db, "users", tx.userId), {
+          balance: increment(tx.amount)
+        });
+      }
+
+      toast.success(`Transaction ${status}`);
     } catch (error: any) {
       toast.error(error.message);
     }
@@ -115,7 +199,7 @@ export default function AdminDashboard() {
         </div>
         
         <div className="flex bg-slate-900 border border-slate-800 p-1 rounded-2xl">
-          {(["users", "withdrawals", "settings"] as const).map((tab) => (
+          {(["users", "transactions", "support", "settings"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -153,63 +237,90 @@ export default function AdminDashboard() {
                       <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase">User</th>
                       <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase">Balance</th>
                       <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase">Role</th>
+                      <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase">Update Amount</th>
                       <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800">
-                    {filteredUsers.map((u) => (
-                      <tr key={u.id} className="hover:bg-slate-800/20 transition-colors">
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-blue-600/10 flex items-center justify-center text-blue-500">
-                              <Users className="w-5 h-5" />
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800">
+                      {filteredUsers.map((u) => (
+                        <tr key={u.id} className="hover:bg-slate-800/20 transition-colors">
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-xl bg-blue-600/10 flex items-center justify-center text-blue-500">
+                                <Users className="w-5 h-5" />
+                              </div>
+                              <div>
+                                <div className="font-bold text-white">{u.email}</div>
+                                <div className="text-xs text-slate-500">ID: {u.id}</div>
+                              </div>
                             </div>
-                            <div>
-                              <div className="font-bold text-white">{u.email}</div>
-                              <div className="text-xs text-slate-500">ID: {u.id}</div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="text-lg font-bold text-white">{formatCurrency(u.balance)}</div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className={cn(
+                              "text-[10px] px-2 py-1 rounded-full font-bold uppercase",
+                              u.role === "admin" ? "bg-purple-600/20 text-purple-400" : "bg-slate-800 text-slate-400"
+                            )}>
+                              {u.role}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <input 
+                              type="number"
+                              placeholder="0.00"
+                              className="w-24 bg-slate-950 border border-slate-800 rounded-lg py-1 px-2 text-white focus:border-blue-500 outline-none text-sm"
+                              value={customAmounts[u.id] || ""}
+                              onChange={(e) => setCustomAmounts({ ...customAmounts, [u.id]: e.target.value })}
+                            />
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex gap-2">
+                              <button 
+                                onClick={() => {
+                                  const amt = parseFloat(customAmounts[u.id] || "0");
+                                  if (amt >= 0) handleUpdateBalance(u.id, amt);
+                                  else toast.error("Enter valid positive amount");
+                                }}
+                                className="p-2 bg-green-600/10 hover:bg-green-600 text-green-500 hover:text-white rounded-lg transition-all"
+                                title="Add Amount"
+                              >
+                                <ArrowDownLeft className="w-4 h-4" />
+                              </button>
+                              <button 
+                                onClick={() => {
+                                  const amt = parseFloat(customAmounts[u.id] || "0");
+                                  if (amt > 0) handleUpdateBalance(u.id, -amt);
+                                  else toast.error("Enter valid positive amount");
+                                }}
+                                className="p-2 bg-orange-600/10 hover:bg-orange-600 text-orange-500 hover:text-white rounded-lg transition-all"
+                                title="Subtract Amount"
+                              >
+                                <ArrowUpRight className="w-4 h-4" />
+                              </button>
+                              <button 
+                                onClick={() => {
+                                  if (customAmounts[u.id] !== undefined && customAmounts[u.id] !== "") {
+                                    handleSetBalance(u.id, parseFloat(customAmounts[u.id]));
+                                  } else {
+                                    toast.error("Enter an amount to set");
+                                  }
+                                }}
+                                className="p-2 bg-blue-600/10 hover:bg-blue-600 text-blue-500 hover:text-white rounded-lg transition-all"
+                                title="Set Exact Balance"
+                              >
+                                <CheckCircle2 className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleToggleRole(u)}
+                                className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-lg transition-all"
+                                title="Toggle Admin"
+                              >
+                                <ShieldCheck className="w-4 h-4" />
+                              </button>
                             </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="text-lg font-bold text-white">{formatCurrency(u.balance)}</div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className={cn(
-                            "text-[10px] px-2 py-1 rounded-full font-bold uppercase",
-                            u.role === "admin" ? "bg-purple-600/20 text-purple-400" : "bg-slate-800 text-slate-400"
-                          )}>
-                            {u.role}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex gap-2">
-                            <button 
-                              onClick={() => handleUpdateBalance(u.id, u.balance, 100)}
-                              className="p-2 bg-green-600/10 hover:bg-green-600 text-green-500 hover:text-white rounded-lg transition-all"
-                              title="Add $100"
-                            >
-                              <ArrowDownLeft className="w-4 h-4" />
-                            </button>
-                            <button 
-                              onClick={() => handleUpdateBalance(u.id, u.balance, -100)}
-                              className="p-2 bg-red-600/10 hover:bg-red-600 text-red-500 hover:text-white rounded-lg transition-all"
-                              title="Subtract $100"
-                            >
-                              <ArrowUpRight className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => {
-                                const newRole = u.role === "admin" ? "user" : "admin";
-                                updateDoc(doc(db, "users", u.id), { role: newRole });
-                                toast.success(`Changed role to ${newRole}`);
-                              }}
-                              className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-lg transition-all"
-                              title="Toggle Admin"
-                            >
-                              <ShieldCheck className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </td>
+                          </td>
                       </tr>
                     ))}
                   </tbody>
@@ -219,33 +330,57 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {activeTab === "withdrawals" && (
+        {activeTab === "transactions" && (
           <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-xl">
             <div className="flex items-center gap-3 mb-8">
-              <Wallet className="w-6 h-6 text-orange-500" />
-              <h3 className="text-xl font-bold text-white">Pending Withdrawals</h3>
+              <TrendingUp className="w-6 h-6 text-blue-500" />
+              <h3 className="text-xl font-bold text-white">Pending Transactions</h3>
             </div>
-            {withdrawals.length === 0 ? (
-              <div className="text-center py-12 text-slate-500">No pending withdrawal requests.</div>
+            {pendingTxs.length === 0 ? (
+              <div className="text-center py-12 text-slate-500">No pending transaction requests.</div>
             ) : (
-              <div className="space-y-4">
-                {withdrawals.map((tx) => (
-                  <div key={tx.id} className="flex flex-col md:flex-row md:items-center justify-between p-6 bg-slate-950 border border-slate-800 rounded-2xl gap-4">
-                    <div className="space-y-1">
-                      <div className="text-lg font-bold text-white">{formatCurrency(tx.amount)}</div>
-                      <div className="text-sm text-slate-400 font-mono">{tx.details}</div>
-                      <div className="text-xs text-slate-500">{tx.createdAt?.toDate?.().toLocaleString()}</div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {pendingTxs.map((tx) => (
+                  <div key={tx.id} className="p-6 bg-slate-950 border border-slate-800 rounded-2xl space-y-4">
+                    <div className="flex justify-between items-start">
+                      <div className="space-y-1">
+                        <div className={cn(
+                          "text-[10px] px-2 py-0.5 rounded-full inline-block uppercase font-bold",
+                          tx.type === "deposit" && "bg-green-600/20 text-green-500",
+                          tx.type === "withdraw" && "bg-orange-600/20 text-orange-500",
+                          tx.type === "trade" && "bg-blue-600/20 text-blue-500"
+                        )}>
+                          {tx.type}
+                        </div>
+                        <div className="text-2xl font-bold text-white">{formatCurrency(tx.amount)}</div>
+                      </div>
+                      <div className="text-right text-xs text-slate-500">
+                        {tx.createdAt?.toDate?.().toLocaleString()}
+                        <div className="text-[10px] mt-1 text-slate-600 truncate max-w-[150px]">UID: {tx.userId}</div>
+                      </div>
                     </div>
-                    <div className="flex gap-2">
+                    
+                    {tx.details && <div className="text-sm text-slate-400 italic">{tx.details}</div>}
+
+                    {tx.type === "deposit" && tx.receipt && (
+                      <div className="mt-4 space-y-2">
+                        <div className="text-xs font-bold text-slate-500 uppercase">Receipt Proof:</div>
+                        <div className="rounded-xl overflow-hidden border border-slate-800 bg-black/40">
+                          <img src={tx.receipt} alt="Deposit Receipt" className="w-full h-auto max-h-[300px] object-contain hover:scale-105 transition-transform cursor-pointer" onClick={() => window.open(tx.receipt, "_blank")} />
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="flex gap-3 pt-2">
                       <button 
-                        onClick={() => handleProcessWithdrawal(tx.id, "completed")}
-                        className="px-6 py-2 bg-green-600 hover:bg-green-500 text-white font-bold rounded-xl transition-all"
+                        onClick={() => handleProcessTransaction(tx, "completed")}
+                        className="flex-1 py-3 bg-green-600 hover:bg-green-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-green-600/10"
                       >
                         Approve
                       </button>
                       <button 
-                        onClick={() => handleProcessWithdrawal(tx.id, "failed")}
-                        className="px-6 py-2 bg-red-600/10 hover:bg-red-600 text-red-500 hover:text-white font-bold rounded-xl border border-red-600/20 transition-all"
+                        onClick={() => handleProcessTransaction(tx, "failed")}
+                        className="flex-1 py-3 bg-red-600/10 hover:bg-red-600 text-red-500 hover:text-white font-bold rounded-xl border border-red-600/20 transition-all"
                       >
                         Reject
                       </button>
@@ -254,6 +389,113 @@ export default function AdminDashboard() {
                 ))}
               </div>
             )}
+          </div>
+        )}
+
+        {activeTab === "support" && (
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 min-h-[600px]">
+            {/* User List */}
+            <div className="lg:col-span-1 bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden flex flex-col shadow-xl">
+              <div className="p-6 border-b border-white/5 bg-slate-800/50">
+                <h3 className="font-bold text-white flex items-center gap-2">
+                  <Users className="w-5 h-5 text-blue-500" />
+                  Active Chats
+                </h3>
+              </div>
+              <div className="flex-1 overflow-y-auto">
+                {Array.from(new Set(allMessages.map(m => m.userId))).length === 0 ? (
+                  <div className="p-8 text-center text-slate-500 text-sm">No active support chats.</div>
+                ) : (
+                  Array.from(new Set(allMessages.map(m => m.userId))).map(uId => {
+                    const userProfile = users.find(u => u.id === uId);
+                    const lastMsg = allMessages.filter(m => m.userId === uId).pop();
+                    return (
+                      <button
+                        key={uId}
+                        onClick={() => setSelectedUserChat(uId)}
+                        className={cn(
+                          "w-full p-4 flex items-center gap-3 hover:bg-white/5 transition-all text-left",
+                          selectedUserChat === uId ? "bg-blue-600/10 border-r-2 border-blue-500" : "border-b border-white/5"
+                        )}
+                      >
+                        <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-slate-400">
+                          <User className="w-5 h-5" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-bold text-white truncate">{userProfile?.email || uId}</div>
+                          <div className="text-[10px] text-slate-500 truncate">{lastMsg?.text}</div>
+                        </div>
+                      </button>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+
+            {/* Chat Window */}
+            <div className="lg:col-span-3 bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden flex flex-col shadow-xl">
+              {selectedUserChat ? (
+                <>
+                  <div className="p-6 border-b border-white/5 bg-slate-800/50 flex items-center justify-between">
+                    <div>
+                      <h3 className="font-bold text-white">Chat with {users.find(u => u.id === selectedUserChat)?.email}</h3>
+                      <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">User ID: {selectedUserChat}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex-1 overflow-y-auto p-8 space-y-6 bg-slate-950/20">
+                    {allMessages.filter(m => m.userId === selectedUserChat).map((msg) => (
+                      <div key={msg.id} className={cn(
+                        "flex flex-col max-w-[70%]",
+                        msg.isAdmin ? "ml-auto items-end" : "mr-auto"
+                      )}>
+                        <div className={cn(
+                          "p-4 rounded-2xl text-sm",
+                          msg.isAdmin 
+                            ? "bg-blue-600 text-white rounded-br-none shadow-lg shadow-blue-600/10" 
+                            : "bg-slate-800 text-slate-200 rounded-bl-none"
+                        )}>
+                          {msg.text}
+                        </div>
+                        <span className="text-[10px] text-slate-500 mt-2 font-mono">
+                          {msg.createdAt?.toDate?.().toLocaleString()}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="p-6 bg-slate-800/30 border-t border-white/5">
+                    <form onSubmit={handleSendMessage} className="flex gap-4">
+                      <input 
+                        type="text"
+                        placeholder="Type a reply..."
+                        className="flex-1 bg-slate-950 border border-white/10 rounded-xl px-6 py-4 text-white outline-none focus:border-blue-500/50 transition-all font-medium"
+                        value={replyText}
+                        onChange={(e) => setReplyText(e.target.value)}
+                      />
+                      <button 
+                        type="submit"
+                        disabled={isSending || !replyText.trim()}
+                        className="px-8 bg-blue-600 hover:bg-blue-500 disabled:bg-slate-800 text-white font-bold rounded-xl transition-all shadow-xl shadow-blue-600/20 flex items-center gap-2"
+                      >
+                        <Send className="w-5 h-5" />
+                        Reply
+                      </button>
+                    </form>
+                  </div>
+                </>
+              ) : (
+                <div className="flex-1 flex flex-col items-center justify-center text-center p-12 space-y-4 opacity-50">
+                  <div className="p-6 bg-slate-800/50 rounded-3xl">
+                    <MessageSquare className="w-12 h-12 text-slate-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white">Select a User</h3>
+                    <p className="text-slate-500 max-w-xs">Select an active chat from the sidebar to view messages and reply to users.</p>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         )}
 

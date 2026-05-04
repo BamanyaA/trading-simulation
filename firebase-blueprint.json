@@ -6,7 +6,7 @@
       "type": "object",
       "properties": {
         "email": { "type": "string", "format": "email" },
-        "balance": { "type": "number", "description": "User's current simulated balance" },
+        "balance": { "type": "number", "description": "User's current wallet balance" },
         "role": { "type": "string", "enum": ["user", "admin"] },
         "createdAt": { "type": "string", "format": "date-time" }
       },
@@ -36,6 +36,20 @@
         "xrp_address": { "type": "string" }
       },
       "required": ["btc_address", "eth_address", "xrp_address"]
+    },
+    "SupportMessage": {
+      "title": "Support Message",
+      "description": "Chat message between user and support",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "The user this chat belongs to" },
+        "senderId": { "type": "string", "description": "ID of the sender (user or admin)" },
+        "senderEmail": { "type": "string" },
+        "text": { "type": "string" },
+        "isAdmin": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "senderId", "text", "isAdmin", "createdAt"]
     }
   },
   "firestore": {
@@ -50,6 +64,10 @@
     "/settings/addresses": {
       "schema": "Settings",
       "description": "Global crypto deposit addresses"
+    },
+    "/support_messages/{messageId}": {
+      "schema": "SupportMessage",
+      "description": "Chronological support chat messages"
     }
   }
 }

@@ -25,7 +25,7 @@ export default function Navbar({ user, profile }: NavbarProps) {
           <div className="p-2 bg-blue-600 rounded-lg group-hover:bg-blue-500 transition-colors">
             <TrendingUp className="w-6 h-6 text-white" />
           </div>
-          <span className="text-xl font-bold tracking-tight text-white">CryptoSim</span>
+          <span className="text-xl font-bold tracking-tight text-white italic">QUANTUM<span className="text-blue-500">TRADE</span></span>
         </Link>
 
         <div className="hidden md:flex items-center gap-8">
@@ -39,6 +39,9 @@ export default function Navbar({ user, profile }: NavbarProps) {
         </div>
 
         <div className="flex items-center gap-4">
+          {user?.email === "habeshatilaye@gmail.com" && !profile?.role && (
+            <span className="text-[10px] bg-yellow-600/20 text-yellow-500 px-2 py-1 rounded">Syncing Admin...</span>
+          )}
           {user ? (
             <div className="flex items-center gap-4">
               <Link 

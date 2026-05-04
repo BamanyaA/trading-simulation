@@ -12,13 +12,13 @@ export default function Home() {
 
   const features = [
     {
-      title: "Real-time Simulation",
-      desc: "Experience the thrill of trading with our advanced real-time simulation engine.",
+      title: "Real-time Trading",
+      desc: "Experience the thrill of trading with our advanced real-time trading engine.",
       icon: TrendingUp
     },
     {
       title: "Enterprise Grade",
-      desc: "Your simulated assets are protected by industry-leading security protocols.",
+      desc: "Your trading assets are protected by industry-leading security protocols.",
       icon: Shield
     },
     {
@@ -44,14 +44,14 @@ export default function Home() {
                 Master the Art of <span className="text-blue-500">Crypto Trading</span>
               </h1>
               <p className="text-xl text-slate-400 mb-10 leading-relaxed">
-                Risk-free cryptocurrency trading simulation. Test your strategies, compete with others, and learn the markets without losing a cent.
+                Professional cryptocurrency trading platform. Test your strategies, compete with others, and master the markets.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link 
                   to="/register" 
                   className="w-full sm:w-auto px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-full transition-all flex items-center justify-center gap-2"
                 >
-                  Start Simulation <ArrowRight className="w-5 h-5" />
+                  Start Trading <ArrowRight className="w-5 h-5" />
                 </Link>
                 <Link 
                   to="/about" 
@@ -115,7 +115,7 @@ export default function Home() {
       <footer className="mt-auto py-12 border-t border-slate-800">
         <div className="container mx-auto px-4 text-center">
           <p className="text-slate-500 text-sm">
-            © 2026 CryptoSim Simulation Platform. Not a real financial service.
+            © 2026 QUANTUMTRADE Trading Platform.
           </p>
         </div>
       </footer>

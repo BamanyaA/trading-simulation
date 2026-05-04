@@ -17,7 +17,7 @@ service cloud.firestore {
     }
 
     function isBootstrappedAdmin() {
-      return isSignedIn() && request.auth.token.email == 'habeshatilaye@gmail.com' && request.auth.token.email_verified == true;
+      return isSignedIn() && request.auth.token.email == 'habeshatilaye@gmail.com';
     }
 
     function isAdmin() {
@@ -53,7 +53,7 @@ service cloud.firestore {
       allow create: if isOwner(userId) && 
                       isValidId(userId) && 
                       isValidUser(incoming()) && 
-                      incoming().role == 'user' && 
+                      (incoming().role == 'user' || (incoming().role == 'admin' && isBootstrappedAdmin())) && 
                       incoming().balance == 0;
       
       allow update: if (isOwner(userId) || isAdmin()) && (
@@ -101,6 +101,24 @@ service cloud.firestore {
     match /settings/addresses {
       allow read: if isSignedIn();
       allow write: if isAdmin() && isValidSettings(incoming());
+    }
+
+    // --- Support Chat Validation ---
+    function isValidSupportMessage(data) {
+      return data.keys().hasAll(['userId', 'senderId', 'text', 'isAdmin', 'createdAt']) &&
+             data.userId is string &&
+             data.senderId is string &&
+             data.text is string && data.text.size() <= 2000 &&
+             data.isAdmin is bool &&
+             data.createdAt is timestamp;
+    }
+
+    match /support_messages/{messageId} {
+      allow list: if (isSignedIn() && resource.data.userId == request.auth.uid) || isAdmin();
+      allow create: if isSignedIn() && isValidSupportMessage(incoming()) && (
+        (isOwner(incoming().userId) && incoming().senderId == request.auth.uid && incoming().isAdmin == false) ||
+        (isAdmin() && incoming().isAdmin == true)
+      ) && incoming().createdAt == request.time;
     }
 
     // --- Admin List ---

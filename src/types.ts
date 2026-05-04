@@ -19,10 +19,21 @@ export interface Transaction {
   status: TransactionStatus;
   createdAt: any;
   details?: string;
+  receipt?: string; // Base64 or URL
 }
 
 export interface PlatformSettings {
   btc_address: string;
   eth_address: string;
   xrp_address: string;
+}
+
+export interface SupportMessage {
+  id: string;
+  userId: string;
+  senderId: string;
+  senderEmail?: string;
+  text: string;
+  isAdmin: boolean;
+  createdAt: any;
 }

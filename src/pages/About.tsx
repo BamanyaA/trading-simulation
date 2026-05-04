@@ -5,7 +5,7 @@ export default function About() {
   const values = [
     {
       title: "Transparency",
-      desc: "Every simulation is backed by clear algorithms and verifiable results. We believe in open trading environments.",
+      desc: "Every trade is backed by clear algorithms and verifiable results. We believe in open trading environments.",
       icon: Shield
     },
     {
@@ -29,10 +29,10 @@ export default function About() {
       >
         <span className="text-blue-500 font-bold uppercase tracking-widest text-sm mb-4 block underline decoration-blue-500 underline-offset-8">Our Mission</span>
         <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-8">
-          Democratizing Financial <br /> Education Through Simulation
+          Democratizing Financial <br /> Education Through Technology
         </h1>
         <p className="text-xl text-slate-400 leading-relaxed max-w-3xl mx-auto">
-          CryptoSim was founded with a simple goal: to provide a safe, engaging, and realistic environment for anyone to learn the complexities of cryptocurrency trading without financial risk.
+          QUANTUMTRADE was founded with a simple goal: to provide a safe, engaging, and realistic environment for anyone to learn the complexities of cryptocurrency trading.
         </p>
       </motion.div>
 

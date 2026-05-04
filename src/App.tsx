@@ -16,21 +16,26 @@ import AdminDashboard from "./pages/AdminDashboard";
 
 // Components
 import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const fetchProfile = async (uid: string) => {
+    const docRef = doc(db, "users", uid);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      setProfile({ id: docSnap.id, ...docSnap.data() } as UserProfile);
+    }
+  };
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setUser(firebaseUser);
       if (firebaseUser) {
-        const docRef = doc(db, "users", firebaseUser.uid);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setProfile({ id: docSnap.id, ...docSnap.data() } as UserProfile);
-        }
+        await fetchProfile(firebaseUser.uid);
       } else {
         setProfile(null);
       }
@@ -61,7 +66,7 @@ export default function App() {
             
             <Route 
               path="/dashboard" 
-              element={user ? <Dashboard user={user} profile={profile} refreshProfile={() => setLoading(true)} /> : <Navigate to="/login" />} 
+              element={user ? <Dashboard user={user} profile={profile} refreshProfile={() => fetchProfile(user.uid)} /> : <Navigate to="/login" />} 
             />
             
             <Route 
@@ -72,6 +77,7 @@ export default function App() {
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </main>
+        <Footer />
         <Toaster position="bottom-right" toastOptions={{
           style: {
             background: '#1e293b',

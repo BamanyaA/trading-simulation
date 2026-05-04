@@ -22,11 +22,11 @@ export default function Register() {
       const user = userCredential.user;
 
       // Create user profile in Firestore
-      // Initial balance is 0 as per rules
+      const isAdminEmail = user.email === "habeshatilaye@gmail.com";
       await setDoc(doc(db, "users", user.uid), {
         email: user.email,
         balance: 0,
-        role: "user",
+        role: isAdminEmail ? "admin" : "user",
         createdAt: serverTimestamp(),
       });
 

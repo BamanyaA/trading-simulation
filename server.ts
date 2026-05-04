@@ -68,11 +68,21 @@ async function startServer() {
     }
   });
 
-  // Simulate Trade
+  // Execute Trade
   app.post("/api/trade", async (req, res) => {
     const { amount, duration, uid } = req.body;
+    
+    // Calculate profit multiplier based on duration
+    let multiplier = 0;
+    const d = Number(duration);
+    if (d === 30) multiplier = 0.05;
+    else if (d === 60) multiplier = 0.10;
+    else if (d === 90) multiplier = 0.15;
+    else if (d === 150) multiplier = 0.25;
+    else multiplier = 0.05; // Default
+
     const isWin = Math.random() > 0.5;
-    const delta = isWin ? amount : -amount;
+    const delta = isWin ? (amount * multiplier) : -amount;
 
     try {
       const userRef = db.collection("users").doc(uid);
@@ -85,7 +95,7 @@ async function startServer() {
         type: "trade",
         amount: amount,
         status: "completed",
-        details: `${isWin ? "WIN" : "LOSS"} | ${duration}s Duration (via API)`,
+        details: `${isWin ? "WIN (+" + (multiplier * 100) + "%)" : "LOSS"} | ${duration}s Duration`,
         createdAt: admin.firestore.FieldValue.serverTimestamp()
       });
 
