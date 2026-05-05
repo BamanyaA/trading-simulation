@@ -26,6 +26,7 @@
         "amount": { "type": "number" },
         "status": { "type": "string", "enum": ["pending", "completed", "failed"] },
         "createdAt": { "type": "string", "format": "date-time" },
+        "symbol": { "type": "string", "description": "Trading pair symbol e.g. BTCUSDT" },
         "details": { "type": "string", "description": "Optional details about the trade or withdrawal" },
         "receipt": { "type": "string", "description": "Base64 or URL of the transaction receipt" }
       },

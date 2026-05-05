@@ -23,6 +23,7 @@ export interface Transaction {
   status: TransactionStatus;
   createdAt: any;
   details?: string;
+  symbol?: string;
   receipt?: string; // Base64 or URL
 }
 
