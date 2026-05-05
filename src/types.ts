@@ -6,10 +6,12 @@ export interface UserProfile {
   fullName: string;
   address: string;
   phoneNumber: string;
-  verificationDoc: string; // Base64 or URL
+  verificationDoc?: string; // Base64 or URL
   balance: number;
   role: UserRole;
   createdAt: any; // Firestore Timestamp
+  isVerified?: boolean;
+  verificationStatus?: "pending" | "verified" | "rejected" | "unsubmitted";
 }
 
 export type TransactionType = "deposit" | "trade" | "withdraw";
@@ -30,7 +32,10 @@ export interface Transaction {
 export interface PlatformSettings {
   btc_address: string;
   eth_address: string;
+  sol_address: string;
+  bnb_address: string;
   xrp_address: string;
+  usdt_address: string;
 }
 
 export interface SupportMessage {
@@ -41,4 +46,14 @@ export interface SupportMessage {
   text: string;
   isAdmin: boolean;
   createdAt: any;
+}
+
+export interface News {
+  id: string;
+  title: string;
+  summary: string;
+  content: string;
+  imageUrl?: string;
+  createdAt: any;
+  author: string;
 }

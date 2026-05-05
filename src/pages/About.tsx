@@ -1,5 +1,6 @@
 import { motion } from "motion/react";
 import { Shield, Target, Lightbulb, Users, CheckCircle2 } from "lucide-react";
+import Footer from "../components/Footer";
 
 export default function About() {
   const values = [
@@ -84,6 +85,7 @@ export default function About() {
         <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
         <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-96 h-96 bg-black/10 rounded-full blur-3xl" />
       </motion.div>
+      <Footer />
     </div>
   );
 }

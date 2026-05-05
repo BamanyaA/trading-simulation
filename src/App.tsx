@@ -47,20 +47,20 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
       </div>
     );
   }
 
   return (
     <Router>
-      <div className="min-h-screen bg-slate-950">
+      <div className="min-h-screen bg-slate-50 transition-colors duration-500 flex flex-col">
         <Navbar user={user} profile={profile} />
-        <main>
+        <main className="flex-1">
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
+            <Route path="/" element={!user ? <Home /> : <Navigate to="/dashboard" />} />
+            <Route path="/about" element={!user ? <About /> : <Navigate to="/dashboard" />} />
             <Route path="/login" element={!user ? <Login /> : <Navigate to="/dashboard" />} />
             <Route path="/register" element={!user ? <Register /> : <Navigate to="/dashboard" />} />
             
@@ -77,12 +77,15 @@ export default function App() {
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </main>
-        <Footer />
         <Toaster position="bottom-right" toastOptions={{
           style: {
-            background: '#1e293b',
-            color: '#f8fafc',
-            border: '1px solid #334155'
+            background: '#ffffff',
+            color: '#1e293b',
+            border: '1px solid #e2e8f0',
+            fontWeight: '600',
+            fontSize: '14px',
+            borderRadius: '12px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
           }
         }} />
       </div>

@@ -28,44 +28,44 @@ export default function Login() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-20 flex justify-center">
+    <div className="container mx-auto px-4 py-20 flex justify-center min-h-[calc(100vh-10rem)] items-center">
       <motion.div 
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-md bg-white border border-slate-100 rounded-[2.5rem] p-10 shadow-2xl shadow-indigo-100/50"
       >
-        <div className="flex flex-col items-center mb-10">
-          <div className="p-3 bg-blue-600 rounded-2xl mb-4">
+        <div className="flex flex-col items-center mb-12">
+          <div className="p-4 bg-indigo-600 rounded-[1.5rem] mb-6 shadow-xl shadow-indigo-200">
             <TrendingUp className="w-8 h-8 text-white" />
           </div>
-          <h2 className="text-3xl font-bold text-white">Login</h2>
-          <p className="text-slate-400 mt-2">Resume your trading session</p>
+          <h2 className="text-4xl font-black text-slate-900 tracking-tight">Welcome Back</h2>
+          <p className="text-slate-400 mt-3 font-medium">Continue your trading journey</p>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-slate-400 mb-2">Email Address</label>
-            <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+        <form onSubmit={handleLogin} className="space-y-8">
+          <div className="space-y-2">
+            <label className="block text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Email Access</label>
+            <div className="relative group">
+              <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 group-focus-within:text-indigo-500 transition-colors" />
               <input 
                 type="email"
                 required
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-12 pr-4 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all outline-none"
-                placeholder="you@example.com"
+                className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-14 pr-6 text-slate-900 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50/50 transition-all outline-none font-medium"
+                placeholder="commander@quantum.trade"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-slate-400 mb-2">Password</label>
-            <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+          <div className="space-y-2">
+            <label className="block text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Secure Key</label>
+            <div className="relative group">
+              <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 group-focus-within:text-indigo-500 transition-colors" />
               <input 
                 type="password"
                 required
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-12 pr-4 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all outline-none"
+                className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-14 pr-6 text-slate-900 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50/50 transition-all outline-none font-medium"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -76,16 +76,16 @@ export default function Login() {
           <button 
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-semibold py-4 rounded-xl transition-all flex items-center justify-center gap-2 group shadow-lg shadow-blue-900/20"
+            className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-black py-5 rounded-2xl transition-all flex items-center justify-center gap-3 group shadow-2xl shadow-indigo-100 active:scale-95 text-sm uppercase tracking-widest"
           >
-            {loading ? "Signing and..." : "Login"}
+            {loading ? "Authorizing..." : "Initialize Session"}
             {!loading && <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />}
           </button>
         </form>
 
-        <p className="mt-8 text-center text-slate-400">
-          Don't have an account?{" "}
-          <Link to="/register" className="text-blue-500 hover:text-blue-400 font-medium">Register</Link>
+        <p className="mt-10 text-center text-slate-400 font-medium">
+          New to the platform?{" "}
+          <Link to="/register" className="text-indigo-600 hover:text-indigo-500 font-black">Join Quantum</Link>
         </p>
       </motion.div>
     </div>

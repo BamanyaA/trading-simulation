@@ -1,63 +1,74 @@
 import { motion } from "motion/react";
 import { Link } from "react-router-dom";
+import { cn } from "../lib/utils";
 import { TrendingUp, Shield, Zap, Globe, ArrowRight, BarChart3, PieChart, Activity } from "lucide-react";
+
+import Footer from "../components/Footer";
 
 export default function Home() {
   const stats = [
-    { label: "Active Traders", value: "24k+", icon: Globe },
-    { label: "Uptime", value: "99.9%", icon: Zap },
-    { label: "Daily Volume", value: "$2.4M", icon: BarChart3 },
-    { label: "Markets", value: "50+", icon: Activity }
+    { label: "Active Traders", value: "24k+", icon: Globe, color: "text-indigo-600", bg: "bg-indigo-50" },
+    { label: "Platform Uptime", value: "99.9%", icon: Zap, color: "text-emerald-600", bg: "bg-emerald-50" },
+    { label: "Daily Volume", value: "$2.4M", icon: BarChart3, color: "text-blue-600", bg: "bg-blue-50" },
+    { label: "Global Markets", value: "50+", icon: Activity, color: "text-rose-600", bg: "bg-rose-50" }
   ];
 
   const features = [
     {
-      title: "Real-time Trading",
-      desc: "Experience the thrill of trading with our advanced real-time trading engine.",
-      icon: TrendingUp
+      title: "Real-time Execution",
+      desc: "Experience the thrill of ultra-low latency trading with our proprietary matching engine.",
+      icon: TrendingUp,
+      accent: "bg-indigo-500"
     },
     {
-      title: "Enterprise Grade",
-      desc: "Your trading assets are protected by industry-leading security protocols.",
-      icon: Shield
+      title: "Secure Custody",
+      desc: "Your assets are protected by multiple layers of cold storage and MPC wallet infrastructure.",
+      icon: Shield,
+      accent: "bg-emerald-500"
     },
     {
-      title: "Detailed Analytics",
-      desc: "Track your performance with professional-grade charts and history.",
-      icon: PieChart
+      title: "Advanced Analytics",
+      desc: "Institutional-grade technical indicators and on-chain metrics at your fingertips.",
+      icon: PieChart,
+      accent: "bg-blue-500"
     }
   ];
 
   return (
-    <div className="flex flex-col min-h-[calc(100-4rem)]">
+    <div className="flex flex-col min-h-[calc(100-4rem)] bg-white">
       {/* Hero Section */}
-      <section className="relative pt-20 pb-32 overflow-hidden">
-        <div className="absolute inset-0 bg-blue-600/5 [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]" />
+      <section className="relative pt-32 pb-44 overflow-hidden">
+        <div className="absolute inset-0 bg-indigo-50/50 [mask-image:radial-gradient(ellipse_at_center,transparent_0%,black)]" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-indigo-200/20 blur-[120px] rounded-full pointer-events-none" />
         <div className="container mx-auto px-4 relative">
-          <div className="max-w-3xl mx-auto text-center">
+          <div className="max-w-4xl mx-auto text-center">
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, ease: "circOut" }}
             >
-              <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-white mb-6">
-                Master the Art of <span className="text-blue-500">Crypto Trading</span>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-600 text-xs font-black uppercase tracking-[0.2em] mb-10 shadow-sm">
+                <span className="flex h-2 w-2 rounded-full bg-indigo-600 animate-pulse" />
+                V2.0 Now Released
+              </div>
+              <h1 className="text-6xl md:text-8xl font-black tracking-tighter text-slate-900 mb-8 leading-[0.9]">
+                Trade the <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">Future</span> of Finance
               </h1>
-              <p className="text-xl text-slate-400 mb-10 leading-relaxed">
-                Professional cryptocurrency trading platform. Test your strategies, compete with others, and master the markets.
+              <p className="text-xl text-slate-500 mb-12 leading-relaxed max-w-2xl mx-auto font-medium">
+                Professional-grade execution. Institutional security. The easiest way to trade crypto, forex, and commodities.
               </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
                 <Link 
                   to="/register" 
-                  className="w-full sm:w-auto px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-full transition-all flex items-center justify-center gap-2"
+                  className="w-full sm:w-auto px-10 py-5 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-3xl transition-all flex items-center justify-center gap-3 shadow-2xl shadow-indigo-200 active:scale-95 text-lg"
                 >
-                  Start Trading <ArrowRight className="w-5 h-5" />
+                  Create Account <ArrowRight className="w-6 h-6" />
                 </Link>
                 <Link 
                   to="/about" 
-                  className="w-full sm:w-auto px-8 py-4 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-full transition-all"
+                  className="w-full sm:w-auto px-10 py-5 bg-white border-2 border-slate-100 hover:border-indigo-100 hover:bg-indigo-50/50 text-slate-900 font-bold rounded-3xl transition-all shadow-xl shadow-slate-100/50 text-lg"
                 >
-                  Learn More
+                  Explore Markets
                 </Link>
               </div>
             </motion.div>
@@ -66,23 +77,23 @@ export default function Home() {
       </section>
 
       {/* Stats Section */}
-      <section className="bg-slate-900/50 border-y border-slate-800 py-16">
+      <section className="bg-slate-50/50 py-24 border-y border-slate-100">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
             {stats.map((stat, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="text-center"
+                className="text-center group"
               >
-                <div className="inline-flex p-3 rounded-2xl bg-blue-600/10 text-blue-500 mb-4">
-                  <stat.icon className="w-6 h-6" />
+                <div className={cn("inline-flex p-5 rounded-3xl mb-6 transition-transform group-hover:scale-110 duration-500", stat.bg, stat.color)}>
+                  <stat.icon className="w-8 h-8" />
                 </div>
-                <div className="text-3xl font-bold text-white mb-1">{stat.value}</div>
-                <div className="text-sm text-slate-500 uppercase tracking-wider font-semibold">{stat.label}</div>
+                <div className="text-4xl font-black text-slate-900 mb-2 tracking-tighter">{stat.value}</div>
+                <div className="text-xs text-slate-400 uppercase tracking-[0.2em] font-black">{stat.label}</div>
               </motion.div>
             ))}
           </div>
@@ -90,35 +101,33 @@ export default function Home() {
       </section>
 
       {/* Features */}
-      <section className="py-24 container mx-auto px-4">
+      <section className="py-32 container mx-auto px-4">
+        <div className="text-center mb-24">
+          <h2 className="text-4xl font-black text-slate-900 mb-4 tracking-tight">Built for Professionals</h2>
+          <p className="text-slate-500 font-medium tracking-tight">Our ecosystem is designed for speed, safety, and scale.</p>
+        </div>
         <div className="grid md:grid-cols-3 gap-12">
           {features.map((feature, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.2 }}
-              className="p-8 rounded-3xl bg-slate-900 border border-slate-800 hover:border-blue-500/50 transition-colors group"
+              className="p-10 rounded-[2.5rem] bg-white border border-slate-50 shadow-2xl shadow-slate-100/50 hover:shadow-indigo-100/50 hover:border-indigo-100 transition-all group flex flex-col items-center text-center"
             >
-              <div className="w-12 h-12 rounded-2xl bg-blue-600/10 text-blue-500 flex items-center justify-center mb-6 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                <feature.icon className="w-6 h-6" />
+              <div className={cn("w-16 h-16 rounded-3xl transition-all duration-700 group-hover:rotate-[10deg] flex items-center justify-center mb-8 shadow-lg", feature.accent, "text-white")}>
+                <feature.icon className="w-8 h-8" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-4">{feature.title}</h3>
-              <p className="text-slate-400 leading-relaxed">{feature.desc}</p>
+              <h3 className="text-2xl font-black text-slate-900 mb-6 tracking-tight">{feature.title}</h3>
+              <p className="text-slate-500 leading-relaxed font-medium">{feature.desc}</p>
             </motion.div>
           ))}
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="mt-auto py-12 border-t border-slate-800">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-slate-500 text-sm">
-            © 2026 QUANTUMTRADE Trading Platform.
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

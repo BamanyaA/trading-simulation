@@ -39,11 +39,16 @@ service cloud.firestore {
     // --- User Validation ---
     function isValidUser(data) {
       return data.keys().hasAll(['email', 'balance', 'role', 'createdAt']) &&
-             data.keys().size() == 4 &&
              data.email is string && data.email.size() <= 200 &&
              data.balance is number &&
              data.role in ['user', 'admin'] &&
-             data.createdAt is timestamp;
+             data.createdAt is timestamp &&
+             ( !('fullName' in data) || (data.fullName is string && data.fullName.size() <= 500) ) &&
+             ( !('address' in data) || (data.address is string && data.address.size() <= 1000) ) &&
+             ( !('phoneNumber' in data) || (data.phoneNumber is string && data.phoneNumber.size() <= 50) ) &&
+             ( !('verificationDoc' in data) || (data.verificationDoc == null || (data.verificationDoc is string && data.verificationDoc.size() <= 4194304)) ) && // Increased to 4MB for base64 overhead
+             ( !('verificationStatus' in data) || data.verificationStatus in ['pending', 'verified', 'rejected', 'unsubmitted'] ) &&
+             ( !('isVerified' in data) || data.isVerified is bool );
     }
 
     match /users/{userId} {
@@ -57,9 +62,20 @@ service cloud.firestore {
                       incoming().balance == 0;
       
       allow update: if (isOwner(userId) || isAdmin()) && (
-        (isAdmin() && incoming().diff(existing()).affectedKeys().hasOnly(['balance', 'role'])) ||
-        (isOwner(userId) && incoming().diff(existing()).affectedKeys().hasOnly(['balance'])) // Trades update balance
-      ) && isValidUser(incoming());
+        (isAdmin() && incoming().diff(existing()).affectedKeys().hasOnly(['balance', 'role', 'verificationStatus', 'isVerified'])) ||
+        (isOwner(userId) && incoming().diff(existing()).affectedKeys().hasOnly(['balance', 'fullName', 'phoneNumber', 'address', 'verificationDoc', 'verificationStatus']))
+      ) && isValidUser(incoming()) && (
+        !isOwner(userId) || (
+          incoming().email == existing().email &&
+          incoming().role == existing().role &&
+          incoming().createdAt == existing().createdAt &&
+          (
+            incoming().verificationStatus == (existing().get('verificationStatus', 'unsubmitted')) || 
+            (existing().get('verificationStatus', 'unsubmitted') != 'verified' && incoming().verificationStatus == 'pending')
+          )
+        )
+      );
+      allow delete: if isAdmin();
     }
 
     // --- Transaction Validation ---
@@ -125,6 +141,24 @@ service cloud.firestore {
     match /admins/{adminId} {
       allow read: if isSignedIn();
       allow write: if false;
+    }
+
+    // --- News Validation ---
+    function isValidNews(data) {
+      return data.keys().hasAll(['title', 'content', 'createdAt', 'author']) &&
+             data.title is string && data.title.size() <= 500 &&
+             data.content is string && data.content.size() <= 10000 &&
+             ( !('summary' in data) || (data.summary is string && data.summary.size() <= 1000) ) &&
+             ( !('imageUrl' in data) || (data.imageUrl == null || (data.imageUrl is string && data.imageUrl.size() <= 2097152)) ) && // 2MB limit for news image
+             data.createdAt is timestamp &&
+             data.author is string;
+    }
+
+    match /news/{newsId} {
+      allow read: if true; // News is public
+      allow create: if isAdmin() && isValidNews(incoming()) && incoming().createdAt == request.time;
+      allow update: if isAdmin() && isValidNews(incoming());
+      allow delete: if isAdmin();
     }
   }
 }
