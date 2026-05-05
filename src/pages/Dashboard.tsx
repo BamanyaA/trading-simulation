@@ -96,7 +96,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
         type: "trade",
         amount: amount,
         status: "pending",
-        details: `${isWin ? "WIN (Estimated +" + (multiplier * 100) + "%)" : "LOSS"} | ${seconds}s Duration`,
+        details: `${isWin ? "WIN" : "LOSS"} | ${seconds}s Duration`,
         createdAt: serverTimestamp(),
       });
 
@@ -368,10 +368,6 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                     )}
                   >
                     <span className="text-lg">{s}s</span>
-                    <span className={cn(
-                      "text-[10px]",
-                      selectedDuration === s ? "text-blue-100" : "text-green-400"
-                    )}>+{p}% Profit</span>
                   </button>
                 ))}
               </div>
@@ -466,10 +462,9 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                     <div className="text-right">
                       <div className={cn(
                         "font-bold",
-                        tx.type === "deposit" || (tx.type === "trade" && tx.details?.includes("WIN")) ? "text-green-500" : "text-white",
-                        tx.type === "withdraw" || (tx.type === "trade" && tx.details?.includes("LOSS")) ? "text-red-500" : ""
+                        tx.type === "deposit" || (tx.type === "trade" && tx.details?.includes("WIN")) ? "text-green-500" : "text-white"
                       )}>
-                        {tx.type === "withdraw" || (tx.type === "trade" && tx.details?.includes("LOSS")) ? "-" : "+"}
+                        {tx.type === "deposit" || (tx.type === "trade" && tx.details?.includes("WIN")) ? "+" : ""}
                         {formatCurrency(tx.amount)}
                       </div>
                       <div className={cn(
@@ -656,11 +651,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                   <div className="flex justify-between items-center pt-4 border-t border-slate-800">
                     <span className="text-slate-400 text-sm">Potential Return</span>
                     <span className="text-green-500 font-bold text-lg">
-                      {formatCurrency(parseFloat(tradeAmount) * (1 + (
-                        selectedDuration === 30 ? 0.05 : 
-                        selectedDuration === 60 ? 0.10 : 
-                        selectedDuration === 90 ? 0.15 : 0.25
-                      )))}
+                      {formatCurrency(parseFloat(tradeAmount) * 1.85)}
                     </span>
                   </div>
                 </div>

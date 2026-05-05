@@ -50,8 +50,10 @@ export default function AdminDashboard() {
   });
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState<"users" | "transactions" | "settings" | "support">("users");
+  const [txFilter, setTxFilter] = useState<"pending" | "all">("pending");
   const [customAmounts, setCustomAmounts] = useState<Record<string, string>>({});
   const [selectedUserKYC, setSelectedUserKYC] = useState<UserProfile | null>(null);
+  const [selectedReceipt, setSelectedReceipt] = useState<string | null>(null);
 
   // Chat states
   const [allMessages, setAllMessages] = useState<SupportMessage[]>([]);
@@ -65,12 +67,12 @@ export default function AdminDashboard() {
       setUsers(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as UserProfile)));
     });
 
-    // Listen to pending transactions
-    const q = query(
-      collection(db, "transactions"),
-      where("status", "==", "pending")
-    );
-    const txUnsub = onSnapshot(q, (snapshot) => {
+    // Listen to transactions
+    const txQuery = txFilter === "pending" 
+      ? query(collection(db, "transactions"), where("status", "==", "pending"))
+      : query(collection(db, "transactions"), orderBy("createdAt", "desc"));
+      
+    const txUnsub = onSnapshot(txQuery, (snapshot) => {
       setPendingTxs(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Transaction)));
     });
 
@@ -99,7 +101,7 @@ export default function AdminDashboard() {
       txUnsub();
       chatUnsub();
     };
-  }, []);
+  }, [txFilter]);
 
   const handleUpdateBalance = async (userId: string, delta: number) => {
     try {
@@ -344,12 +346,34 @@ export default function AdminDashboard() {
 
         {activeTab === "transactions" && (
           <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-xl">
-            <div className="flex items-center gap-3 mb-8">
-              <TrendingUp className="w-6 h-6 text-blue-500" />
-              <h3 className="text-xl font-bold text-white">Pending Transactions</h3>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
+              <div className="flex items-center gap-3">
+                <TrendingUp className="w-6 h-6 text-blue-500" />
+                <h3 className="text-xl font-bold text-white">Transactions Management</h3>
+              </div>
+              <div className="flex bg-slate-950 border border-slate-800 p-1 rounded-xl">
+                <button 
+                  onClick={() => setTxFilter("pending")}
+                  className={cn(
+                    "px-4 py-1.5 rounded-lg text-xs font-bold transition-all",
+                    txFilter === "pending" ? "bg-blue-600 text-white" : "text-slate-500 hover:text-white"
+                  )}
+                >
+                  Pending
+                </button>
+                <button 
+                  onClick={() => setTxFilter("all")}
+                  className={cn(
+                    "px-4 py-1.5 rounded-lg text-xs font-bold transition-all",
+                    txFilter === "all" ? "bg-blue-600 text-white" : "text-slate-500 hover:text-white"
+                  )}
+                >
+                  All History
+                </button>
+              </div>
             </div>
             {pendingTxs.length === 0 ? (
-              <div className="text-center py-12 text-slate-500">No pending transaction requests.</div>
+              <div className="text-center py-12 text-slate-500">No transactions found in this category.</div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {pendingTxs.map((tx) => (
@@ -374,29 +398,50 @@ export default function AdminDashboard() {
                     
                     {tx.details && <div className="text-sm text-slate-400 italic">{tx.details}</div>}
 
-                    {tx.type === "deposit" && tx.receipt && (
+                    {tx.receipt && (
                       <div className="mt-4 space-y-2">
-                        <div className="text-xs font-bold text-slate-500 uppercase">Receipt Proof:</div>
-                        <div className="rounded-xl overflow-hidden border border-slate-800 bg-black/40">
-                          <img src={tx.receipt} alt="Deposit Receipt" className="w-full h-auto max-h-[300px] object-contain hover:scale-105 transition-transform cursor-pointer" onClick={() => window.open(tx.receipt, "_blank")} />
+                        <div className="text-xs font-bold text-slate-500 uppercase flex items-center gap-2">
+                          <FileText className="w-3 h-3" />
+                          Deposit Proof:
+                        </div>
+                        <div 
+                          onClick={() => setSelectedReceipt(tx.receipt!)}
+                          className="rounded-xl overflow-hidden border border-slate-800 bg-black/40 group cursor-pointer relative h-20"
+                        >
+                          <img src={tx.receipt} alt="Deposit Receipt" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 opacity-60 group-hover:opacity-100" />
+                          <div className="absolute inset-0 flex items-center justify-center bg-blue-600/0 group-hover:bg-blue-600/20 transition-all">
+                            <Search className="w-4 h-4 text-white opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0" />
+                          </div>
                         </div>
                       </div>
                     )}
 
-                    <div className="flex gap-3 pt-2">
-                      <button 
-                        onClick={() => handleProcessTransaction(tx, "completed")}
-                        className="flex-1 py-3 bg-green-600 hover:bg-green-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-green-600/10"
-                      >
-                        Approve
-                      </button>
-                      <button 
-                        onClick={() => handleProcessTransaction(tx, "failed")}
-                        className="flex-1 py-3 bg-red-600/10 hover:bg-red-600 text-red-500 hover:text-white font-bold rounded-xl border border-red-600/20 transition-all"
-                      >
-                        Reject
-                      </button>
-                    </div>
+                    {tx.status === "pending" && (
+                      <div className="flex gap-3 pt-2">
+                        <button 
+                          onClick={() => handleProcessTransaction(tx, "completed")}
+                          className="flex-1 py-3 bg-green-600 hover:bg-green-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-green-600/10"
+                        >
+                          Approve
+                        </button>
+                        <button 
+                          onClick={() => handleProcessTransaction(tx, "failed")}
+                          className="flex-1 py-3 bg-red-600/10 hover:bg-red-600 text-red-500 hover:text-white font-bold rounded-xl border border-red-600/20 transition-all"
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    )}
+                    {tx.status !== "pending" && (
+                      <div className="pt-2">
+                        <div className={cn(
+                          "w-full py-2 text-center rounded-xl font-bold text-xs uppercase tracking-widest",
+                          tx.status === "completed" ? "bg-green-600/10 text-green-500" : "bg-red-600/10 text-red-500"
+                        )}>
+                          Transaction {tx.status}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -626,6 +671,66 @@ export default function AdminDashboard() {
                   className="px-8 py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl transition-all shadow-xl"
                 >
                   Close Records
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {selectedReceipt && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedReceipt(null)}
+              className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm shadow-2xl"
+            />
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="relative w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"
+            >
+              <div className="p-6 border-b border-white/5 bg-slate-800/50 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-green-600/20 text-green-500 rounded-xl flex items-center justify-center">
+                    <FileText className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-white">Deposit Receipt Proof</h3>
+                    <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Verification Visual</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setSelectedReceipt(null)}
+                  className="p-2 hover:bg-white/5 rounded-xl text-slate-400 hover:text-white transition-all shadow-xl"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-8">
+                <div className="rounded-3xl border border-slate-800 bg-slate-950 overflow-hidden shadow-2xl relative group">
+                  <img 
+                    src={selectedReceipt} 
+                    alt="Transaction Receipt" 
+                    className="w-full h-auto object-contain cursor-zoom-in group-hover:scale-[1.02] transition-transform duration-500"
+                    onClick={() => window.open(selectedReceipt, "_blank")}
+                  />
+                  <div className="absolute inset-0 bg-green-600/0 group-hover:bg-green-600/5 transition-colors pointer-events-none" />
+                </div>
+                <p className="mt-4 text-center text-slate-500 text-xs italic">
+                  Click the image to view the full-size original document.
+                </p>
+              </div>
+              
+              <div className="p-6 bg-slate-800/30 border-t border-white/5 flex justify-end">
+                <button 
+                  onClick={() => setSelectedReceipt(null)}
+                  className="px-8 py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl transition-all shadow-xl"
+                >
+                  Close Receipt
                 </button>
               </div>
             </motion.div>

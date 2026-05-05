@@ -26,7 +26,8 @@
         "amount": { "type": "number" },
         "status": { "type": "string", "enum": ["pending", "completed", "failed"] },
         "createdAt": { "type": "string", "format": "date-time" },
-        "details": { "type": "string", "description": "Optional details about the trade or withdrawal" }
+        "details": { "type": "string", "description": "Optional details about the trade or withdrawal" },
+        "receipt": { "type": "string", "description": "Base64 or URL of the transaction receipt" }
       },
       "required": ["userId", "type", "amount", "status", "createdAt"]
     },
