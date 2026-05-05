@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { User, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth";
-import { UserProfile, Transaction, PlatformSettings, News } from "../types";
+import { UserProfile, Transaction, PlatformSettings, News, SupportMessage } from "../types";
 import { db, auth } from "../firebase";
 import { 
   collection, 
@@ -38,7 +38,6 @@ import {
   ShieldCheck
 } from "lucide-react";
 import { toast } from "react-hot-toast";
-import { SupportMessage } from "../types";
 import { formatCurrency, cn } from "../lib/utils";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -77,10 +76,6 @@ function TradingViewWidget({ symbol }: { symbol: string }) {
     script.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
     script.type = "text/javascript";
     script.async = true;
-    
-    // Generic crossOrigin="anonymous" can sometimes help with debugging script errors,
-    // although the server must support it.
-    script.crossOrigin = "anonymous";
     
     script.innerHTML = JSON.stringify({
       "autosize": true,
@@ -1018,48 +1013,48 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
 
               <form onSubmit={handleChangePassword} className="space-y-5">
                 <div>
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2 ml-1">Current Password</label>
+                  <label className="text-xs font-black text-slate-500 uppercase tracking-[0.15em] block mb-2 ml-1">Current Password</label>
                   <input 
                     type="password"
                     required
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full bg-gray-50 border border-gray-100 rounded-xl px-5 py-3.5 text-sm focus:bg-white focus:ring-4 focus:ring-indigo-50 focus:border-indigo-400 outline-none transition-all placeholder:text-gray-300 font-bold"
+                    className="w-full bg-white border border-slate-200 rounded-xl px-5 py-4 text-sm focus:bg-white focus:ring-4 focus:ring-slate-50 focus:border-slate-900 outline-none transition-all placeholder:text-slate-300 font-medium"
                   />
                 </div>
 
                 <div>
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2 ml-1">New Password</label>
+                  <label className="text-xs font-black text-slate-500 uppercase tracking-[0.15em] block mb-2 ml-1">New Password</label>
                   <input 
                     type="password"
                     required
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     placeholder="At least 8 characters"
-                    className="w-full bg-gray-50 border border-gray-100 rounded-xl px-5 py-3.5 text-sm focus:bg-white focus:ring-4 focus:ring-indigo-50 focus:border-indigo-400 outline-none transition-all placeholder:text-gray-300 font-bold"
+                    className="w-full bg-slate-50/50 border border-slate-100 rounded-xl px-5 py-4 text-sm focus:bg-white focus:ring-4 focus:ring-slate-50 focus:border-slate-900 outline-none transition-all placeholder:text-slate-300 font-medium"
                   />
                 </div>
 
                 <div>
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2 ml-1">Confirm New Password</label>
+                  <label className="text-xs font-black text-slate-500 uppercase tracking-[0.15em] block mb-2 ml-1">Confirm New Password</label>
                   <input 
                     type="password"
                     required
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Repeat new password"
-                    className="w-full bg-gray-50 border border-gray-100 rounded-xl px-5 py-3.5 text-sm focus:bg-white focus:ring-4 focus:ring-indigo-50 focus:border-indigo-400 outline-none transition-all placeholder:text-gray-300 font-bold"
+                    className="w-full bg-slate-50/50 border border-slate-100 rounded-xl px-5 py-4 text-sm focus:bg-white focus:ring-4 focus:ring-slate-50 focus:border-slate-900 outline-none transition-all placeholder:text-slate-300 font-medium"
                   />
                 </div>
 
-                <div className="flex justify-end pt-2">
+                <div className="flex justify-end pt-4">
                   <button 
                     type="submit"
                     disabled={isChangingPassword}
-                    className="px-6 py-3.5 bg-gray-900 hover:bg-black disabled:opacity-50 text-white font-black rounded-xl shadow-xl active:scale-95 transition-all text-[11px] uppercase tracking-widest"
+                    className="px-8 py-4 bg-[#1a1a1a] hover:bg-black disabled:opacity-50 text-white font-black rounded-xl shadow-xl active:scale-95 transition-all text-xs uppercase tracking-widest"
                   >
-                    {isChangingPassword ? "Updating..." : "Change Password"}
+                    {isChangingPassword ? "Processing..." : "Change Password"}
                   </button>
                 </div>
               </form>

@@ -65,7 +65,7 @@ service cloud.firestore {
         (isAdmin() && incoming().diff(existing()).affectedKeys().hasOnly(['balance', 'role', 'verificationStatus', 'isVerified'])) ||
         (isOwner(userId) && incoming().diff(existing()).affectedKeys().hasOnly(['balance', 'fullName', 'phoneNumber', 'address', 'verificationDoc', 'verificationStatus']))
       ) && isValidUser(incoming()) && (
-        !isOwner(userId) || (
+        isAdmin() || !isOwner(userId) || (
           incoming().email == existing().email &&
           incoming().role == existing().role &&
           incoming().createdAt == existing().createdAt &&
@@ -107,11 +107,14 @@ service cloud.firestore {
 
     // --- Settings Validation ---
     function isValidSettings(data) {
-      return data.keys().hasAll(['btc_address', 'eth_address', 'xrp_address']) &&
-             data.keys().size() == 3 &&
-             data.btc_address is string && data.btc_address.size() <= 100 &&
-             data.eth_address is string && data.eth_address.size() <= 100 &&
-             data.xrp_address is string && data.xrp_address.size() <= 100;
+      return data.keys().hasAll(['btc_address', 'eth_address', 'sol_address', 'bnb_address', 'xrp_address', 'usdt_address']) &&
+             data.keys().size() == 6 &&
+             data.btc_address is string && data.btc_address.size() <= 128 &&
+             data.eth_address is string && data.eth_address.size() <= 128 &&
+             data.sol_address is string && data.sol_address.size() <= 128 &&
+             data.bnb_address is string && data.bnb_address.size() <= 128 &&
+             data.xrp_address is string && data.xrp_address.size() <= 128 &&
+             data.usdt_address is string && data.usdt_address.size() <= 128;
     }
 
     match /settings/addresses {

@@ -518,7 +518,7 @@ export default function AdminDashboard() {
                         <div className="text-3xl font-black text-slate-900 tracking-tighter font-mono">{formatCurrency(tx.amount)}</div>
                       </div>
                       <div className="text-right">
-                        <div className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">{tx.createdAt?.toDate?.().toLocaleDateString()}</div>
+                        <div className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">{tx.createdAt?.toDate?.()?.toLocaleDateString()}</div>
                         <div className="text-[10px] text-slate-300 font-mono break-all max-w-[120px]">REF: {tx.id.toUpperCase()}</div>
                       </div>
                     </div>
@@ -647,7 +647,7 @@ export default function AdminDashboard() {
                           {msg.text}
                         </div>
                         <span className="text-[10px] font-black uppercase text-slate-300 mt-3 mx-2 tracking-widest font-mono">
-                          {msg.createdAt?.toDate?.().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          {msg.createdAt?.toDate?.()?.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
                     ))}
@@ -785,7 +785,7 @@ export default function AdminDashboard() {
                     <h4 className="font-black text-slate-900 leading-tight mb-2 line-clamp-2">{news.title}</h4>
                     <p className="text-xs text-slate-500 font-medium line-clamp-3 mb-4">{news.summary}</p>
                     <div className="flex justify-between items-center pt-4 border-t border-slate-50">
-                      <span className="text-[10px] font-bold text-slate-300 uppercase">{news.createdAt?.toDate?.().toLocaleDateString()}</span>
+                      <span className="text-[10px] font-bold text-slate-300 uppercase">{news.createdAt?.toDate?.()?.toLocaleDateString()}</span>
                       <button 
                         onClick={() => handleDeleteNews(news.id)}
                         className="text-rose-500 hover:text-rose-700 p-2"

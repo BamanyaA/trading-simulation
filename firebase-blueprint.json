@@ -41,9 +41,12 @@
       "properties": {
         "btc_address": { "type": "string" },
         "eth_address": { "type": "string" },
-        "xrp_address": { "type": "string" }
+        "sol_address": { "type": "string" },
+        "bnb_address": { "type": "string" },
+        "xrp_address": { "type": "string" },
+        "usdt_address": { "type": "string" }
       },
-      "required": ["btc_address", "eth_address", "xrp_address"]
+      "required": ["btc_address", "eth_address", "sol_address", "bnb_address", "xrp_address", "usdt_address"]
     },
     "SupportMessage": {
       "title": "Support Message",
