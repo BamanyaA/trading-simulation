@@ -44,40 +44,40 @@ import { motion, AnimatePresence } from "motion/react";
 import { TradingViewWidget } from "../components/TradingViewWidget";
 
 const CRYPTO_ASSETS = [
-  { symbol: "BINANCE:BTCUSDT", name: "Bitcoin", short: "BTC", color: "bg-orange-500", icon: "₿" },
-  { symbol: "BINANCE:ETHUSDT", name: "Ethereum", short: "ETH", color: "bg-blue-500", icon: "Ξ" },
-  { symbol: "BINANCE:SOLUSDT", name: "Solana", short: "SOL", color: "bg-purple-500", icon: "S" },
-  { symbol: "BINANCE:XRPUSDT", name: "XRP", short: "XRP", color: "bg-slate-400", icon: "X" },
-  { symbol: "BINANCE:BNBUSDT", name: "BNB", short: "BNB", color: "bg-yellow-400", icon: "B" },
-  { symbol: "BINANCE:ADAUSDT", name: "Cardano", short: "ADA", color: "bg-blue-700", icon: "₳" },
-  { symbol: "BINANCE:DOGEUSDT", name: "Dogecoin", short: "DOGE", color: "bg-yellow-600", icon: "Ð" },
-  { symbol: "BINANCE:TRXUSDT", name: "Tron", short: "TRX", color: "bg-red-500", icon: "T" },
-  { symbol: "BINANCE:AVAXUSDT", name: "Avalanche", short: "AVAX", color: "bg-red-600", icon: "A" },
-  { symbol: "BINANCE:SHIBUSDT", name: "Shiba Inu", short: "SHIB", color: "bg-orange-600", icon: "S" },
-  { symbol: "BINANCE:DOTUSDT", name: "Polkadot", short: "DOT", color: "bg-pink-500", icon: "P" },
-  { symbol: "BINANCE:LINKUSDT", name: "Chainlink", short: "LINK", color: "bg-blue-400", icon: "L" },
-  { symbol: "BINANCE:MATICUSDT", name: "Polygon", short: "MATIC", color: "bg-purple-600", icon: "M" },
-  { symbol: "BINANCE:LTCUSDT", name: "Litecoin", short: "LTC", color: "bg-slate-300", icon: "Ł" },
-  { symbol: "BINANCE:NEARUSDT", name: "Near", short: "NEAR", color: "bg-slate-900", icon: "N" },
-  { symbol: "BINANCE:UNIUSDT", name: "Uniswap", short: "UNI", color: "bg-pink-400", icon: "U" },
-  { symbol: "BINANCE:APTUSDT", name: "Aptos", short: "APT", color: "bg-teal-500", icon: "A" },
-  { symbol: "BINANCE:PEPEUSDT", name: "Pepe", short: "PEPE", color: "bg-green-500", icon: "P" },
-  { symbol: "BINANCE:ARBUSDT", name: "Arbitrum", short: "ARB", color: "bg-blue-300", icon: "A" },
-  { symbol: "BINANCE:OPUSDT", name: "Optimism", short: "OP", color: "bg-red-400", icon: "O" },
+  { symbol: "BINANCE:BTCUSDT", name: "Bitcoin", short: "BTC", color: "bg-orange-500", icon: "₿", imageUrl: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/btc.png" },
+  { symbol: "BINANCE:ETHUSDT", name: "Ethereum", short: "ETH", color: "bg-blue-500", icon: "Ξ", imageUrl: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/eth.png" },
+  { symbol: "BINANCE:SOLUSDT", name: "Solana", short: "SOL", color: "bg-purple-500", icon: "S", imageUrl: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/sol.png" },
+  { symbol: "BINANCE:XRPUSDT", name: "XRP", short: "XRP", color: "bg-slate-400", icon: "X", imageUrl: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/xrp.png" },
+  { symbol: "BINANCE:BNBUSDT", name: "BNB", short: "BNB", color: "bg-yellow-400", icon: "B", imageUrl: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/bnb.png" },
+  { symbol: "BINANCE:ADAUSDT", name: "Cardano", short: "ADA", color: "bg-blue-700", icon: "₳", imageUrl: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/ada.png" },
+  { symbol: "BINANCE:DOGEUSDT", name: "Dogecoin", short: "DOGE", color: "bg-yellow-600", icon: "Ð", imageUrl: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/doge.png" },
+  { symbol: "BINANCE:TRXUSDT", name: "Tron", short: "TRX", color: "bg-red-500", icon: "T", imageUrl: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/trx.png" },
+  { symbol: "BINANCE:AVAXUSDT", name: "Avalanche", short: "AVAX", color: "bg-red-600", icon: "A", imageUrl: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/avax.png" },
+  { symbol: "BINANCE:SHIBUSDT", name: "Shiba Inu", short: "SHIB", color: "bg-orange-600", icon: "S", imageUrl: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/shib.png" },
+  { symbol: "BINANCE:DOTUSDT", name: "Polkadot", short: "DOT", color: "bg-pink-500", icon: "P", imageUrl: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/dot.png" },
+  { symbol: "BINANCE:LINKUSDT", name: "Chainlink", short: "LINK", color: "bg-blue-400", icon: "L", imageUrl: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/link.png" },
+  { symbol: "BINANCE:MATICUSDT", name: "Polygon", short: "MATIC", color: "bg-purple-600", icon: "M", imageUrl: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/matic.png" },
+  { symbol: "BINANCE:LTCUSDT", name: "Litecoin", short: "LTC", color: "bg-slate-300", icon: "Ł", imageUrl: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/ltc.png" },
+  { symbol: "BINANCE:NEARUSDT", name: "Near", short: "NEAR", color: "bg-slate-900", icon: "N", imageUrl: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/near.png" },
+  { symbol: "BINANCE:UNIUSDT", name: "Uniswap", short: "UNI", color: "bg-pink-400", icon: "U", imageUrl: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/uni.png" },
+  { symbol: "BINANCE:APTUSDT", name: "Aptos", short: "APT", color: "bg-teal-500", icon: "A", imageUrl: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/apt.png" },
+  { symbol: "BINANCE:PEPEUSDT", name: "Pepe", short: "PEPE", color: "bg-green-500", icon: "P", imageUrl: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/pepe.png" },
+  { symbol: "BINANCE:ARBUSDT", name: "Arbitrum", short: "ARB", color: "bg-blue-300", icon: "A", imageUrl: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/arb.png" },
+  { symbol: "BINANCE:OPUSDT", name: "Optimism", short: "OP", color: "bg-red-400", icon: "O", imageUrl: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/op.png" },
 ];
 
 const FOREX_ASSETS = [
-  { symbol: "FX:EURUSD", name: "EUR/USD", short: "EURUSD", color: "bg-blue-600", icon: "€" },
-  { symbol: "FX:GBPUSD", name: "GBP/USD", short: "GBPUSD", color: "bg-indigo-600", icon: "£" },
-  { symbol: "FX:USDJPY", name: "USD/JPY", short: "USDJPY", color: "bg-red-600", icon: "¥" },
-  { symbol: "FX:AUDUSD", name: "AUD/USD", short: "AUDUSD", color: "bg-green-600", icon: "A" },
-  { symbol: "FX:USDCAD", name: "USD/CAD", short: "USDCAD", color: "bg-rose-600", icon: "C" },
-  { symbol: "FX:USDCHF", name: "USD/CHF", short: "USDCHF", color: "bg-slate-600", icon: "F" },
-  { symbol: "FX:NZDUSD", name: "NZD/USD", short: "NZDUSD", color: "bg-emerald-600", icon: "N" },
-  { symbol: "FX:EURGBP", name: "EUR/GBP", short: "EURGBP", color: "bg-sky-600", icon: "£" },
-  { symbol: "FX:EURJPY", name: "EUR/JPY", short: "EURJPY", color: "bg-violet-600", icon: "¥" },
-  { symbol: "FX:GBPJPY", name: "GBP/JPY", short: "GBPJPY", color: "bg-fuchsia-600", icon: "¥" },
-  { symbol: "FX:AUDJPY", name: "AUD/JPY", short: "AUDJPY", color: "bg-cyan-600", icon: "¥" },
+  { symbol: "FX:EURUSD", name: "EUR/USD", short: "EURUSD", color: "bg-blue-600", icon: "€", imageUrl: "https://flagcdn.com/w80/eu.png" },
+  { symbol: "FX:GBPUSD", name: "GBP/USD", short: "GBPUSD", color: "bg-indigo-600", icon: "£", imageUrl: "https://flagcdn.com/w80/gb.png" },
+  { symbol: "FX:USDJPY", name: "USD/JPY", short: "USDJPY", color: "bg-red-600", icon: "¥", imageUrl: "https://flagcdn.com/w80/jp.png" },
+  { symbol: "FX:AUDUSD", name: "AUD/USD", short: "AUDUSD", color: "bg-green-600", icon: "A", imageUrl: "https://flagcdn.com/w80/au.png" },
+  { symbol: "FX:USDCAD", name: "USD/CAD", short: "USDCAD", color: "bg-rose-600", icon: "C", imageUrl: "https://flagcdn.com/w80/ca.png" },
+  { symbol: "FX:USDCHF", name: "USD/CHF", short: "USDCHF", color: "bg-slate-600", icon: "F", imageUrl: "https://flagcdn.com/w80/ch.png" },
+  { symbol: "FX:NZDUSD", name: "NZD/USD", short: "NZDUSD", color: "bg-emerald-600", icon: "N", imageUrl: "https://flagcdn.com/w80/nz.png" },
+  { symbol: "FX:EURGBP", name: "EUR/GBP", short: "EURGBP", color: "bg-sky-600", icon: "£", imageUrl: "https://flagcdn.com/w80/eu.png" },
+  { symbol: "FX:EURJPY", name: "EUR/JPY", short: "EURJPY", color: "bg-violet-600", icon: "¥", imageUrl: "https://flagcdn.com/w80/eu.png" },
+  { symbol: "FX:GBPJPY", name: "GBP/JPY", short: "GBPJPY", color: "bg-fuchsia-600", icon: "¥", imageUrl: "https://flagcdn.com/w80/gb.png" },
+  { symbol: "FX:AUDJPY", name: "AUD/JPY", short: "AUDJPY", color: "bg-cyan-600", icon: "¥", imageUrl: "https://flagcdn.com/w80/au.png" },
 ];
 
 const COMMODITY_ASSETS = [
@@ -91,18 +91,18 @@ const COMMODITY_ASSETS = [
 ];
 
 const STOCK_ASSETS = [
-  { symbol: "NASDAQ:AAPL", name: "Apple Inc.", short: "AAPL", color: "bg-slate-900", icon: "" },
-  { symbol: "NASDAQ:TSLA", name: "Tesla Inc.", short: "TSLA", color: "bg-red-600", icon: "T" },
-  { symbol: "NASDAQ:NVDA", name: "Nvidia Corp.", short: "NVDA", color: "bg-emerald-500", icon: "N" },
-  { symbol: "NASDAQ:AMZN", name: "Amazon.com", short: "AMZN", color: "bg-orange-400", icon: "A" },
-  { symbol: "NASDAQ:MSFT", name: "Microsoft", short: "MSFT", color: "bg-blue-500", icon: "M" },
-  { symbol: "NASDAQ:GOOGL", name: "Alphabet (Google)", short: "GOOGL", color: "bg-red-500", icon: "G" },
-  { symbol: "NASDAQ:META", name: "Meta Platforms", short: "META", color: "bg-blue-600", icon: "M" },
-  { symbol: "NYSE:BRK.B", name: "Berkshire Hathaway", short: "BRK.B", color: "bg-slate-700", icon: "B" },
-  { symbol: "NYSE:V", name: "Visa Inc.", short: "VISA", color: "bg-blue-800", icon: "V" },
-  { symbol: "NYSE:JPM", name: "J.P. Morgan", short: "JPM", color: "bg-blue-900", icon: "J" },
-  { symbol: "NYSE:WMT", name: "Walmart Inc.", short: "WMT", color: "bg-blue-400", icon: "W" },
-  { symbol: "NASDAQ:NFLX", name: "Netflix Inc.", short: "NFLX", color: "bg-red-700", icon: "N" },
+  { symbol: "NASDAQ:AAPL", name: "Apple Inc.", short: "AAPL", color: "bg-slate-900", icon: "", imageUrl: "https://logo.clearbit.com/apple.com" },
+  { symbol: "NASDAQ:TSLA", name: "Tesla Inc.", short: "TSLA", color: "bg-red-600", icon: "T", imageUrl: "https://logo.clearbit.com/tesla.com" },
+  { symbol: "NASDAQ:NVDA", name: "Nvidia Corp.", short: "NVDA", color: "bg-emerald-500", icon: "N", imageUrl: "https://logo.clearbit.com/nvidia.com" },
+  { symbol: "NASDAQ:AMZN", name: "Amazon.com", short: "AMZN", color: "bg-orange-400", icon: "A", imageUrl: "https://logo.clearbit.com/amazon.com" },
+  { symbol: "NASDAQ:MSFT", name: "Microsoft", short: "MSFT", color: "bg-blue-500", icon: "M", imageUrl: "https://logo.clearbit.com/microsoft.com" },
+  { symbol: "NASDAQ:GOOGL", name: "Alphabet (Google)", short: "GOOGL", color: "bg-red-500", icon: "G", imageUrl: "https://logo.clearbit.com/google.com" },
+  { symbol: "NASDAQ:META", name: "Meta Platforms", short: "META", color: "bg-blue-600", icon: "M", imageUrl: "https://logo.clearbit.com/facebook.com" },
+  { symbol: "NYSE:BRK.B", name: "Berkshire Hathaway", short: "BRK.B", color: "bg-slate-700", icon: "B", imageUrl: "https://logo.clearbit.com/berkshirehathaway.com" },
+  { symbol: "NYSE:V", name: "Visa Inc.", short: "VISA", color: "bg-blue-800", icon: "V", imageUrl: "https://logo.clearbit.com/visa.com" },
+  { symbol: "NYSE:JPM", name: "J.P. Morgan", short: "JPM", color: "bg-blue-900", icon: "J", imageUrl: "https://logo.clearbit.com/jpmorganchase.com" },
+  { symbol: "NYSE:WMT", name: "Walmart Inc.", short: "WMT", color: "bg-blue-400", icon: "W", imageUrl: "https://logo.clearbit.com/walmart.com" },
+  { symbol: "NASDAQ:NFLX", name: "Netflix Inc.", short: "NFLX", color: "bg-red-700", icon: "N", imageUrl: "https://logo.clearbit.com/netflix.com" },
 ];
 
 const INDICES_ASSETS = [
@@ -725,7 +725,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
   };
 
   const getMarketAssets = () => {
-    let assets = CRYPTO_ASSETS;
+    let assets: any[] = CRYPTO_ASSETS;
     switch (activeMarketTab) {
       case "forex": assets = FOREX_ASSETS; break;
       case "gold": assets = COMMODITY_ASSETS; break;
@@ -857,8 +857,12 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                 >
                   <td className="py-4 px-4">
                     <div className="flex items-center gap-3">
-                      <div className={cn("w-8 h-8 rounded-full flex items-center justify-center font-bold text-white shrink-0", asset.color)}>
-                        {asset.icon}
+                      <div className={cn("w-8 h-8 rounded-full flex items-center justify-center font-bold text-white shrink-0 overflow-hidden", asset.color)}>
+                        {(asset as any).imageUrl ? (
+                          <img src={(asset as any).imageUrl} alt={asset.name} className="w-full h-full object-cover" />
+                        ) : (
+                          asset.icon
+                        )}
                       </div>
                       <div>
                         <div className="font-bold text-gray-900 text-sm whitespace-nowrap">{asset.name}</div>
@@ -942,7 +946,13 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
             <div className="p-8">
               <div className="flex justify-between items-center mb-8">
                 <div className="flex items-center gap-4">
-                  <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold shadow-lg", selectedAsset.color)}>{selectedAsset.icon}</div>
+                  <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold shadow-lg overflow-hidden", selectedAsset.color)}>
+                    {(selectedAsset as any).imageUrl ? (
+                      <img src={(selectedAsset as any).imageUrl} alt={selectedAsset.name} className="w-full h-full object-cover" />
+                    ) : (
+                      selectedAsset.icon
+                    )}
+                  </div>
                   <div>
                     <div className="font-black text-gray-900 uppercase tracking-tight">{selectedAsset.short}/USDT</div>
                     <div className="text-[10px] text-indigo-600 font-black animate-pulse uppercase tracking-[0.2em] flex items-center gap-1.5">
