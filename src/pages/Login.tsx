@@ -78,7 +78,7 @@ export default function Login() {
             disabled={loading}
             className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-black py-5 rounded-2xl transition-all flex items-center justify-center gap-3 group shadow-2xl shadow-indigo-100 active:scale-95 text-sm uppercase tracking-widest"
           >
-            {loading ? "Authorizing..." : "Initialize Session"}
+            {loading ? "Authorizing..." : "Log In"}
             {!loading && <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />}
           </button>
         </form>

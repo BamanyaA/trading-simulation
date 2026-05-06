@@ -34,12 +34,12 @@ import {
   Bell,
   Lock,
   User as UserIcon,
-  Info,
   ShieldCheck
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { formatCurrency, cn } from "../lib/utils";
 import { motion, AnimatePresence } from "motion/react";
+import { TradingViewWidget } from "../components/TradingViewWidget";
 
 const CRYPTO_ASSETS = [
   { symbol: "BINANCE:BTCUSDT", name: "Bitcoin", short: "BTC", color: "bg-orange-500", icon: "₿" },
@@ -63,58 +63,6 @@ const COMMODITY_ASSETS = [
 
 const ALL_ASSETS = [...CRYPTO_ASSETS, ...FOREX_ASSETS, ...COMMODITY_ASSETS];
 
-function TradingViewWidget({ symbol }: { symbol: string }) {
-  const container = React.useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!container.current) return;
-    
-    // Clear previous widget content
-    container.current.innerHTML = "";
-    
-    const script = document.createElement("script");
-    script.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
-    script.type = "text/javascript";
-    script.async = true;
-    
-    script.innerHTML = JSON.stringify({
-      "autosize": true,
-      "symbol": symbol,
-      "interval": "1",
-      "timezone": "Etc/UTC",
-      "theme": "light",
-      "style": "1",
-      "locale": "en",
-      "allow_symbol_change": false,
-      "calendar": false,
-      "support_host": "https://www.tradingview.com"
-    });
-
-    const currentContainer = container.current;
-    
-    // Error handling for the script itself
-    script.onerror = () => {
-      if (currentContainer) {
-        currentContainer.innerHTML = "<div class='flex items-center justify-center h-full text-gray-400 text-xs font-bold uppercase tracking-widest'>Failed to load chart</div>";
-      }
-    };
-
-    currentContainer.appendChild(script);
-
-    return () => {
-      if (currentContainer) {
-        currentContainer.innerHTML = "";
-      }
-    };
-  }, [symbol]);
-
-  return (
-    <div className="tradingview-widget-container h-full w-full rounded-2xl overflow-hidden bg-gray-50 flex items-center justify-center" ref={container}>
-      <div className="tradingview-widget-container__widget h-full w-full"></div>
-    </div>
-  );
-}
-
 interface DashboardProps {
   user: User;
   profile: UserProfile | null;
@@ -129,6 +77,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
   const [settings, setSettings] = useState<PlatformSettings | null>(null);
   const [selectedAsset, setSelectedAsset] = useState(CRYPTO_ASSETS[0]);
   const [marketData, setMarketData] = useState<Record<string, { price: string, change: string, isUp: boolean }>>({});
+  const [marketSearch, setMarketSearch] = useState("");
   const [tradeAmount, setTradeAmount] = useState("");
   const [withdrawAddress, setWithdrawAddress] = useState("");
   const [withdrawAmount, setWithdrawAmount] = useState("");
@@ -499,11 +448,21 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
   };
 
   const getMarketAssets = () => {
+    let assets = CRYPTO_ASSETS;
     switch (activeMarketTab) {
-      case "forex": return FOREX_ASSETS;
-      case "gold": return COMMODITY_ASSETS;
-      default: return CRYPTO_ASSETS;
+      case "forex": assets = FOREX_ASSETS; break;
+      case "gold": assets = COMMODITY_ASSETS; break;
+      default: assets = CRYPTO_ASSETS; break;
     }
+    
+    if (marketSearch.trim()) {
+      const search = marketSearch.toLowerCase();
+      return assets.filter(a => 
+        a.name.toLowerCase().includes(search) || 
+        a.short.toLowerCase().includes(search)
+      );
+    }
+    return assets;
   };
 
   const handleChangePassword = async (e: React.FormEvent) => {
@@ -551,9 +510,14 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
       <div className="bg-white p-6 shadow-sm flex gap-3 border-b border-gray-100">
         <div className="flex-1 bg-gray-50 rounded-xl flex items-center px-4 border border-gray-200 transition-all focus-within:border-indigo-300 focus-within:bg-white focus-within:ring-4 focus-within:ring-indigo-50">
           <Search className="w-5 h-5 text-gray-400 mr-2" />
-          <input type="text" placeholder="Search markets..." className="bg-transparent border-none outline-none w-full py-3 text-sm font-medium" />
+          <input 
+            type="text" 
+            placeholder="Search markets..." 
+            className="bg-transparent border-none outline-none w-full py-3 text-sm font-medium" 
+            value={marketSearch}
+            onChange={(e) => setMarketSearch(e.target.value)}
+          />
         </div>
-        <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-bold transition-all shadow-lg shadow-indigo-200 active:scale-95">Search</button>
       </div>
 
       <div className="mx-4 bg-white rounded-[2rem] shadow-sm overflow-hidden p-8 border border-gray-100 group relative">

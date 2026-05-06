@@ -1,6 +1,5 @@
 import { motion } from "motion/react";
-import { Shield, Target, Lightbulb, Users, CheckCircle2 } from "lucide-react";
-import Footer from "../components/Footer";
+import { Shield, Target, Lightbulb, CheckCircle2 } from "lucide-react";
 
 export default function About() {
   const values = [
@@ -28,11 +27,11 @@ export default function About() {
         animate={{ opacity: 1, y: 0 }}
         className="text-center mb-20"
       >
-        <span className="text-blue-500 font-bold uppercase tracking-widest text-sm mb-4 block underline decoration-blue-500 underline-offset-8">Our Mission</span>
-        <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-8">
+        <span className="text-blue-600 font-bold uppercase tracking-widest text-sm mb-4 block underline decoration-blue-600 underline-offset-8">Our Mission</span>
+        <h1 className="text-4xl md:text-6xl font-black text-slate-900 mb-8 tracking-tighter">
           Democratizing Financial <br /> Education Through Technology
         </h1>
-        <p className="text-xl text-slate-400 leading-relaxed max-w-3xl mx-auto">
+        <p className="text-xl text-slate-500 leading-relaxed max-w-3xl mx-auto font-medium">
           QUANTUMTRADE was founded with a simple goal: to provide a safe, engaging, and realistic environment for anyone to learn the complexities of cryptocurrency trading.
         </p>
       </motion.div>
@@ -45,13 +44,13 @@ export default function About() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.1 }}
-            className="p-8 rounded-3xl bg-slate-900/50 border border-slate-800 text-center"
+            className="p-8 rounded-3xl bg-white border border-slate-100 text-center shadow-xl shadow-slate-100/50"
           >
-            <div className="w-16 h-16 rounded-2xl bg-blue-600/10 text-blue-500 flex items-center justify-center mx-auto mb-6">
+            <div className="w-16 h-16 rounded-2xl bg-blue-600/10 text-blue-600 flex items-center justify-center mx-auto mb-6">
               <value.icon className="w-8 h-8" />
             </div>
-            <h3 className="text-xl font-bold text-white mb-4">{value.title}</h3>
-            <p className="text-slate-400 leading-relaxed">{value.desc}</p>
+            <h3 className="text-xl font-black text-slate-900 mb-4 tracking-tight">{value.title}</h3>
+            <p className="text-slate-500 leading-relaxed font-medium">{value.desc}</p>
           </motion.div>
         ))}
       </div>
@@ -60,32 +59,31 @@ export default function About() {
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
-        className="bg-blue-600 rounded-[3rem] p-12 md:p-20 text-center text-white relative overflow-hidden"
+        className="bg-blue-600 rounded-[3rem] p-12 md:p-20 text-center text-white relative overflow-hidden shadow-2xl shadow-blue-200"
       >
         <div className="relative z-10">
-          <h2 className="text-3xl md:text-5xl font-bold mb-8 italic">Ready to start your journey?</h2>
-          <p className="text-blue-100 text-lg mb-12 max-w-2xl mx-auto">
+          <h2 className="text-3xl md:text-5xl font-black mb-8 tracking-tighter italic">Ready to start your journey?</h2>
+          <p className="text-blue-100 text-lg mb-12 max-w-2xl mx-auto font-medium">
             Join over 24,000 traders who have already started practicing their strategies on our platform.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-8">
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5" />
-              <span className="font-medium">Free Forever</span>
+              <CheckCircle2 className="w-6 h-6" />
+              <span className="font-black uppercase tracking-widest text-[10px]">Free Forever</span>
             </div>
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5" />
-              <span className="font-medium">Zero Risk</span>
+              <CheckCircle2 className="w-6 h-6" />
+              <span className="font-black uppercase tracking-widest text-[10px]">Zero Risk</span>
             </div>
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5" />
-              <span className="font-medium">24/7 Support</span>
+              <CheckCircle2 className="w-6 h-6" />
+              <span className="font-black uppercase tracking-widest text-[10px]">24/7 Support</span>
             </div>
           </div>
         </div>
         <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
         <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-96 h-96 bg-black/10 rounded-full blur-3xl" />
       </motion.div>
-      <Footer />
     </div>
   );
 }

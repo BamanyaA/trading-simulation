@@ -3,8 +3,6 @@ import { Link } from "react-router-dom";
 import { cn } from "../lib/utils";
 import { TrendingUp, Shield, Zap, Globe, ArrowRight, BarChart3, PieChart, Activity } from "lucide-react";
 
-import Footer from "../components/Footer";
-
 export default function Home() {
   const stats = [
     { label: "Active Traders", value: "24k+", icon: Globe, color: "text-indigo-600", bg: "bg-indigo-50" },
@@ -125,9 +123,6 @@ export default function Home() {
           ))}
         </div>
       </section>
-
-      {/* Footer */}
-      <Footer />
     </div>
   );
 }
