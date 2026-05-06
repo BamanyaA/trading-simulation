@@ -1,57 +1,48 @@
-import React, { useEffect, useRef } from "react";
+import React, { useMemo } from "react";
 
 interface TradingViewWidgetProps {
   symbol: string;
 }
 
 export function TradingViewWidget({ symbol }: TradingViewWidgetProps) {
-  const container = useRef<HTMLDivElement>(null);
+  const containerId = useMemo(() => `tradingview_${Math.random().toString(36).slice(2, 11)}`, []);
 
-  useEffect(() => {
-    if (!container.current) return;
-    
-    // Clear previous widget content
-    container.current.innerHTML = "";
-    
-    const script = document.createElement("script");
-    script.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
-    script.type = "text/javascript";
-    script.async = true;
-    
-    script.innerHTML = JSON.stringify({
-      "autosize": true,
-      "symbol": symbol,
-      "interval": "1",
-      "timezone": "Etc/UTC",
-      "theme": "light",
-      "style": "1",
-      "locale": "en",
-      "allow_symbol_change": false,
-      "calendar": false,
-      "support_host": "https://www.tradingview.com"
+  // Construct iframe URL for the widget
+  const iframeUrl = useMemo(() => {
+    const baseUrl = "https://s.tradingview.com/widgetembed/";
+    const params = new URLSearchParams({
+      frameElementId: containerId,
+      symbol: symbol,
+      interval: "1",
+      hidesidetoolbar: "1",
+      symboledit: "1",
+      saveimage: "1",
+      toolbarbg: "f1f3f6",
+      theme: "light",
+      style: "1",
+      timezone: "Etc/UTC",
+      locale: "en",
+      utm_source: window.location.hostname,
+      utm_medium: "widget",
+      utm_campaign: "chart"
     });
-
-    const currentContainer = container.current;
-    
-    // Error handling for the script itself
-    script.onerror = () => {
-      if (currentContainer) {
-        currentContainer.innerHTML = "<div class='flex items-center justify-center h-full text-gray-400 text-xs font-bold uppercase tracking-widest'>Failed to load chart</div>";
-      }
-    };
-
-    currentContainer.appendChild(script);
-
-    return () => {
-      if (currentContainer) {
-        currentContainer.innerHTML = "";
-      }
-    };
-  }, [symbol]);
+    return `${baseUrl}?${params.toString()}`;
+  }, [symbol, containerId]);
 
   return (
-    <div className="tradingview-widget-container h-full w-full rounded-2xl overflow-hidden bg-gray-50 flex items-center justify-center" ref={container}>
-      <div className="tradingview-widget-container__widget h-full w-full"></div>
+    <div className="tradingview-widget-container h-full w-full bg-gray-50 flex items-center justify-center relative overflow-hidden">
+      <iframe
+        id={containerId}
+        src={iframeUrl}
+        width="100%"
+        height="100%"
+        frameBorder="0"
+        allowtransparency="true"
+        scrolling="no"
+        allowFullScreen
+        title="TradingView Chart"
+        className="absolute inset-0"
+      />
     </div>
   );
 }

@@ -82,10 +82,10 @@ export default function Home() {
               <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-violet-600 rounded-[3rem] blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200" />
               <div className="relative aspect-[4/3] rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white">
                 <img 
-                  src="https://images.unsplash.com/photo-1624996379697-f01d168b1a52?auto=format&fit=crop&q=80&w=1200" 
-                  alt="Trading Interface"
+                  src="https://images.unsplash.com/photo-1611974714025-a6a49530dfec?auto=format&fit=crop&q=80&w=1200" 
+                  alt="Stock Market Trading Dashboard"
                   referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
                 />
                 <div className="absolute inset-0 bg-gradient-to-tr from-indigo-900/20 to-transparent" />
               </div>

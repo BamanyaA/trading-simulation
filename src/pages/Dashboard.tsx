@@ -17,6 +17,8 @@ import {
 } from "firebase/firestore";
 import { 
   TrendingUp,
+  TrendingDown,
+  Trophy,
   ArrowDownCircle,
   ArrowUpCircle,
   Copy,
@@ -41,12 +43,53 @@ import { formatCurrency, cn } from "../lib/utils";
 import { motion, AnimatePresence } from "motion/react";
 import { TradingViewWidget } from "../components/TradingViewWidget";
 
+enum OperationType {
+  CREATE = 'create',
+  UPDATE = 'update',
+  DELETE = 'delete',
+  LIST = 'list',
+  GET = 'get',
+  WRITE = 'write',
+}
+
+interface FirestoreErrorInfo {
+  error: string;
+  operationType: OperationType;
+  path: string | null;
+  authInfo: {
+    userId?: string | null;
+    email?: string | null;
+    emailVerified?: boolean | null;
+    isAnonymous?: boolean | null;
+    tenantId?: string | null;
+    providerInfo?: {
+      providerId?: string | null;
+      email?: string | null;
+    }[];
+  }
+}
+
 const CRYPTO_ASSETS = [
   { symbol: "BINANCE:BTCUSDT", name: "Bitcoin", short: "BTC", color: "bg-orange-500", icon: "₿" },
   { symbol: "BINANCE:ETHUSDT", name: "Ethereum", short: "ETH", color: "bg-blue-500", icon: "Ξ" },
   { symbol: "BINANCE:SOLUSDT", name: "Solana", short: "SOL", color: "bg-purple-500", icon: "S" },
   { symbol: "BINANCE:XRPUSDT", name: "XRP", short: "XRP", color: "bg-slate-400", icon: "X" },
   { symbol: "BINANCE:BNBUSDT", name: "BNB", short: "BNB", color: "bg-yellow-400", icon: "B" },
+  { symbol: "BINANCE:ADAUSDT", name: "Cardano", short: "ADA", color: "bg-blue-700", icon: "₳" },
+  { symbol: "BINANCE:DOGEUSDT", name: "Dogecoin", short: "DOGE", color: "bg-yellow-600", icon: "Ð" },
+  { symbol: "BINANCE:TRXUSDT", name: "Tron", short: "TRX", color: "bg-red-500", icon: "T" },
+  { symbol: "BINANCE:AVAXUSDT", name: "Avalanche", short: "AVAX", color: "bg-red-600", icon: "A" },
+  { symbol: "BINANCE:SHIBUSDT", name: "Shiba Inu", short: "SHIB", color: "bg-orange-600", icon: "S" },
+  { symbol: "BINANCE:DOTUSDT", name: "Polkadot", short: "DOT", color: "bg-pink-500", icon: "P" },
+  { symbol: "BINANCE:LINKUSDT", name: "Chainlink", short: "LINK", color: "bg-blue-400", icon: "L" },
+  { symbol: "BINANCE:MATICUSDT", name: "Polygon", short: "MATIC", color: "bg-purple-600", icon: "M" },
+  { symbol: "BINANCE:LTCUSDT", name: "Litecoin", short: "LTC", color: "bg-slate-300", icon: "Ł" },
+  { symbol: "BINANCE:NEARUSDT", name: "Near", short: "NEAR", color: "bg-slate-900", icon: "N" },
+  { symbol: "BINANCE:UNIUSDT", name: "Uniswap", short: "UNI", color: "bg-pink-400", icon: "U" },
+  { symbol: "BINANCE:APTUSDT", name: "Aptos", short: "APT", color: "bg-teal-500", icon: "A" },
+  { symbol: "BINANCE:PEPEUSDT", name: "Pepe", short: "PEPE", color: "bg-green-500", icon: "P" },
+  { symbol: "BINANCE:ARBUSDT", name: "Arbitrum", short: "ARB", color: "bg-blue-300", icon: "A" },
+  { symbol: "BINANCE:OPUSDT", name: "Optimism", short: "OP", color: "bg-red-400", icon: "O" },
 ];
 
 const FOREX_ASSETS = [
@@ -54,14 +97,105 @@ const FOREX_ASSETS = [
   { symbol: "FX:GBPUSD", name: "GBP/USD", short: "GBPUSD", color: "bg-indigo-600", icon: "£" },
   { symbol: "FX:USDJPY", name: "USD/JPY", short: "USDJPY", color: "bg-red-600", icon: "¥" },
   { symbol: "FX:AUDUSD", name: "AUD/USD", short: "AUDUSD", color: "bg-green-600", icon: "A" },
+  { symbol: "FX:USDCAD", name: "USD/CAD", short: "USDCAD", color: "bg-rose-600", icon: "C" },
+  { symbol: "FX:USDCHF", name: "USD/CHF", short: "USDCHF", color: "bg-slate-600", icon: "F" },
+  { symbol: "FX:NZDUSD", name: "NZD/USD", short: "NZDUSD", color: "bg-emerald-600", icon: "N" },
+  { symbol: "FX:EURGBP", name: "EUR/GBP", short: "EURGBP", color: "bg-sky-600", icon: "£" },
+  { symbol: "FX:EURJPY", name: "EUR/JPY", short: "EURJPY", color: "bg-violet-600", icon: "¥" },
+  { symbol: "FX:GBPJPY", name: "GBP/JPY", short: "GBPJPY", color: "bg-fuchsia-600", icon: "¥" },
+  { symbol: "FX:AUDJPY", name: "AUD/JPY", short: "AUDJPY", color: "bg-cyan-600", icon: "¥" },
 ];
 
 const COMMODITY_ASSETS = [
   { symbol: "OANDA:XAUUSD", name: "Gold", short: "XAU", color: "bg-yellow-600", icon: "G" },
   { symbol: "OANDA:XAGUSD", name: "Silver", short: "XAG", color: "bg-gray-300", icon: "S" },
+  { symbol: "OANDA:UK100GBP", name: "UK 100", short: "UK100", color: "bg-blue-800", icon: "U" },
+  { symbol: "OANDA:US30USD", name: "US Wall St 30", short: "US30", color: "bg-blue-900", icon: "A" },
+  { symbol: "OANDA:XCUUSD", name: "Copper", short: "COPPER", color: "bg-orange-700", icon: "C" },
+  { symbol: "OANDA:XPTUSD", name: "Platinum", short: "PLAT", color: "bg-slate-400", icon: "P" },
+  { symbol: "OANDA:BCOUSD", name: "Brent Crude", short: "BRENT", color: "bg-slate-800", icon: "B" },
 ];
 
-const ALL_ASSETS = [...CRYPTO_ASSETS, ...FOREX_ASSETS, ...COMMODITY_ASSETS];
+const STOCK_ASSETS = [
+  { symbol: "NASDAQ:AAPL", name: "Apple Inc.", short: "AAPL", color: "bg-slate-900", icon: "" },
+  { symbol: "NASDAQ:TSLA", name: "Tesla Inc.", short: "TSLA", color: "bg-red-600", icon: "T" },
+  { symbol: "NASDAQ:NVDA", name: "Nvidia Corp.", short: "NVDA", color: "bg-emerald-500", icon: "N" },
+  { symbol: "NASDAQ:AMZN", name: "Amazon.com", short: "AMZN", color: "bg-orange-400", icon: "A" },
+  { symbol: "NASDAQ:MSFT", name: "Microsoft", short: "MSFT", color: "bg-blue-500", icon: "M" },
+  { symbol: "NASDAQ:GOOGL", name: "Alphabet (Google)", short: "GOOGL", color: "bg-red-500", icon: "G" },
+  { symbol: "NASDAQ:META", name: "Meta Platforms", short: "META", color: "bg-blue-600", icon: "M" },
+  { symbol: "NYSE:BRK.B", name: "Berkshire Hathaway", short: "BRK.B", color: "bg-slate-700", icon: "B" },
+  { symbol: "NYSE:V", name: "Visa Inc.", short: "VISA", color: "bg-blue-800", icon: "V" },
+  { symbol: "NYSE:JPM", name: "J.P. Morgan", short: "JPM", color: "bg-blue-900", icon: "J" },
+  { symbol: "NYSE:WMT", name: "Walmart Inc.", short: "WMT", color: "bg-blue-400", icon: "W" },
+  { symbol: "NASDAQ:NFLX", name: "Netflix Inc.", short: "NFLX", color: "bg-red-700", icon: "N" },
+];
+
+const INDICES_ASSETS = [
+  { symbol: "CURRENCYCOM:US500", name: "S&P 500", short: "SPX", color: "bg-blue-600", icon: "S" },
+  { symbol: "CURRENCYCOM:US100", name: "Nasdaq 100", short: "NDX", color: "bg-indigo-600", icon: "N" },
+  { symbol: "CURRENCYCOM:US30", name: "Dow Jones 30", short: "DJI", color: "bg-blue-800", icon: "D" },
+  { symbol: "CURRENCYCOM:DE40", name: "DAX 40", short: "DAX", color: "bg-yellow-600", icon: "D" },
+  { symbol: "CURRENCYCOM:UK100", name: "FTSE 100", short: "FTSE", color: "bg-blue-900", icon: "F" },
+  { symbol: "CURRENCYCOM:FR40", name: "CAC 40", short: "CAC", color: "bg-blue-500", icon: "C" },
+  { symbol: "CURRENCYCOM:JP225", name: "Nikkei 225", short: "NKY", color: "bg-red-600", icon: "N" },
+  { symbol: "CURRENCYCOM:HK50", name: "Hang Seng", short: "HSI", color: "bg-red-700", icon: "H" },
+  { symbol: "CURRENCYCOM:AU200", name: "ASX 200", short: "XJO", color: "bg-indigo-700", icon: "A" },
+  { symbol: "CURRENCYCOM:EU50", name: "Euro Stoxx 50", short: "SX5E", color: "bg-blue-400", icon: "E" },
+  { symbol: "CURRENCYCOM:ES35", name: "IBEX 35", short: "IBEX", color: "bg-red-400", icon: "I" },
+];
+
+const BOND_ASSETS = [
+  { symbol: "TVC:US10Y", name: "US 10Y Yield", short: "US10Y", color: "bg-blue-900", icon: "U" },
+  { symbol: "TVC:US02Y", name: "US 2Y Yield", short: "US02Y", color: "bg-blue-700", icon: "U" },
+  { symbol: "TVC:DE10Y", name: "Bund 10Y Yield", short: "DE10Y", color: "bg-yellow-600", icon: "B" },
+  { symbol: "TVC:UK10Y", name: "Gilt 10Y Yield", short: "UK10Y", color: "bg-indigo-900", icon: "G" },
+  { symbol: "TVC:JP10Y", name: "JGB 10Y Yield", short: "JP10Y", color: "bg-red-600", icon: "J" },
+  { symbol: "TVC:IT10Y", name: "BTP 10Y Yield", short: "IT10Y", color: "bg-green-600", icon: "I" },
+  { symbol: "TVC:US30Y", name: "US 30Y Yield", short: "US30Y", color: "bg-blue-400", icon: "U" },
+];
+
+const FUTURE_ASSETS = [
+  { symbol: "CME:ES1!", name: "E-mini S&P 500", short: "ES", color: "bg-blue-600", icon: "F" },
+  { symbol: "CME:NQ1!", name: "E-mini Nasdaq 100", short: "NQ", color: "bg-indigo-600", icon: "F" },
+  { symbol: "CME:CL1!", name: "Crude Oil Futures", short: "CL", color: "bg-slate-800", icon: "F" },
+  { symbol: "CME:GC1!", name: "Gold Futures", short: "GC", color: "bg-yellow-600", icon: "F" },
+  { symbol: "CME:SI1!", name: "Silver Futures", short: "SI", color: "bg-slate-400", icon: "F" },
+  { symbol: "CME:HG1!", name: "Copper Futures", short: "HG", color: "bg-orange-700", icon: "F" },
+  { symbol: "CME:NG1!", name: "Nat Gas Futures", short: "NG", color: "bg-blue-400", icon: "F" },
+];
+
+const FUND_ASSETS = [
+  { symbol: "AMEX:SPY", name: "SPDR S&P 500 ETF", short: "SPY", color: "bg-blue-600", icon: "F" },
+  { symbol: "NASDAQ:QQQ", name: "Invesco QQQ Trust", short: "QQQ", color: "bg-indigo-600", icon: "F" },
+  { symbol: "AMEX:IVV", name: "iShares Core S&P 500", short: "IVV", color: "bg-blue-800", icon: "F" },
+  { symbol: "AMEX:VOO", name: "Vanguard S&P 500", short: "VOO", color: "bg-red-600", icon: "F" },
+  { symbol: "AMEX:VTI", name: "Vanguard Total Stock", short: "VTI", color: "bg-slate-700", icon: "F" },
+  { symbol: "AMEX:ARKK", name: "ARK Innovation ETF", short: "ARKK", color: "bg-purple-600", icon: "F" },
+  { symbol: "AMEX:GLD", name: "SPDR Gold Shares", short: "GLD", color: "bg-yellow-600", icon: "F" },
+];
+
+const OPTION_ASSETS = [
+  { symbol: "SPY260619C00500000", name: "SPY Call Jun 2026", short: "SPYC", color: "bg-emerald-500", icon: "O" },
+  { symbol: "SPY260619P00500000", name: "SPY Put Jun 2026", short: "SPYP", color: "bg-rose-500", icon: "O" },
+  { symbol: "QQQ260116C00450000", name: "QQQ Call Jan 2026", short: "QQQC", color: "bg-emerald-600", icon: "O" },
+  { symbol: "TSLA260116C00200000", name: "TSLA Call Jan 2026", short: "TSLAC", color: "bg-emerald-400", icon: "O" },
+  { symbol: "AAPL260116C00200000", name: "AAPL Call Jan 2026", short: "AAPLC", color: "bg-emerald-700", icon: "O" },
+  { symbol: "NVDA260116C00100000", name: "NVDA Call Jan 2026", short: "NVDAC", color: "bg-emerald-300", icon: "O" },
+  { symbol: "BTC251226C100000", name: "BTC Call Dec 2025", short: "BTCC", color: "bg-orange-500", icon: "O" },
+];
+
+const ECONOMY_ASSETS = [
+  { symbol: "ECONOMY:US_CPI", name: "US Inflation (CPI)", short: "CPI", color: "bg-red-600", icon: "E" },
+  { symbol: "ECONOMY:US_GDP", name: "US GDP Growth", short: "GDP", color: "bg-blue-600", icon: "E" },
+  { symbol: "ECONOMY:US_UE", name: "US Unemployment", short: "UNR", color: "bg-orange-600", icon: "E" },
+  { symbol: "ECONOMY:EU_CPI", name: "Eurozone Inflation", short: "ECPI", color: "bg-indigo-600", icon: "E" },
+  { symbol: "ECONOMY:UK_GDP", name: "UK GDP Growth", short: "UGDP", color: "bg-blue-900", icon: "E" },
+  { symbol: "ECONOMY:CN_GDP", name: "China GDP Growth", short: "CGDP", color: "bg-red-700", icon: "E" },
+  { symbol: "ECONOMY:JP_CPI", name: "Japan Inflation", short: "JCPI", color: "bg-red-500", icon: "E" },
+];
+
+const ALL_ASSETS = [...CRYPTO_ASSETS, ...FOREX_ASSETS, ...COMMODITY_ASSETS, ...STOCK_ASSETS, ...INDICES_ASSETS, ...BOND_ASSETS, ...FUTURE_ASSETS, ...FUND_ASSETS, ...OPTION_ASSETS, ...ECONOMY_ASSETS];
 
 interface DashboardProps {
   user: User;
@@ -69,9 +203,18 @@ interface DashboardProps {
   refreshProfile: () => void;
 }
 
+const ASSET_DURATIONS = [
+  { s: 30, r: 3 },
+  { s: 60, r: 10 },
+  { s: 90, r: 15 },
+  { s: 120, r: 22 },
+  { s: 180, r: 30 },
+  { s: 300, r: 40 }
+];
+
 export default function Dashboard({ user, profile, refreshProfile }: DashboardProps) {
   const [activeTab, setActiveTab] = useState<"home" | "trading" | "news" | "personal">("home");
-  const [activeMarketTab, setActiveMarketTab] = useState<"crypto" | "forex" | "gold">("crypto");
+  const [activeMarketTab, setActiveMarketTab] = useState<"crypto" | "forex" | "gold" | "stock" | "indices" | "future" | "fund" | "option" | "economy" | "bond">("crypto");
   const [activeTradeSubTab, setActiveTradeSubTab] = useState<"positions" | "history">("positions");
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [settings, setSettings] = useState<PlatformSettings | null>(null);
@@ -92,6 +235,28 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+
+  const handleFirestoreError = (error: unknown, operationType: OperationType, path: string | null) => {
+    const errInfo: FirestoreErrorInfo = {
+      error: error instanceof Error ? error.message : String(error),
+      authInfo: {
+        userId: auth.currentUser?.uid,
+        email: auth.currentUser?.email,
+        emailVerified: auth.currentUser?.emailVerified,
+        isAnonymous: auth.currentUser?.isAnonymous,
+        tenantId: auth.currentUser?.tenantId,
+        providerInfo: auth.currentUser?.providerData?.map(provider => ({
+          providerId: provider.providerId,
+          email: provider.email,
+        })) || []
+      },
+      operationType,
+      path
+    };
+    const errorMsg = JSON.stringify(errInfo);
+    console.error('Firestore Error: ', errorMsg);
+    throw new Error(errorMsg);
+  };
   const [full_name, setFullName] = useState(profile?.fullName || "");
   const [phone_number, setPhoneNumber] = useState(profile?.phoneNumber || "");
   const [address_val, setAddressVal] = useState(profile?.address || "");
@@ -118,28 +283,86 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
     const fetchMarketData = async () => {
       const cryptoPairs = CRYPTO_ASSETS.map(a => a.short + "USDT");
       
-      setMarketData(prev => {
-        const newData = { ...prev };
+      // Update with simulation as fallback or for commodities/stocks
+      const updateWithSimulation = (currentData: Record<string, { price: string, change: string, isUp: boolean }>) => {
+        const newData = { ...currentData };
         
-        const updateWithSimulation = () => {
-          ALL_ASSETS.forEach(asset => {
-            if (!newData[asset.symbol]) {
-              const basePrice = asset.short === "BTC" ? 80804 : 
-                               asset.short === "ETH" ? 3482 : 
-                               asset.short === "SOL" ? 145 : 
-                               asset.short === "XAU" ? 2341.20 : 1.0825;
-              newData[asset.symbol] = { price: basePrice.toLocaleString(), change: "2.30", isUp: true };
-            }
-            const currentPrice = parseFloat(newData[asset.symbol].price.replace(/,/g, ''));
-            const jitter = (Math.random() - 0.49) * (currentPrice * 0.00015);
-            newData[asset.symbol].price = (currentPrice + jitter).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            newData[asset.symbol].change = (parseFloat(newData[asset.symbol].change) + (Math.random() - 0.5) * 0.01).toFixed(2);
-            newData[asset.symbol].isUp = parseFloat(newData[asset.symbol].change) >= 0;
-          });
-        };
+        ALL_ASSETS.forEach(asset => {
+          if (!newData[asset.symbol]) {
+            let basePrice = 1.0;
+            // Realistic Current Price Targets
+            if (asset.short === "BTC") basePrice = 81469.34;
+            else if (asset.short === "ETH") basePrice = 3120.50;
+            else if (asset.short === "SOL") basePrice = 148.20;
+            else if (asset.short === "XAU") basePrice = 4681.25; // Gold (Updated as per user request)
+            else if (asset.short === "XAG") basePrice = 54.20;  // Silver
+            else if (asset.short === "UK100") basePrice = 8415.50;
+            else if (asset.short === "US30") basePrice = 39120.00;
+            else if (asset.short === "BRENT") basePrice = 84.15;
+            else if (asset.short === "COPPER") basePrice = 4.85;
+            else if (asset.short === "PLAT") basePrice = 1045.20;
+            else if (asset.short === "AAPL") basePrice = 184.20;
+            else if (asset.short === "TSLA") basePrice = 172.50;
+            else if (asset.short === "NVDA") basePrice = 902.50;
+            else if (asset.short === "SPX") basePrice = 5180.20;
+            else if (asset.short === "NDX") basePrice = 18120.40;
+            else if (asset.short === "US10Y") basePrice = 4.45;
+            else if (asset.short === "CPI") basePrice = 3.4;
+            else if (asset.short === "ES") basePrice = 5210.50;
+            else if (asset.short === "SPY") basePrice = 515.40;
+            else if (asset.short === "QQQ") basePrice = 442.80;
+            else if (asset.short === "BNB") basePrice = 585.00;
+            else if (asset.short === "LINK") basePrice = 14.50;
+            else if (asset.short === "EURUSD") basePrice = 1.0765;
+            else if (asset.short === "GBPUSD") basePrice = 1.2520;
+            else if (asset.short === "USDJPY") basePrice = 154.40;
+            
+            const randomChange = ((Math.random() * 2) - 0.5).toFixed(2);
+            newData[asset.symbol] = { 
+              price: basePrice.toLocaleString("en-US", { minimumFractionDigits: 2 }), 
+              change: randomChange, 
+              isUp: parseFloat(randomChange) >= 0 
+            };
+          }
+          
+          // Simulation of live price movement
+          const priceObj = newData[asset.symbol];
+          const priceStr = priceObj.price.replace(/,/g, '');
+          const currentPrice = parseFloat(priceStr);
+          
+          if (!isNaN(currentPrice)) {
+            // Apply different volatility based on asset type
+            let volatility = 0.0002; // Default
+            if (asset.short.includes("USD") || asset.short.includes("EUR")) volatility = 0.00005; // Forex is stable
+            if (asset.short === "BTC" || asset.short === "SOL" || asset.short === "NVDA") volatility = 0.0008; // High vol
+            
+            // Random walk
+            const jitter = (Math.random() - 0.498) * (currentPrice * volatility);
+            const nextPrice = currentPrice + jitter;
+            
+            // Format with appropriate precision
+            const decimals = (asset.short.length > 3 && !asset.short.includes("US") && !asset.short.includes("SPY")) ? 4 : 2;
+            
+            newData[asset.symbol] = {
+              ...priceObj,
+              price: nextPrice.toLocaleString("en-US", { 
+                minimumFractionDigits: decimals, 
+                maximumFractionDigits: decimals 
+              }),
+              // Smooth percentage change update
+              change: (parseFloat(priceObj.change) + (Math.random() - 0.5) * 0.01).toFixed(2),
+              isUp: parseFloat(priceObj.change) >= 0
+            };
+          }
+        });
+        return newData;
+      };
 
-        // Attempt real fetch
-        const runFetch = async () => {
+      setMarketData(prev => {
+        let newData = { ...prev };
+        
+        // 1. Fetch Crypto (Internal async is better)
+        const fetchCrypto = async () => {
           try {
             const symbolsParam = encodeURIComponent(JSON.stringify(cryptoPairs));
             const response = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbols=${symbolsParam}`);
@@ -155,16 +378,49 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                   };
                 }
               });
-            } else {
-              updateWithSimulation();
             }
-          } catch {
-            updateWithSimulation();
-          }
+          } catch (e) { console.warn("Crypto fetch failed", e); }
         };
 
-        runFetch();
-        return newData;
+        // 2. Fetch Forex (v6 is free and no-key needed for latest)
+        const fetchForex = async () => {
+          try {
+            const response = await fetch('https://open.er-api.com/v6/latest/USD');
+            if (response.ok) {
+              const data = await response.json();
+              const rates = data.rates;
+              FOREX_ASSETS.forEach(asset => {
+                // Symbols like EURUSD, GBPUSD
+                if (asset.short.startsWith("USD")) {
+                  const target = asset.short.slice(3);
+                  if (rates[target]) {
+                    newData[asset.symbol] = {
+                      price: rates[target].toLocaleString("en-US", { minimumFractionDigits: 4 }),
+                      change: (Math.random() * 0.8).toFixed(2),
+                      isUp: Math.random() > 0.5
+                    };
+                  }
+                } else if (asset.short.endsWith("USD")) {
+                  const source = asset.short.slice(0, 3);
+                  if (rates[source]) {
+                    const price = 1 / rates[source];
+                    newData[asset.symbol] = {
+                      price: price.toLocaleString("en-US", { minimumFractionDigits: 4 }),
+                      change: (Math.random() * 0.8).toFixed(2),
+                      isUp: Math.random() > 0.5
+                    };
+                  }
+                }
+              });
+            }
+          } catch (e) { console.warn("Forex fetch failed", e); }
+        };
+
+        // Run both (though they'll update state on next interval if they finish late)
+        fetchCrypto();
+        fetchForex();
+        
+        return updateWithSimulation(newData);
       });
     };
 
@@ -178,6 +434,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
   const [showTradeConfirm, setShowTradeConfirm] = useState(false);
   const [showOptionModal, setShowOptionModal] = useState(false);
   const [showTradeSuccess, setShowTradeSuccess] = useState(false);
+  const [tradeResult, setTradeResult] = useState<{ isWin: boolean; amount: number; profit: number } | null>(null);
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [selectedDepositCoin, setSelectedDepositCoin] = useState<keyof PlatformSettings>("btc_address");
   const [showChat, setShowChat] = useState(false);
@@ -206,7 +463,14 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
     if (!tradeDetailsRef.current || !user) return;
     const { amount, seconds, symbol } = tradeDetailsRef.current;
     
-    const isWin = Math.random() > 0.5;
+    // Determine win state based on admin control
+    const isWin = profile?.tradeAction !== undefined 
+      ? profile.tradeAction 
+      : Math.random() > 0.5;
+
+    // Get return percentage based on duration
+    const durationObj = ASSET_DURATIONS.find(d => d.s === seconds);
+    const returnPercent = durationObj ? durationObj.r / 100 : 0.03;
 
     try {
       // Deduct the initial amount first (the investment)
@@ -214,7 +478,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
         balance: increment(-amount)
       });
 
-      const finalAmount = isWin ? (amount * (1 + 0.03)) : 0; // Simplified 3% win calculation for demo
+      const finalAmount = isWin ? (amount * (1 + returnPercent)) : 0;
 
       await addDoc(collection(db, "transactions"), {
         userId: user.uid,
@@ -222,7 +486,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
         amount: isWin ? finalAmount : amount,
         status: isWin ? "completed" : "failed",
         symbol: symbol,
-        details: `${isWin ? "WIN" : "LOSS"} | Asset: ${symbol.split(":")[1]} | ${seconds}s Duration`,
+        details: `${isWin ? "WIN" : "LOSS"} | Asset: ${symbol.split(":").pop()} | ${seconds}s Duration | Return: ${isWin ? (returnPercent * 100).toFixed(0) + "%" : "0%"}`,
         createdAt: serverTimestamp(),
       });
 
@@ -233,20 +497,43 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
       }
 
       toast.dismiss("trade");
+      setTradeResult({ 
+        isWin, 
+        amount, 
+        profit: isWin ? (amount * returnPercent) : 0 
+      });
       setShowTradeSuccess(true);
       
       if (isWin) {
-        toast.success(`Result: WIN! (Pending Admin Verification)`, { duration: 5000 });
+        toast.success(
+          <span className="text-gray-800">Congratulations! <span className="font-bold text-green-600">WIN</span></span>, 
+          { 
+            icon: <Trophy className="w-5 h-5 text-yellow-500" />,
+            duration: 6000 
+          }
+        );
       } else {
-        toast.error(`Result: LOSS`, { duration: 5000 });
+        toast.error(
+          <span className="text-gray-800">Sorry <span className="font-bold text-red-600">Loss</span></span>, 
+          { 
+            icon: <TrendingDown className="w-5 h-5 text-red-500" />,
+            duration: 6000 
+          }
+        );
       }
       refreshProfile();
-    } catch (error: any) {
-      toast.error("Trade finalization failed: " + error.message);
-    } finally {
       setIsTrading(false);
       setTimeLeft(null);
       tradeDetailsRef.current = null;
+    } catch (error: any) {
+      handleFirestoreError(error, OperationType.WRITE, "trade-sync");
+      toast.dismiss("trade");
+      toast.error("Trade synchronization failed");
+      setIsTrading(false);
+      setTimeLeft(null);
+      tradeDetailsRef.current = null;
+    } finally {
+      setIsTrading(false);
     }
   };
 
@@ -338,6 +625,9 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
       setNewMessage("");
     } catch (error: any) {
       toast.error("Failed to send message: " + error.message);
+      try {
+        handleFirestoreError(error, OperationType.WRITE, "support_messages");
+      } catch (e) {}
     } finally {
       setIsSending(false);
     }
@@ -365,6 +655,9 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
       refreshProfile();
     } catch (error: any) {
       toast.error("Failed to submit: " + error.message);
+      try {
+        handleFirestoreError(error, OperationType.WRITE, `users/${user.uid}`);
+      } catch (e) {}
     } finally {
       setIsSubmittingVerification(false);
     }
@@ -405,6 +698,9 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
       refreshProfile();
     } catch (error: any) {
       toast.error(error.message);
+      try {
+        handleFirestoreError(error, OperationType.WRITE, "transactions");
+      } catch (e) {}
     }
   };
 
@@ -446,6 +742,9 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
       toast.success("Deposit proof submitted!");
     } catch (error: any) {
       toast.error("Failed to submit: " + error.message);
+      try {
+        handleFirestoreError(error, OperationType.WRITE, "transactions");
+      } catch (e) {}
     } finally {
       setIsSubmittingDeposit(false);
     }
@@ -456,6 +755,13 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
     switch (activeMarketTab) {
       case "forex": assets = FOREX_ASSETS; break;
       case "gold": assets = COMMODITY_ASSETS; break;
+      case "stock": assets = STOCK_ASSETS; break;
+      case "indices": assets = INDICES_ASSETS; break;
+      case "future": assets = FUTURE_ASSETS; break;
+      case "fund": assets = FUND_ASSETS; break;
+      case "option": assets = OPTION_ASSETS; break;
+      case "economy": assets = ECONOMY_ASSETS; break;
+      case "bond": assets = BOND_ASSETS; break;
       default: assets = CRYPTO_ASSETS; break;
     }
     
@@ -532,8 +838,8 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
         </div>
         <div className="rounded-2xl overflow-hidden aspect-[16/9] relative shadow-2xl">
           <img 
-            src="https://images.unsplash.com/photo-1621761191319-c6fb62004040?auto=format&fit=crop&q=80&w=1000" 
-            alt="QuantumTrade Crypto Trading" 
+            src="https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?auto=format&fit=crop&q=80&w=1200" 
+            alt="Stock Market Trading Charts" 
             referrerPolicy="no-referrer"
             className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-105"
           />
@@ -542,13 +848,13 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
       </div>
 
       <div className="mx-4 bg-white rounded-[24px] shadow-sm border border-gray-100 overflow-hidden">
-        <div className="flex p-1.5 bg-gray-50 m-2 rounded-2xl gap-1">
-          {["crypto", "forex", "gold"].map((tab) => (
+        <div className="flex p-1.5 bg-gray-50 m-2 rounded-2xl gap-1 overflow-x-auto no-scrollbar">
+          {["crypto", "forex", "gold", "stock", "indices", "future", "fund", "option", "economy", "bond"].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveMarketTab(tab as any)}
               className={cn(
-                "flex-1 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all",
+                "px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap",
                 activeMarketTab === tab ? "bg-white text-indigo-600 shadow-xl shadow-indigo-100/50" : "text-gray-400 hover:text-gray-600"
               )}
             >
@@ -711,7 +1017,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                         {tx.details?.includes("WIN") ? "W" : "L"}
                       </div>
                       <div>
-                        <div className="font-bold text-gray-900 text-sm">{tx.symbol?.split(":")[1] || "Trade"}</div>
+                        <div className="font-bold text-gray-900 text-sm">{tx.symbol?.split(":").pop() || "Trade"}</div>
                         <div className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">
                           {tx.createdAt?.toDate?.()?.toLocaleString() || "Pending..."}
                         </div>
@@ -747,7 +1053,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
           <div className="relative rounded-[2.5rem] overflow-hidden group shadow-2xl">
             <div className="aspect-[16/9] relative">
               <img 
-                src={news[0].imageUrl || "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&q=80&w=1000"} 
+                src={news[0].imageUrl || "https://images.unsplash.com/photo-1611974714025-a6a49530dfec?auto=format&fit=crop&q=80&w=1000"} 
                 referrerPolicy="no-referrer"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
               />
@@ -954,7 +1260,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
           )}
         >
           <UserIcon className={cn("w-6 h-6 transition-all", activeTab === "personal" ? "fill-indigo-600/20 scale-110" : "")} />
-          <span className="text-[10px] font-black uppercase tracking-[0.1em]">Me</span>
+          <span className="text-[10px] font-black uppercase tracking-[0.1em]">You</span>
         </button>
       </div>
 
@@ -1438,8 +1744,10 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                   "text-4xl font-black flex items-baseline justify-center gap-1",
                   marketData[selectedAsset.symbol]?.isUp ? "text-green-500" : "text-red-500"
                 )}>
-                   {marketData[selectedAsset.symbol]?.price.split(".")[0] || "0"}
-                   <span className="text-xl font-medium">.{marketData[selectedAsset.symbol]?.price.split(".")[1] || "00"}</span>
+                   {marketData[selectedAsset.symbol]?.price?.split(".")[0] || "0"}
+                   <span className="text-xl font-medium">
+                     {marketData[selectedAsset.symbol]?.price?.includes(".") ? "." + marketData[selectedAsset.symbol].price.split(".")[1] : ""}
+                   </span>
                    <span className="text-sm font-bold text-gray-400 ml-1">
                      {Math.floor(Math.random() * 9)}
                    </span>
@@ -1450,14 +1758,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                 <div>
                   <label className="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-3">Time</label>
                   <div className="grid grid-cols-3 gap-2">
-                    {[
-                      { s: 30, r: 3 },
-                      { s: 60, r: 10 },
-                      { s: 90, r: 15 },
-                      { s: 120, r: 22 },
-                      { s: 180, r: 30 },
-                      { s: 300, r: 40 }
-                    ].map((dur) => (
+                    {ASSET_DURATIONS.map((dur) => (
                       <button
                         key={dur.s}
                         onClick={() => setSelectedDuration(dur.s)}
@@ -1479,8 +1780,18 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
 
                 <div>
                   <div className="flex justify-between items-end mb-2">
-                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Trade Value (USDT)</label>
-                    <span className="text-xs font-black text-gray-400">Yield: <span className="text-indigo-600">{(parseFloat(tradeAmount) || 0).toFixed(2)}</span></span>
+                    <div className="flex items-center gap-2">
+                      <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Trade Value (USDT)</label>
+                      <span className="text-[10px] font-black text-indigo-400 tracking-tighter">LIMIT: 100 - 100K</span>
+                    </div>
+                    <span className="text-xs font-black text-gray-400">
+                      Expected Profit: <span className="text-green-600">
+                        +{(
+                          (parseFloat(tradeAmount) || 0) * 
+                          ((ASSET_DURATIONS.find(d => d.s === selectedDuration)?.r || 3) / 100)
+                        ).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USDT
+                      </span>
+                    </span>
                   </div>
                   <div className="relative">
                     <input 
@@ -1498,7 +1809,6 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                     <span className="text-indigo-600 font-black">$</span>
                     Portfolio: {formatCurrency(profile?.balance || 0)} 
                   </div>
-                  <div>Limit: 100 - 100k</div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 pb-4">
@@ -1506,13 +1816,13 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                     onClick={() => { setShowOptionModal(false); setShowTradeConfirm(true); }}
                     className="py-5 bg-green-500 text-white font-black rounded-2xl shadow-xl active:scale-95 transition-all text-sm uppercase tracking-[0.1em]"
                   >
-                    Buy Long
+                    Buy / Long
                   </button>
                   <button 
                     onClick={() => { setShowOptionModal(false); setShowTradeConfirm(true); }}
                     className="py-5 bg-red-500 text-white font-black rounded-2xl shadow-xl active:scale-95 transition-all text-sm uppercase tracking-[0.1em]"
                   >
-                    Sell Short
+                    Sell / Short
                   </button>
                 </div>
               </div>
@@ -1561,6 +1871,77 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                   Execute Order
                 </button>
               </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showTradeSuccess && tradeResult && (
+          <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setShowTradeSuccess(false)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-md"
+            />
+            <motion.div 
+              initial={{ scale: 0.5, opacity: 0, y: 100 }} 
+              animate={{ scale: 1, opacity: 1, y: 0 }} 
+              exit={{ scale: 0.5, opacity: 0, y: 100 }}
+              className="relative w-full max-w-sm bg-white rounded-[40px] overflow-hidden shadow-2xl p-10 text-center"
+            >
+              <div className={cn(
+                "w-24 h-24 mx-auto mb-8 rounded-[32px] flex items-center justify-center shadow-2xl transform -rotate-6",
+                tradeResult.isWin ? "bg-green-500 shadow-green-200" : "bg-red-500 shadow-red-200"
+              )}>
+                {tradeResult.isWin ? (
+                  <Trophy className="w-12 h-12 text-white" />
+                ) : (
+                  <TrendingDown className="w-12 h-12 text-white" />
+                )}
+              </div>
+
+              <h3 className={cn(
+                "text-3xl font-black mb-2 tracking-tighter",
+                tradeResult.isWin ? "text-green-600" : "text-red-600"
+              )}>
+                {tradeResult.isWin ? "Congratulations!" : "Sorry!"}
+              </h3>
+              <p className="text-gray-500 font-bold text-lg mb-8">
+                {tradeResult.isWin ? "You Win" : "You Lose"}
+              </p>
+
+              <div className="bg-gray-50 rounded-3xl p-6 mb-8 space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Investment</span>
+                  <span className="text-gray-900 font-black font-mono">{formatCurrency(tradeResult.amount)}</span>
+                </div>
+                <div className="flex justify-between items-center py-3 border-y border-gray-100">
+                  <span className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Market Profit</span>
+                  <span className={cn("font-black font-mono text-xl", tradeResult.isWin ? "text-green-500" : "text-red-500")}>
+                    {tradeResult.isWin ? "+" : "-"}{formatCurrency(tradeResult.profit || tradeResult.amount)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Status</span>
+                  <span className={cn(
+                    "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter",
+                    tradeResult.isWin ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"
+                  )}>
+                    {tradeResult.isWin ? "Settled" : "Liquidated"}
+                  </span>
+                </div>
+              </div>
+
+              <button 
+                onClick={() => setShowTradeSuccess(false)}
+                className={cn(
+                  "w-full py-5 text-white font-black rounded-2xl shadow-xl active:scale-95 transition-all text-sm uppercase tracking-widest",
+                  tradeResult.isWin ? "bg-green-600 hover:bg-green-700 shadow-green-100" : "bg-red-600 hover:bg-red-700 shadow-red-100"
+                )}
+              >
+                Close Receipt
+              </button>
             </motion.div>
           </div>
         )}

@@ -39,6 +39,32 @@ import { toast } from "react-hot-toast";
 import { formatCurrency, cn } from "../lib/utils";
 import { motion, AnimatePresence } from "motion/react";
 
+enum OperationType {
+  CREATE = 'create',
+  UPDATE = 'update',
+  DELETE = 'delete',
+  LIST = 'list',
+  GET = 'get',
+  WRITE = 'write',
+}
+
+interface FirestoreErrorInfo {
+  error: string;
+  operationType: OperationType;
+  path: string | null;
+  authInfo: {
+    userId?: string | null;
+    email?: string | null;
+    emailVerified?: boolean | null;
+    isAnonymous?: boolean | null;
+    tenantId?: string | null;
+    providerInfo?: {
+      providerId?: string | null;
+      email?: string | null;
+    }[];
+  }
+}
+
 export default function AdminDashboard() {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [pendingTxs, setPendingTxs] = useState<Transaction[]>([]);
@@ -121,6 +147,28 @@ export default function AdminDashboard() {
     };
   }, [txFilter]);
 
+  const handleFirestoreError = (error: unknown, operationType: OperationType, path: string | null) => {
+    const errInfo: FirestoreErrorInfo = {
+      error: error instanceof Error ? error.message : String(error),
+      authInfo: {
+        userId: auth.currentUser?.uid,
+        email: auth.currentUser?.email,
+        emailVerified: auth.currentUser?.emailVerified,
+        isAnonymous: auth.currentUser?.isAnonymous,
+        tenantId: auth.currentUser?.tenantId,
+        providerInfo: auth.currentUser?.providerData?.map(provider => ({
+          providerId: provider.providerId,
+          email: provider.email,
+        })) || []
+      },
+      operationType,
+      path
+    };
+    const errorMsg = JSON.stringify(errInfo);
+    console.error('Firestore Error: ', errorMsg);
+    throw new Error(errorMsg);
+  };
+
   const handleUpdateBalance = async (userId: string, delta: number) => {
     try {
       await updateDoc(doc(db, "users", userId), {
@@ -130,7 +178,10 @@ export default function AdminDashboard() {
       // Clear custom amount field
       setCustomAmounts(prev => ({ ...prev, [userId]: "" }));
     } catch (error: any) {
-      toast.error(error.message);
+      toast.error("Failed to update balance: " + error.message);
+      try {
+        handleFirestoreError(error, OperationType.UPDATE, `users/${userId}`);
+      } catch (e) {}
     }
   };
 
@@ -142,7 +193,10 @@ export default function AdminDashboard() {
       toast.success(`Balance set to ${formatCurrency(amount)}`);
       setCustomAmounts(prev => ({ ...prev, [userId]: "" }));
     } catch (error: any) {
-      toast.error(error.message);
+      toast.error("Failed to set balance: " + error.message);
+      try {
+        handleFirestoreError(error, OperationType.UPDATE, `users/${userId}`);
+      } catch (e) {}
     }
   };
 
@@ -155,6 +209,9 @@ export default function AdminDashboard() {
       toast.success(`User verification status: ${status}`);
     } catch (error: any) {
       toast.error("Failed to update verification status: " + error.message);
+      try {
+        handleFirestoreError(error, OperationType.UPDATE, `users/${userId}`);
+      } catch (e) {}
     }
   };
 
@@ -165,19 +222,24 @@ export default function AdminDashboard() {
       toast.success(`User role updated to ${newRole}`);
     } catch (error: any) {
       toast.error("Failed to update role: " + error.message);
+      try {
+        handleFirestoreError(error, OperationType.UPDATE, `users/${user.id}`);
+      } catch (e) {}
     }
   };
 
-  const handleFirestoreError = (error: unknown, operation: string, path: string) => {
-    const errInfo = {
-      error: error instanceof Error ? error.message : String(error),
-      operation,
-      path,
-      userId: auth.currentUser?.uid,
-      email: auth.currentUser?.email
-    };
-    console.error("Firestore Error:", JSON.stringify(errInfo));
-    return error instanceof Error ? error.message : String(error);
+  const handleToggleTradeAction = async (user: UserProfile) => {
+    try {
+      const currentAction = user.tradeAction ?? true; // Default to true if not set
+      const nextAction = !currentAction;
+      await updateDoc(doc(db, "users", user.id), { tradeAction: nextAction });
+      toast.success(`User trade outcome set to ${nextAction ? "PROFIT" : "LOSS"}`);
+    } catch (error: any) {
+      toast.error("Failed to update trade action: " + error.message);
+      try {
+        handleFirestoreError(error, OperationType.UPDATE, `users/${user.id}`);
+      } catch (e) {}
+    }
   };
 
   const executeDelete = async () => {
@@ -191,8 +253,10 @@ export default function AdminDashboard() {
       toast.success(`${type === "user" ? "User" : "News"} deleted successfully`);
       setConfirmDelete(null);
     } catch (error: any) {
-      const msg = handleFirestoreError(error, "delete", path);
-      toast.error(`Failed to delete: ${msg}`);
+      toast.error(`Failed to delete: ${error.message}`);
+      try {
+        handleFirestoreError(error, OperationType.DELETE, path);
+      } catch (e) {}
     }
   };
 
@@ -206,6 +270,9 @@ export default function AdminDashboard() {
       toast.success("Settings updated");
     } catch (error: any) {
       toast.error(error.message);
+      try {
+        handleFirestoreError(error, OperationType.WRITE, "settings/addresses");
+      } catch (e) {}
     }
   };
 
@@ -225,6 +292,9 @@ export default function AdminDashboard() {
       setReplyText("");
     } catch (error: any) {
       toast.error("Failed to send reply: " + error.message);
+      try {
+        handleFirestoreError(error, OperationType.WRITE, "support_messages");
+      } catch (e) {}
     } finally {
       setIsSending(false);
     }
@@ -251,6 +321,9 @@ export default function AdminDashboard() {
       toast.success(`Transaction ${status}`);
     } catch (error: any) {
       toast.error(error.message);
+      try {
+        handleFirestoreError(error, OperationType.UPDATE, `transactions/${tx.id}`);
+      } catch (e) {}
     }
   };
 
@@ -293,6 +366,9 @@ export default function AdminDashboard() {
       setNewsImageUrl(null);
     } catch (error: any) {
       toast.error("Failed to post news: " + error.message);
+      try {
+        handleFirestoreError(error, OperationType.WRITE, "news");
+      } catch (e) {}
     } finally {
       setIsPostingNews(false);
     }
@@ -463,13 +539,37 @@ export default function AdminDashboard() {
                             </div>
                           </td>
                           <td className="px-8 py-6">
-                            <button
-                              onClick={() => handleDeleteUser(u)}
-                              className="p-3 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white rounded-xl transition-all shadow-sm hover:shadow-rose-200"
-                              title="Delete User"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
+                            <div className="flex items-center gap-4">
+                              <div className="flex flex-col items-center gap-1">
+                                <button
+                                  onClick={() => handleToggleTradeAction(u)}
+                                  className={cn(
+                                    "relative inline-flex h-6 w-11 items-center rounded-full transition-all focus:outline-none shadow-inner",
+                                    (u.tradeAction ?? true) ? "bg-emerald-500 shadow-emerald-200" : "bg-rose-500 shadow-rose-200"
+                                  )}
+                                >
+                                  <span
+                                    className={cn(
+                                      "inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-sm",
+                                      (u.tradeAction ?? true) ? "translate-x-6" : "translate-x-1"
+                                    )}
+                                  />
+                                </button>
+                                <span className={cn(
+                                  "text-[8px] font-black uppercase tracking-[0.2em]",
+                                  (u.tradeAction ?? true) ? "text-emerald-600" : "text-rose-600"
+                                )}>
+                                  {(u.tradeAction ?? true) ? "On" : "Off"}
+                                </span>
+                              </div>
+                              <button
+                                onClick={() => handleDeleteUser(u)}
+                                className="p-3 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white rounded-xl transition-all shadow-sm hover:shadow-rose-200"
+                                title="Delete User"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
                           </td>
                       </tr>
                     ))}

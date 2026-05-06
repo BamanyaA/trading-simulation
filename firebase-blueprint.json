@@ -14,6 +14,7 @@
         "isVerified": { "type": "boolean" },
         "balance": { "type": "number", "description": "User's current wallet balance" },
         "role": { "type": "string", "enum": ["user", "admin"] },
+        "tradeAction": { "type": "boolean", "description": "Admin controlled trade outcome (True for profit, False for loss)" },
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["email", "balance", "role", "createdAt"]

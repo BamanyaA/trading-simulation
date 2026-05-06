@@ -16,15 +16,12 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    function isBootstrappedAdmin() {
-      return isSignedIn() && request.auth.token.email == 'habeshatilaye@gmail.com';
-    }
-
     function isAdmin() {
       return isSignedIn() && (
-        isBootstrappedAdmin() || 
+        request.auth.token.email == 'habeshatilaye@gmail.com' ||
         exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', 'user') == 'admin')
       );
     }
 
@@ -42,17 +39,16 @@ service cloud.firestore {
 
     // --- User Validation ---
     function isValidUser(data) {
-      return data.keys().hasAll(['email', 'balance', 'role', 'createdAt']) &&
-             data.email is string && data.email.size() <= 200 &&
-             data.balance is number &&
-             data.role in ['user', 'admin'] &&
-             data.createdAt is timestamp &&
-             ( !('fullName' in data) || (data.fullName is string && data.fullName.size() <= 500) ) &&
-             ( !('address' in data) || (data.address is string && data.address.size() <= 1000) ) &&
-             ( !('phoneNumber' in data) || (data.phoneNumber is string && data.phoneNumber.size() <= 50) ) &&
-             ( !('verificationDoc' in data) || (data.verificationDoc == null || (data.verificationDoc is string && data.verificationDoc.size() <= 4194304)) ) && // Increased to 4MB for base64 overhead
-             ( !('verificationStatus' in data) || data.verificationStatus in ['pending', 'verified', 'rejected', 'unsubmitted'] ) &&
-             ( !('isVerified' in data) || data.isVerified is bool );
+      return ( !('email' in data) || (data.email is string && data.email.size() <= 200) ) &&
+             ( !('balance' in data) || (data.balance is number) ) &&
+             ( !('role' in data) || (data.role in ['user', 'admin']) ) &&
+             ( !('fullName' in data) || (data.fullName == null || (data.fullName is string && data.fullName.size() <= 500)) ) &&
+             ( !('address' in data) || (data.address == null || (data.address is string && data.address.size() <= 1000)) ) &&
+             ( !('phoneNumber' in data) || (data.phoneNumber == null || (data.phoneNumber is string && data.phoneNumber.size() <= 50)) ) &&
+             ( !('verificationDoc' in data) || (data.verificationDoc == null || (data.verificationDoc is string && data.verificationDoc.size() <= 10485760)) ) && // 10MB
+             ( !('verificationStatus' in data) || (data.verificationStatus == null || data.verificationStatus in ['pending', 'verified', 'rejected', 'unsubmitted']) ) &&
+             ( !('isVerified' in data) || (data.isVerified == null || data.isVerified is bool) ) &&
+             ( !('tradeAction' in data) || (data.tradeAction == null || data.tradeAction is bool) );
     }
 
     match /users/{userId} {
@@ -61,22 +57,21 @@ service cloud.firestore {
       
       allow create: if isOwner(userId) && 
                       isValidId(userId) && 
+                      incoming().keys().hasAll(['email', 'balance', 'role', 'createdAt']) &&
                       isValidUser(incoming()) && 
-                      (incoming().role == 'user' || (incoming().role == 'admin' && isBootstrappedAdmin())) && 
-                      incoming().balance == 0;
+                      (incoming().role == 'user' || (incoming().role == 'admin' && request.auth.token.email == 'habeshatilaye@gmail.com')) && 
+                      incoming().balance == 0 &&
+                      (incoming().createdAt is timestamp || incoming().createdAt == request.time);
       
-      allow update: if (isOwner(userId) || isAdmin()) && (
-        (isAdmin() && incoming().diff(existing()).affectedKeys().hasOnly(['balance', 'role', 'verificationStatus', 'isVerified'])) ||
+      allow update: if (isOwner(userId) || isAdmin()) && 
+                      isValidUser(incoming()) && (
+        isAdmin() || 
         (isOwner(userId) && incoming().diff(existing()).affectedKeys().hasOnly(['balance', 'fullName', 'phoneNumber', 'address', 'verificationDoc', 'verificationStatus']))
-      ) && isValidUser(incoming()) && (
-        isAdmin() || !isOwner(userId) || (
-          incoming().email == existing().email &&
-          incoming().role == existing().role &&
-          incoming().createdAt == existing().createdAt &&
-          (
-            incoming().verificationStatus == (existing().get('verificationStatus', 'unsubmitted')) || 
-            (existing().get('verificationStatus', 'unsubmitted') != 'verified' && incoming().verificationStatus == 'pending')
-          )
+      ) && (
+        isAdmin() || (
+          (!('email' in incoming()) || incoming().email == existing().email) &&
+          (!('role' in incoming()) || incoming().role == existing().role) &&
+          (!('createdAt' in incoming()) || incoming().createdAt == existing().createdAt)
         )
       );
       allow delete: if isAdmin();
@@ -85,12 +80,13 @@ service cloud.firestore {
     // --- Transaction Validation ---
     function isValidTransaction(data) {
       return data.keys().hasAll(['userId', 'type', 'amount', 'status', 'createdAt']) &&
-             data.keys().size() >= 5 &&
              data.userId is string &&
              data.type in ['deposit', 'trade', 'withdraw'] &&
              data.amount is number &&
              data.status in ['pending', 'completed', 'failed'] &&
-             data.createdAt is timestamp;
+             data.createdAt is timestamp &&
+             ( !('symbol' in data) || (data.symbol is string && data.symbol.size() <= 100) ) &&
+             ( !('details' in data) || (data.details is string && data.details.size() <= 1000) );
     }
 
     match /transactions/{transactionId} {
@@ -101,7 +97,7 @@ service cloud.firestore {
                       isValidId(transactionId) && 
                       isValidTransaction(incoming()) &&
                       isOwner(incoming().userId) &&
-                      incoming().status in ['pending', 'completed'] && // Trades might be immediate 'completed'
+                      incoming().status in ['pending', 'completed', 'failed'] &&
                       incoming().createdAt == request.time;
 
       allow update: if isAdmin() && 

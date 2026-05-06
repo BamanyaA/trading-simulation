@@ -12,6 +12,7 @@ export interface UserProfile {
   createdAt: any; // Firestore Timestamp
   isVerified?: boolean;
   verificationStatus?: "pending" | "verified" | "rejected" | "unsubmitted";
+  tradeAction?: boolean; // true = profit (ON), false = lose (OFF)
 }
 
 export type TransactionType = "deposit" | "trade" | "withdraw";
