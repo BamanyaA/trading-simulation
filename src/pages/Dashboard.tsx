@@ -101,8 +101,8 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
   const handleVerificationFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 2 * 1024 * 1024) {
-        toast.error("File is too large. Maximum size is 2MB");
+      if (file.size > 15 * 1024 * 1024) {
+        toast.error("File is too large. Maximum size is 15MB");
         return;
       }
       const reader = new FileReader();
@@ -411,6 +411,10 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 15 * 1024 * 1024) {
+        toast.error("File is too large. Maximum size is 15MB");
+        return;
+      }
       const reader = new FileReader();
       reader.onloadend = () => {
         setReceiptFile(reader.result as string);
@@ -1175,7 +1179,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                             <div className="text-sm font-bold text-gray-900 mb-1">
                               Upload a file <span className="font-normal text-gray-500">or drag and drop</span>
                             </div>
-                            <span className="text-xs text-gray-500">PNG, JPG, PDF up to 10MB</span>
+                            <span className="text-xs text-gray-500">PNG, JPG, PDF up to 15MB</span>
                           </>
                         )}
                       </div>
@@ -1282,7 +1286,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                           <div className="flex flex-col items-center gap-2">
                             <Upload className="w-8 h-8 text-gray-300" />
                             <span className="text-sm font-bold">Upload Document</span>
-                            <span className="text-[10px] uppercase font-black tracking-widest opacity-60">JPG, PNG or PDF (Max 2MB)</span>
+                            <span className="text-[10px] uppercase font-black tracking-widest opacity-60">JPG, PNG or PDF (Max 15MB)</span>
                           </div>
                         )}
                       </label>
