@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { db } from "../firebase";
+import { db, auth } from "../firebase";
 import { 
   collection, 
   query, 
@@ -56,6 +56,7 @@ export default function AdminDashboard() {
   const [customAmounts, setCustomAmounts] = useState<Record<string, string>>({});
   const [selectedUserKYC, setSelectedUserKYC] = useState<UserProfile | null>(null);
   const [selectedReceipt, setSelectedReceipt] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<{ type: "user" | "news", id: string, name: string } | null>(null);
 
   // Chat states
   const [allMessages, setAllMessages] = useState<SupportMessage[]>([]);
@@ -167,17 +168,36 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleDeleteUser = async (user: UserProfile) => {
-    if (!window.confirm(`Are you sure you want to delete user ${user.email}? This action cannot be undone.`)) {
-      return;
-    }
+  const handleFirestoreError = (error: unknown, operation: string, path: string) => {
+    const errInfo = {
+      error: error instanceof Error ? error.message : String(error),
+      operation,
+      path,
+      userId: auth.currentUser?.uid,
+      email: auth.currentUser?.email
+    };
+    console.error("Firestore Error:", JSON.stringify(errInfo));
+    return error instanceof Error ? error.message : String(error);
+  };
+
+  const executeDelete = async () => {
+    if (!confirmDelete) return;
+
+    const { type, id } = confirmDelete;
+    const path = type === "user" ? `users/${id}` : `news/${id}`;
 
     try {
-      await deleteDoc(doc(db, "users", user.id));
-      toast.success("User deleted successfully");
+      await deleteDoc(doc(db, type === "user" ? "users" : "news", id));
+      toast.success(`${type === "user" ? "User" : "News"} deleted successfully`);
+      setConfirmDelete(null);
     } catch (error: any) {
-      toast.error("Failed to delete user: " + error.message);
+      const msg = handleFirestoreError(error, "delete", path);
+      toast.error(`Failed to delete: ${msg}`);
     }
+  };
+
+  const handleDeleteUser = (user: UserProfile) => {
+    setConfirmDelete({ type: "user", id: user.id, name: user.email });
   };
 
   const handleUpdateSettings = async () => {
@@ -278,14 +298,8 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleDeleteNews = async (newsId: string) => {
-    if (!window.confirm("Delete this news article?")) return;
-    try {
-      await deleteDoc(doc(db, "news", newsId));
-      toast.success("News deleted");
-    } catch (error: any) {
-      toast.error("Delete failed: " + error.message);
-    }
+  const handleDeleteNews = (newsId: string, title: string) => {
+    setConfirmDelete({ type: "news", id: newsId, name: title });
   };
 
   const filteredUsers = users.filter(u => u.email.toLowerCase().includes(search.toLowerCase()));
@@ -787,7 +801,7 @@ export default function AdminDashboard() {
                     <div className="flex justify-between items-center pt-4 border-t border-slate-50">
                       <span className="text-[10px] font-bold text-slate-300 uppercase">{news.createdAt?.toDate?.()?.toLocaleDateString()}</span>
                       <button 
-                        onClick={() => handleDeleteNews(news.id)}
+                        onClick={() => handleDeleteNews(news.id, news.title)}
                         className="text-rose-500 hover:text-rose-700 p-2"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -1008,6 +1022,48 @@ export default function AdminDashboard() {
                   className="px-12 py-4 bg-slate-900 hover:bg-black text-white font-black rounded-2xl transition-all shadow-xl uppercase tracking-widest text-xs"
                 >
                   Exit Review
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+        {confirmDelete && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 sm:p-12">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setConfirmDelete(null)}
+              className="absolute inset-0 bg-slate-950/80 backdrop-blur-md"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative bg-white w-full max-w-md rounded-[2.5rem] overflow-hidden shadow-2xl border border-slate-100"
+            >
+              <div className="bg-rose-50 p-10 flex flex-col items-center text-center">
+                <div className="w-20 h-20 bg-rose-600 rounded-[1.5rem] flex items-center justify-center text-white shadow-xl shadow-rose-200 mb-6">
+                  <Trash2 className="w-10 h-10" />
+                </div>
+                <h3 className="text-2xl font-black text-slate-900 tracking-tight mb-3">Permanent Deletion</h3>
+                <p className="text-slate-500 font-medium text-sm leading-relaxed">
+                  Are you sure you want to delete <span className="font-black text-slate-900 break-all">{confirmDelete.name}</span>? 
+                  This operation is irreversible.
+                </p>
+              </div>
+              <div className="p-8 flex gap-4">
+                <button 
+                  onClick={() => setConfirmDelete(null)}
+                  className="flex-1 py-4 bg-slate-100 hover:bg-slate-200 text-slate-900 font-black rounded-2xl transition-all uppercase tracking-widest text-xs"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={executeDelete}
+                  className="flex-1 py-4 bg-rose-600 hover:bg-rose-700 text-white font-black rounded-2xl transition-all shadow-xl shadow-rose-100 uppercase tracking-widest text-xs"
+                >
+                  Confirm Delete
                 </button>
               </div>
             </motion.div>
