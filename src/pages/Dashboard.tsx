@@ -530,6 +530,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
           <img 
             src="https://images.unsplash.com/photo-1621761191319-c6fb62004040?auto=format&fit=crop&q=80&w=1000" 
             alt="QuantumTrade Crypto Trading" 
+            referrerPolicy="no-referrer"
             className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
@@ -743,6 +744,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
             <div className="aspect-[16/9] relative">
               <img 
                 src={news[0].imageUrl || "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&q=80&w=1000"} 
+                referrerPolicy="no-referrer"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
@@ -775,7 +777,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
               <div key={item.id} className="bg-white p-4 rounded-[2rem] shadow-sm border border-gray-100 flex gap-4 group hover:shadow-xl hover:border-indigo-100 transition-all">
                 {item.imageUrl && (
                   <div className="w-24 h-24 bg-gray-100 rounded-2xl shrink-0 overflow-hidden relative">
-                    <img src={item.imageUrl} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                    <img src={item.imageUrl} referrerPolicy="no-referrer" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                   </div>
                 )}
                 <div className="flex-1 flex flex-col justify-center min-w-0">
@@ -1166,7 +1168,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                         receiptFile ? "border-green-300 bg-green-50" : "border-gray-300 bg-white hover:border-gray-400"
                       )}>
                         {receiptFile ? (
-                          <img src={receiptFile} className="max-h-24 rounded object-contain" alt="Preview" />
+                          <img src={receiptFile} referrerPolicy="no-referrer" className="max-h-24 rounded object-contain" alt="Preview" />
                         ) : (
                           <>
                             <Upload className="w-10 h-10 text-gray-300 mb-4" />

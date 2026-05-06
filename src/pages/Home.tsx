@@ -37,37 +37,69 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative pt-32 pb-44 overflow-hidden">
         <div className="absolute inset-0 bg-indigo-50/50 [mask-image:radial-gradient(ellipse_at_center,transparent_0%,black)]" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-indigo-200/20 blur-[120px] rounded-full pointer-events-none" />
+        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-indigo-200/20 blur-[120px] rounded-full pointer-events-none -mr-96 -mt-96" />
         <div className="container mx-auto px-4 relative">
-          <div className="max-w-4xl mx-auto text-center">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, ease: "circOut" }}
+          <div className="flex flex-col lg:flex-row items-center gap-20">
+            <div className="max-w-2xl text-center lg:text-left">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.8, ease: "circOut" }}
+              >
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-100 border border-indigo-200 text-indigo-700 text-[10px] font-black uppercase tracking-[0.25em] mb-10 shadow-sm mx-auto lg:mx-0">
+                  <span className="flex h-2 w-2 rounded-full bg-indigo-600 animate-pulse" />
+                  Global Trading Network
+                </div>
+                <h1 className="text-6xl md:text-8xl font-black tracking-tighter text-slate-900 mb-8 leading-[0.9]">
+                  Trade the <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600 italic">Future</span> of Asset Classes
+                </h1>
+                <p className="text-xl text-slate-500 mb-12 leading-relaxed max-w-xl lg:mx-0 mx-auto font-medium">
+                  Experience the pinnacle of binary options and cryptocurrency trading. Institutional-grade security meets lightning-fast execution.
+                </p>
+                <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-6">
+                  <Link 
+                    to="/register" 
+                    className="w-full sm:w-auto px-10 py-5 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-3xl transition-all flex items-center justify-center gap-3 shadow-2xl shadow-indigo-200 active:scale-95 text-lg"
+                  >
+                    Get Started <ArrowRight className="w-6 h-6" />
+                  </Link>
+                  <Link 
+                    to="/login" 
+                    className="w-full sm:w-auto px-10 py-5 bg-white border-2 border-slate-100 hover:border-indigo-100 hover:bg-indigo-50/50 text-slate-900 font-bold rounded-3xl transition-all shadow-xl shadow-slate-100/50 text-lg"
+                  >
+                    Client Login
+                  </Link>
+                </div>
+              </motion.div>
+            </div>
+            
+            <motion.div 
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 1, delay: 0.2 }}
+              className="relative flex-1 group"
             >
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-600 text-xs font-black uppercase tracking-[0.2em] mb-10 shadow-sm">
-                <span className="flex h-2 w-2 rounded-full bg-indigo-600 animate-pulse" />
-                V2.0 Now Released
+              <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-violet-600 rounded-[3rem] blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200" />
+              <div className="relative aspect-[4/3] rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white">
+                <img 
+                  src="https://images.unsplash.com/photo-1624996379697-f01d168b1a52?auto=format&fit=crop&q=80&w=1200" 
+                  alt="Trading Interface"
+                  referrerPolicy="no-referrer"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
+                />
+                <div className="absolute inset-0 bg-gradient-to-tr from-indigo-900/20 to-transparent" />
               </div>
-              <h1 className="text-6xl md:text-8xl font-black tracking-tighter text-slate-900 mb-8 leading-[0.9]">
-                Trade the <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">Future</span> of Finance
-              </h1>
-              <p className="text-xl text-slate-500 mb-12 leading-relaxed max-w-2xl mx-auto font-medium">
-                Professional-grade execution. Institutional security. The easiest way to trade crypto, forex, and commodities.
-              </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-                <Link 
-                  to="/register" 
-                  className="w-full sm:w-auto px-10 py-5 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-3xl transition-all flex items-center justify-center gap-3 shadow-2xl shadow-indigo-200 active:scale-95 text-lg"
-                >
-                  Create Account <ArrowRight className="w-6 h-6" />
-                </Link>
-                <Link 
-                  to="/about" 
-                  className="w-full sm:w-auto px-10 py-5 bg-white border-2 border-slate-100 hover:border-indigo-100 hover:bg-indigo-50/50 text-slate-900 font-bold rounded-3xl transition-all shadow-xl shadow-slate-100/50 text-lg"
-                >
-                  Explore Markets
-                </Link>
+              {/* Floating Badge */}
+              <div className="absolute -bottom-10 -left-10 bg-white p-6 rounded-3xl shadow-2xl border border-slate-100 hidden md:block">
+                 <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600">
+                       <TrendingUp className="w-6 h-6" />
+                    </div>
+                    <div>
+                       <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Real-time Data</div>
+                       <div className="text-lg font-black text-slate-900 tracking-tight">99.9% Precision</div>
+                    </div>
+                 </div>
               </div>
             </motion.div>
           </div>
