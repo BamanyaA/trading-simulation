@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { User, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth";
-import { UserProfile, Transaction, PlatformSettings, News, SupportMessage } from "../types";
+import { UserProfile, Transaction, PlatformSettings, News, SupportMessage, OperationType, FirestoreErrorInfo } from "../types";
 import { db, auth } from "../firebase";
 import { 
   collection, 
@@ -42,32 +42,6 @@ import { toast } from "react-hot-toast";
 import { formatCurrency, cn } from "../lib/utils";
 import { motion, AnimatePresence } from "motion/react";
 import { TradingViewWidget } from "../components/TradingViewWidget";
-
-enum OperationType {
-  CREATE = 'create',
-  UPDATE = 'update',
-  DELETE = 'delete',
-  LIST = 'list',
-  GET = 'get',
-  WRITE = 'write',
-}
-
-interface FirestoreErrorInfo {
-  error: string;
-  operationType: OperationType;
-  path: string | null;
-  authInfo: {
-    userId?: string | null;
-    email?: string | null;
-    emailVerified?: boolean | null;
-    isAnonymous?: boolean | null;
-    tenantId?: string | null;
-    providerInfo?: {
-      providerId?: string | null;
-      email?: string | null;
-    }[];
-  }
-}
 
 const CRYPTO_ASSETS = [
   { symbol: "BINANCE:BTCUSDT", name: "Bitcoin", short: "BTC", color: "bg-orange-500", icon: "₿" },

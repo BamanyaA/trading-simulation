@@ -15,7 +15,7 @@ import {
   serverTimestamp,
   addDoc
 } from "firebase/firestore";
-import { UserProfile, Transaction, PlatformSettings, SupportMessage, News } from "../types";
+import { UserProfile, Transaction, PlatformSettings, SupportMessage, News, OperationType, FirestoreErrorInfo } from "../types";
 import { 
   Users, 
   ArrowUpRight, 
@@ -38,32 +38,6 @@ import {
 import { toast } from "react-hot-toast";
 import { formatCurrency, cn } from "../lib/utils";
 import { motion, AnimatePresence } from "motion/react";
-
-enum OperationType {
-  CREATE = 'create',
-  UPDATE = 'update',
-  DELETE = 'delete',
-  LIST = 'list',
-  GET = 'get',
-  WRITE = 'write',
-}
-
-interface FirestoreErrorInfo {
-  error: string;
-  operationType: OperationType;
-  path: string | null;
-  authInfo: {
-    userId?: string | null;
-    email?: string | null;
-    emailVerified?: boolean | null;
-    isAnonymous?: boolean | null;
-    tenantId?: string | null;
-    providerInfo?: {
-      providerId?: string | null;
-      email?: string | null;
-    }[];
-  }
-}
 
 export default function AdminDashboard() {
   const [users, setUsers] = useState<UserProfile[]>([]);
