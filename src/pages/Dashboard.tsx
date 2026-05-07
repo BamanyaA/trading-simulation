@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { User, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth";
-import { UserProfile, Transaction, PlatformSettings, News, SupportMessage, OperationType, FirestoreErrorInfo } from "../types";
-import { db, auth } from "../firebase";
+import { UserProfile, Transaction, PlatformSettings, News, SupportMessage, FirestoreErrorInfo } from "../types";
+import { db, auth, handleFirestoreError, OperationType } from "../firebase";
 import { 
   collection, 
   query, 
@@ -254,22 +254,67 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
 
   // Initialize and update market data for "Live" accuracy
   useEffect(() => {
-    const fetchMarketData = async () => {
-      const cryptoPairs = CRYPTO_ASSETS.map(a => a.short + "USDT");
+    // 1. WebSocket for Crypto (Real-time)
+    const cryptoPairs = CRYPTO_ASSETS.map(a => (a.short + "USDT").toLowerCase());
+    const streams = cryptoPairs.map(p => `${p}@ticker`).join("/");
+    let ws: WebSocket | null = null;
+
+    const connectWS = () => {
+      ws = new WebSocket(`wss://stream.binance.com:9443/stream?streams=${streams}`);
       
-      // Update with simulation as fallback or for commodities/stocks
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        const stream = data.stream;
+        const ticker = data.data;
+        
+        const asset = CRYPTO_ASSETS.find(a => (a.short + "USDT").toLowerCase() === ticker.s.toLowerCase());
+        if (asset) {
+          const price = parseFloat(ticker.c);
+          const change = parseFloat(ticker.P);
+          
+          setMarketData(prev => ({
+            ...prev,
+            [asset.symbol]: {
+              price: price.toLocaleString("en-US", { 
+                minimumFractionDigits: price < 1 ? 4 : 2, 
+                maximumFractionDigits: price < 1 ? 4 : 2 
+              }),
+              change: change.toFixed(2),
+              isUp: change >= 0
+            }
+          }));
+        }
+      };
+
+      ws.onerror = (e) => {
+        console.error("Binance WS Error", e);
+      };
+
+      ws.onclose = () => {
+        console.log("Binance WS Closed, reconnecting...");
+        setTimeout(connectWS, 5000);
+      };
+    };
+
+    connectWS();
+
+    // 2. Fetcher for Non-Crypto (Poll/Simulation)
+    const fetchMarketData = async () => {
+      // Update with simulation for commodities/stocks/etc
       const updateWithSimulation = (currentData: Record<string, { price: string, change: string, isUp: boolean }>) => {
         const newData = { ...currentData };
         
         ALL_ASSETS.forEach(asset => {
+          // SKIP simulation for crypto if we have WS data
+          const isCrypto = CRYPTO_ASSETS.some(ca => ca.symbol === asset.symbol);
+          
           if (!newData[asset.symbol]) {
             let basePrice = 1.0;
-            // Realistic Current Price Targets
             if (asset.short === "BTC") basePrice = 81469.34;
             else if (asset.short === "ETH") basePrice = 3120.50;
             else if (asset.short === "SOL") basePrice = 148.20;
-            else if (asset.short === "XAU") basePrice = 4681.25; // Gold (Updated as per user request)
-            else if (asset.short === "XAG") basePrice = 54.20;  // Silver
+            else if (asset.short === "XAU") basePrice = 4681.25;
+            else if (asset.short === "XAG") basePrice = 54.20;
             else if (asset.short === "UK100") basePrice = 8415.50;
             else if (asset.short === "US30") basePrice = 39120.00;
             else if (asset.short === "BRENT") basePrice = 84.15;
@@ -299,34 +344,31 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
             };
           }
           
-          // Simulation of live price movement
-          const priceObj = newData[asset.symbol];
-          const priceStr = priceObj.price.replace(/,/g, '');
-          const currentPrice = parseFloat(priceStr);
-          
-          if (!isNaN(currentPrice)) {
-            // Apply different volatility based on asset type
-            let volatility = 0.0002; // Default
-            if (asset.short.includes("USD") || asset.short.includes("EUR")) volatility = 0.00005; // Forex is stable
-            if (asset.short === "BTC" || asset.short === "SOL" || asset.short === "NVDA") volatility = 0.0008; // High vol
+          // Simulation of live price movement for NON-CRYPTO only
+          if (!isCrypto) {
+            const priceObj = newData[asset.symbol];
+            const priceStr = priceObj.price.replace(/,/g, '');
+            const currentPrice = parseFloat(priceStr);
             
-            // Random walk
-            const jitter = (Math.random() - 0.498) * (currentPrice * volatility);
-            const nextPrice = currentPrice + jitter;
-            
-            // Format with appropriate precision
-            const decimals = (asset.short.length > 3 && !asset.short.includes("US") && !asset.short.includes("SPY")) ? 4 : 2;
-            
-            newData[asset.symbol] = {
-              ...priceObj,
-              price: nextPrice.toLocaleString("en-US", { 
-                minimumFractionDigits: decimals, 
-                maximumFractionDigits: decimals 
-              }),
-              // Smooth percentage change update
-              change: (parseFloat(priceObj.change) + (Math.random() - 0.5) * 0.01).toFixed(2),
-              isUp: parseFloat(priceObj.change) >= 0
-            };
+            if (!isNaN(currentPrice)) {
+              let volatility = 0.0002;
+              if (asset.short.includes("USD") || asset.short.includes("EUR")) volatility = 0.00005;
+              if (asset.short === "NVDA") volatility = 0.0008;
+
+              const jitter = (Math.random() - 0.498) * (currentPrice * volatility);
+              const nextPrice = currentPrice + jitter;
+              const decimals = (asset.short.length > 3 && !asset.short.includes("US") && !asset.short.includes("SPY")) ? 4 : 2;
+              
+              newData[asset.symbol] = {
+                ...priceObj,
+                price: nextPrice.toLocaleString("en-US", { 
+                  minimumFractionDigits: decimals, 
+                  maximumFractionDigits: decimals 
+                }),
+                change: (parseFloat(priceObj.change) + (Math.random() - 0.5) * 0.01).toFixed(2),
+                isUp: parseFloat(priceObj.change) >= 0
+              };
+            }
           }
         });
         return newData;
@@ -335,28 +377,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
       setMarketData(prev => {
         let newData = { ...prev };
         
-        // 1. Fetch Crypto (Internal async is better)
-        const fetchCrypto = async () => {
-          try {
-            const symbolsParam = encodeURIComponent(JSON.stringify(cryptoPairs));
-            const response = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbols=${symbolsParam}`);
-            if (response.ok) {
-              const data = await response.json();
-              data.forEach((item: any) => {
-                const asset = CRYPTO_ASSETS.find(a => a.short + "USDT" === item.symbol);
-                if (asset) {
-                  newData[asset.symbol] = {
-                    price: parseFloat(item.lastPrice).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-                    change: parseFloat(item.priceChangePercent).toFixed(2),
-                    isUp: parseFloat(item.priceChangePercent) >= 0
-                  };
-                }
-              });
-            }
-          } catch (e) { console.warn("Crypto fetch failed", e); }
-        };
-
-        // 2. Fetch Forex (v6 is free and no-key needed for latest)
+        // Fetch Forex (Free API fallback)
         const fetchForex = async () => {
           try {
             const response = await fetch('https://open.er-api.com/v6/latest/USD');
@@ -364,7 +385,6 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
               const data = await response.json();
               const rates = data.rates;
               FOREX_ASSETS.forEach(asset => {
-                // Symbols like EURUSD, GBPUSD
                 if (asset.short.startsWith("USD")) {
                   const target = asset.short.slice(3);
                   if (rates[target]) {
@@ -390,17 +410,18 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
           } catch (e) { console.warn("Forex fetch failed", e); }
         };
 
-        // Run both (though they'll update state on next interval if they finish late)
-        fetchCrypto();
         fetchForex();
-        
         return updateWithSimulation(newData);
       });
     };
 
     fetchMarketData();
     const interval = setInterval(fetchMarketData, 2000);
-    return () => clearInterval(interval);
+    
+    return () => {
+      clearInterval(interval);
+      if (ws) ws.close();
+    };
   }, []);
   const [depositAmount, setDepositAmount] = useState("");
   const [receiptFile, setReceiptFile] = useState<string | null>(null);
@@ -445,6 +466,9 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
     // Get return percentage based on duration
     const durationObj = ASSET_DURATIONS.find(d => d.s === seconds);
     const returnPercent = durationObj ? durationObj.r / 100 : 0.03;
+    
+    // Loss percentage: 5% per 30s as requested
+    const lossPercent = (seconds / 30) * 0.05;
 
     try {
       // Deduct the initial amount first (the investment)
@@ -452,35 +476,36 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
         balance: increment(-amount)
       });
 
-      const finalAmount = isWin ? (amount * (1 + returnPercent)) : 0;
+      const finalAmount = isWin 
+        ? (amount * (1 + returnPercent)) 
+        : (amount * (1 - lossPercent));
 
       await addDoc(collection(db, "transactions"), {
         userId: user.uid,
         type: "trade",
-        amount: isWin ? finalAmount : amount,
+        amount: isWin ? finalAmount : amount * lossPercent,
         status: isWin ? "completed" : "failed",
         symbol: symbol,
-        details: `${isWin ? "WIN" : "LOSS"} | Asset: ${symbol.split(":").pop()} | ${seconds}s Duration | Return: ${isWin ? (returnPercent * 100).toFixed(0) + "%" : "0%"}`,
+        details: `${isWin ? "WIN" : "LOSS"} | Asset: ${symbol.split(":").pop()} | ${seconds}s Duration | ${isWin ? "Profit: " + (returnPercent * 100).toFixed(0) + "%" : "Loss: " + (lossPercent * 100).toFixed(0) + "%"}`,
         createdAt: serverTimestamp(),
       });
 
-      if (isWin) {
-        await updateDoc(doc(db, "users", user.uid), {
-          balance: increment(finalAmount)
-        });
-      }
+      // Return the finalAmount (Capital + Profit if Win, Capital - Partial Loss if Loss)
+      await updateDoc(doc(db, "users", user.uid), {
+        balance: increment(finalAmount)
+      });
 
       toast.dismiss("trade");
       setTradeResult({ 
         isWin, 
         amount, 
-        profit: isWin ? (amount * returnPercent) : 0 
+        profit: isWin ? (amount * returnPercent) : (amount * lossPercent)
       });
       setShowTradeSuccess(true);
       
       if (isWin) {
         toast.success(
-          <span className="text-gray-800">Congratulations! <span className="font-bold text-green-600">WIN</span></span>, 
+          <span className="text-gray-800">Congratulations! 🚀💰🎉 <span className="font-bold text-green-600">WIN</span></span>, 
           { 
             icon: <Trophy className="w-5 h-5 text-yellow-500" />,
             duration: 6000 
@@ -488,7 +513,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
         );
       } else {
         toast.error(
-          <span className="text-gray-800">Sorry <span className="font-bold text-red-600">Loss</span></span>, 
+          <span className="text-gray-800">Sorry 📉😟⚠️ <span className="font-bold text-red-600">Loss</span></span>, 
           { 
             icon: <TrendingDown className="w-5 h-5 text-red-500" />,
             duration: 6000 
@@ -521,13 +546,17 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const txs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Transaction));
       setTransactions(txs);
-    });
+    }, (error) => handleFirestoreError(error, OperationType.GET, "transactions"));
 
     const fetchSettings = async () => {
-      const docRef = doc(db, "settings", "addresses");
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        setSettings(docSnap.data() as PlatformSettings);
+      try {
+        const docRef = doc(db, "settings", "addresses");
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setSettings(docSnap.data() as PlatformSettings);
+        }
+      } catch (error) {
+        handleFirestoreError(error, OperationType.GET, "settings/addresses");
       }
     };
 
@@ -540,12 +569,12 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
     );
     const chatUnsub = onSnapshot(chatQ, (snapshot) => {
       setMessages(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as SupportMessage)));
-    });
+    }, (error) => handleFirestoreError(error, OperationType.GET, "support_messages"));
 
     const newsQ = query(collection(db, "news"), orderBy("createdAt", "desc"));
     const newsUnsub = onSnapshot(newsQ, (snapshot) => {
       setNews(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as News)));
-    });
+    }, (error) => handleFirestoreError(error, OperationType.GET, "news"));
 
     return () => {
       unsubscribe();
@@ -812,8 +841,8 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
         </div>
         <div className="rounded-2xl overflow-hidden aspect-[16/9] relative shadow-2xl">
           <img 
-            src="https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?auto=format&fit=crop&q=80&w=1200" 
-            alt="Stock Market Trading Charts" 
+            src="https://images.unsplash.com/photo-1621416894569-0f39ed31d247?auto=format&fit=crop&q=80&w=1200" 
+            alt="Bitcoin Symbol" 
             referrerPolicy="no-referrer"
             className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-105"
           />
@@ -1037,7 +1066,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
           <div className="relative rounded-[2.5rem] overflow-hidden group shadow-2xl">
             <div className="aspect-[16/9] relative">
               <img 
-                src={news[0].imageUrl || "https://images.unsplash.com/photo-1611974714025-a6a49530dfec?auto=format&fit=crop&q=80&w=1000"} 
+                src={news[0].imageUrl || "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&q=80&w=1000"} 
                 referrerPolicy="no-referrer"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
               />
@@ -1673,35 +1702,6 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
       </AnimatePresence>
 
       <AnimatePresence>
-        {showTradeSuccess && (
-          <div className="fixed inset-0 z-[110] flex items-center justify-center p-6">
-            <motion.div 
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => setShowTradeSuccess(false)}
-              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            />
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
-              className="relative w-full max-w-sm bg-white rounded-[32px] overflow-hidden shadow-2xl p-8 text-center"
-            >
-              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 text-green-500">
-                <TrendingUp className="w-10 h-10" />
-              </div>
-              <h3 className="text-2xl font-black text-gray-900 mb-2 uppercase tracking-tight">Trading Successful</h3>
-              <p className="text-gray-500 mb-8 font-medium">Your trade has been executed and is now under verification by the network.</p>
-              
-              <button 
-                onClick={() => setShowTradeSuccess(false)}
-                className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-2xl shadow-xl active:scale-95 transition-all text-sm uppercase tracking-widest"
-              >
-                Return to Terminal
-              </button>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
         {showOptionModal && (
           <div className="fixed inset-0 z-[70] flex items-end justify-center">
             <motion.div 
@@ -1862,7 +1862,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
 
       <AnimatePresence>
         {showTradeSuccess && tradeResult && (
-          <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
             <motion.div 
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setShowTradeSuccess(false)}
@@ -1889,10 +1889,10 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                 "text-3xl font-black mb-2 tracking-tighter",
                 tradeResult.isWin ? "text-green-600" : "text-red-600"
               )}>
-                {tradeResult.isWin ? "Congratulations!" : "Sorry!"}
+                {tradeResult.isWin ? "Congratulations 🚀💰🎉" : "Sorry 📉😟⚠️"}
               </h3>
-              <p className="text-gray-500 font-bold text-lg mb-8">
-                {tradeResult.isWin ? "You Win" : "You Lose"}
+              <p className="text-gray-500 font-bold text-lg mb-8 uppercase tracking-wide">
+                {tradeResult.isWin ? "You win and more for win." : "you lose be careful with your capital"}
               </p>
 
               <div className="bg-gray-50 rounded-3xl p-6 mb-8 space-y-4">
@@ -1912,7 +1912,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                     "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter",
                     tradeResult.isWin ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"
                   )}>
-                    {tradeResult.isWin ? "Settled" : "Liquidated"}
+                    Settled
                   </span>
                 </div>
               </div>

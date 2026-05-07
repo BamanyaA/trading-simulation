@@ -82,8 +82,8 @@ export default function Home() {
               <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-violet-600 rounded-[3rem] blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200" />
               <div className="relative aspect-[4/3] rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white">
                 <img 
-                  src="https://images.unsplash.com/photo-1611974714025-a6a49530dfec?auto=format&fit=crop&q=80&w=1200" 
-                  alt="Stock Market Trading Dashboard"
+                  src="https://images.unsplash.com/photo-1518546305927-5a555bb7020d?auto=format&fit=crop&q=80&w=2069" 
+                  alt="Cryptocurrency Symbols"
                   referrerPolicy="no-referrer"
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
                 />
