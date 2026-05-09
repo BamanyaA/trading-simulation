@@ -841,8 +841,8 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
         </div>
         <div className="rounded-2xl overflow-hidden aspect-[16/9] relative shadow-2xl">
           <img 
-            src="https://images.unsplash.com/photo-1621416894569-0f39ed31d247?auto=format&fit=crop&q=80&w=1200" 
-            alt="Bitcoin Symbol" 
+            src="https://images.unsplash.com/photo-1639322537228-f710d846310a?auto=format&fit=crop&q=80&w=2000" 
+            alt="Futuristic Blockchain Network" 
             referrerPolicy="no-referrer"
             className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-105"
           />
