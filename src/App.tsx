@@ -46,6 +46,8 @@ function AppContent() {
     return () => unsubscribe();
   }, []);
 
+  const isAdmin = profile?.role === "admin" || user?.email === "habeshatilaye@gmail.com";
+
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
@@ -56,24 +58,32 @@ function AppContent() {
 
   const hideFooter = location.pathname === "/dashboard" || location.pathname === "/admin";
 
+  const defaultRedirect = isAdmin ? "/admin" : "/dashboard";
+
   return (
     <div className="min-h-screen bg-slate-50 transition-colors duration-500 flex flex-col">
       <Navbar user={user} profile={profile} />
       <main className="flex-1">
         <Routes>
-          <Route path="/" element={!user ? <Home /> : <Navigate to="/dashboard" />} />
-          <Route path="/about" element={!user ? <About /> : <Navigate to="/dashboard" />} />
-          <Route path="/login" element={!user ? <Login /> : <Navigate to="/dashboard" />} />
-          <Route path="/register" element={!user ? <Register /> : <Navigate to="/dashboard" />} />
+          <Route path="/" element={!user ? <Home /> : <Navigate to={defaultRedirect} />} />
+          <Route path="/about" element={!user ? <About /> : <Navigate to={defaultRedirect} />} />
+          <Route path="/login" element={!user ? <Login /> : <Navigate to={defaultRedirect} />} />
+          <Route path="/register" element={!user ? <Register /> : <Navigate to={defaultRedirect} />} />
           
           <Route 
             path="/dashboard" 
-            element={user ? <Dashboard user={user} profile={profile} refreshProfile={() => fetchProfile(user.uid)} /> : <Navigate to="/login" />} 
+            element={
+              user ? (
+                isAdmin ? <Navigate to="/admin" /> : (
+                  <Dashboard user={user} profile={profile} refreshProfile={() => fetchProfile(user.uid)} />
+                )
+              ) : <Navigate to="/login" />
+            } 
           />
           
           <Route 
             path="/admin" 
-            element={(profile?.role === "admin" || user?.email === "habeshatilaye@gmail.com") ? <AdminDashboard /> : <Navigate to="/dashboard" />} 
+            element={isAdmin ? <AdminDashboard /> : <Navigate to="/dashboard" />} 
           />
 
           <Route path="*" element={<Navigate to="/" />} />

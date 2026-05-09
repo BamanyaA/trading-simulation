@@ -12,6 +12,7 @@ interface NavbarProps {
 
 export default function Navbar({ user, profile }: NavbarProps) {
   const navigate = useNavigate();
+  const isAdmin = profile?.role === "admin" || user?.email === "habeshatilaye@gmail.com";
 
   const handleLogout = async () => {
     await auth.signOut();
@@ -21,7 +22,7 @@ export default function Navbar({ user, profile }: NavbarProps) {
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-slate-800 bg-slate-950/80 backdrop-blur-md">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <Link to={user ? "/dashboard" : "/"} className="flex items-center gap-2 group">
+        <Link to={user ? (isAdmin ? "/admin" : "/dashboard") : "/"} className="flex items-center gap-2 group">
           <div className="p-2 bg-blue-600 rounded-lg group-hover:bg-blue-500 transition-colors">
             <TrendingUp className="w-6 h-6 text-white" />
           </div>
@@ -35,11 +36,6 @@ export default function Navbar({ user, profile }: NavbarProps) {
               <Link to="/about" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">About</Link>
             </>
           )}
-          {(profile?.role === "admin" || user?.email === "habeshatilaye@gmail.com") && (
-            <Link to="/admin" className="text-sm font-medium text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1">
-              <Settings className="w-4 h-4" /> Admin
-            </Link>
-          )}
         </div>
 
         <div className="flex items-center gap-4">
@@ -49,11 +45,11 @@ export default function Navbar({ user, profile }: NavbarProps) {
           {user ? (
             <div className="flex items-center gap-4">
               <Link 
-                to="/dashboard" 
+                to={isAdmin ? "/admin" : "/dashboard"} 
                 className="hidden sm:flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-slate-800 hover:bg-slate-700 rounded-full transition-colors"
               >
                 <LayoutDashboard className="w-4 h-4" />
-                Dashboard
+                {isAdmin ? "Admin Panel" : "Dashboard"}
               </Link>
               <button 
                 onClick={handleLogout}

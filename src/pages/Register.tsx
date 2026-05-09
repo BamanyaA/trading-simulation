@@ -44,7 +44,7 @@ export default function Register() {
       });
 
       toast.success("Account created successfully!");
-      navigate("/dashboard");
+      navigate(isAdminEmail ? "/admin" : "/dashboard");
     } catch (error: any) {
       toast.error(error.message || "Registration failed");
     } finally {

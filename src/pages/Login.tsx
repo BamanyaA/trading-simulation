@@ -19,7 +19,8 @@ export default function Login() {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       toast.success("Welcome back!");
-      navigate("/dashboard");
+      const isAdmin = email === "habeshatilaye@gmail.com";
+      navigate(isAdmin ? "/admin" : "/dashboard");
     } catch (error: any) {
       toast.error(error.message || "Login failed");
     } finally {
