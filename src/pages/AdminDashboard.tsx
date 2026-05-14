@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { db, auth } from "../firebase";
+import { db, auth, handleFirestoreError } from "../firebase";
 import { 
   collection, 
   query, 
@@ -120,28 +120,6 @@ export default function AdminDashboard() {
       newsUnsub();
     };
   }, [txFilter]);
-
-  const handleFirestoreError = (error: unknown, operationType: OperationType, path: string | null) => {
-    const errInfo: FirestoreErrorInfo = {
-      error: error instanceof Error ? error.message : String(error),
-      authInfo: {
-        userId: auth.currentUser?.uid,
-        email: auth.currentUser?.email,
-        emailVerified: auth.currentUser?.emailVerified,
-        isAnonymous: auth.currentUser?.isAnonymous,
-        tenantId: auth.currentUser?.tenantId,
-        providerInfo: auth.currentUser?.providerData?.map(provider => ({
-          providerId: provider.providerId,
-          email: provider.email,
-        })) || []
-      },
-      operationType,
-      path
-    };
-    const errorMsg = JSON.stringify(errInfo);
-    console.error('Firestore Error: ', errorMsg);
-    throw new Error(errorMsg);
-  };
 
   const handleUpdateBalance = async (userId: string, delta: number) => {
     try {
@@ -623,7 +601,7 @@ export default function AdminDashboard() {
                           onClick={() => setSelectedReceipt(tx.receipt!)}
                           className="rounded-[1.5rem] overflow-hidden border border-slate-200 bg-white group cursor-pointer relative h-32 shadow-sm"
                         >
-                          <img src={tx.receipt} referrerpolicy="no-referrer" alt="Deposit Receipt" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                          <img src={tx.receipt} referrerPolicy="no-referrer" alt="Deposit Receipt" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                           <div className="absolute inset-0 flex items-center justify-center bg-indigo-600/0 group-hover:bg-indigo-600/20 transition-all">
                             <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-xl opacity-0 scale-50 group-hover:opacity-100 group-hover:scale-100 transition-all">
                               <Search className="w-5 h-5 text-indigo-600" />
@@ -845,7 +823,7 @@ export default function AdminDashboard() {
                     </label>
                     {newsImageUrl && (
                       <div className="w-20 h-20 rounded-xl overflow-hidden border border-slate-100">
-                        <img src={newsImageUrl} referrerpolicy="no-referrer" className="w-full h-full object-cover" />
+                        <img src={newsImageUrl} referrerPolicy="no-referrer" className="w-full h-full object-cover" />
                       </div>
                     )}
                   </div>
@@ -866,7 +844,7 @@ export default function AdminDashboard() {
                 <div key={news.id} className="bg-white border border-slate-100 rounded-[2rem] overflow-hidden shadow-sm hover:shadow-xl transition-all group">
                   {news.imageUrl && (
                     <div className="h-48 overflow-hidden">
-                      <img src={news.imageUrl} referrerpolicy="no-referrer" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                      <img src={news.imageUrl} referrerPolicy="no-referrer" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                     </div>
                   )}
                   <div className="p-6">
@@ -992,7 +970,7 @@ export default function AdminDashboard() {
                     <div className="rounded-[2.5rem] border-4 border-slate-100 bg-white overflow-hidden shadow-2xl relative group ring-1 ring-slate-100">
                       <img 
                         src={selectedUserKYC.verificationDoc} 
-                        referrerpolicy="no-referrer"
+                        referrerPolicy="no-referrer"
                         alt="KYC Document" 
                         className="w-full h-auto object-contain cursor-zoom-in group-hover:scale-[1.03] transition-transform duration-700"
                         onClick={() => window.open(selectedUserKYC.verificationDoc, "_blank")}
@@ -1080,7 +1058,7 @@ export default function AdminDashboard() {
                 <div className="rounded-[2.5rem] border-4 border-slate-100 bg-white overflow-hidden shadow-2xl relative group ring-1 ring-slate-100">
                   <img 
                     src={selectedReceipt} 
-                    referrerpolicy="no-referrer"
+                    referrerPolicy="no-referrer"
                     alt="Transaction Receipt" 
                     className="w-full h-auto object-contain cursor-zoom-in group-hover:scale-[1.03] transition-transform duration-700"
                     onClick={() => window.open(selectedReceipt, "_blank")}

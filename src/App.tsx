@@ -34,13 +34,18 @@ function AppContent() {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      setUser(firebaseUser);
-      if (firebaseUser) {
-        await fetchProfile(firebaseUser.uid);
-      } else {
-        setProfile(null);
+      try {
+        setUser(firebaseUser);
+        if (firebaseUser) {
+          await fetchProfile(firebaseUser.uid);
+        } else {
+          setProfile(null);
+        }
+      } catch (error) {
+        console.error("Auth initialization error:", error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return () => unsubscribe();
@@ -74,9 +79,7 @@ function AppContent() {
             path="/dashboard" 
             element={
               user ? (
-                isAdmin ? <Navigate to="/admin" /> : (
-                  <Dashboard user={user} profile={profile} refreshProfile={() => fetchProfile(user.uid)} />
-                )
+                <Dashboard user={user} profile={profile} refreshProfile={() => fetchProfile(user.uid)} />
               ) : <Navigate to="/login" />
             } 
           />

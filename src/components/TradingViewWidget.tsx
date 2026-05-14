@@ -37,7 +37,7 @@ export function TradingViewWidget({ symbol }: TradingViewWidgetProps) {
         width="100%"
         height="100%"
         frameBorder="0"
-        allowtransparency="true"
+        allowTransparency={true}
         scrolling="no"
         allowFullScreen
         title="TradingView Chart"

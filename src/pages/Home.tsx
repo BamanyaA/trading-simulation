@@ -79,11 +79,35 @@ export default function Home() {
               transition={{ duration: 1, delay: 0.2 }}
               className="relative flex-1 group"
             >
+              {/* Decorative Animated Bars */}
+              <motion.div 
+                animate={{ 
+                  y: [0, -40, 0],
+                }}
+                transition={{ 
+                  duration: 4, 
+                  repeat: Infinity, 
+                  ease: "easeInOut" 
+                }}
+                className="absolute -left-12 top-20 w-8 h-64 bg-gradient-to-b from-orange-400 to-rose-500 rounded-full blur-sm opacity-60 hidden xl:block"
+              />
+              <motion.div 
+                animate={{ 
+                  y: [0, 40, 0],
+                }}
+                transition={{ 
+                  duration: 4, 
+                  repeat: Infinity, 
+                  ease: "easeInOut" 
+                }}
+                className="absolute -right-6 bottom-20 w-8 h-48 bg-gradient-to-t from-orange-400 to-rose-500 rounded-full blur-sm opacity-60 hidden xl:block"
+              />
+
               <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-violet-600 rounded-[3rem] blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200" />
-              <div className="relative aspect-[4/3] rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white">
+              <div className="relative aspect-[4/3] rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white bg-indigo-600/5">
                 <img 
-                  src="https://images.unsplash.com/photo-1639322537228-f710d846310a?auto=format&fit=crop&q=80&w=2000" 
-                  alt="Futuristic Blockchain Network"
+                  src="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&q=80&w=2232" 
+                  alt="Blockchain Technology Visualization"
                   referrerPolicy="no-referrer"
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
                 />

@@ -210,27 +210,6 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isChangingPassword, setIsChangingPassword] = useState(false);
 
-  const handleFirestoreError = (error: unknown, operationType: OperationType, path: string | null) => {
-    const errInfo: FirestoreErrorInfo = {
-      error: error instanceof Error ? error.message : String(error),
-      authInfo: {
-        userId: auth.currentUser?.uid,
-        email: auth.currentUser?.email,
-        emailVerified: auth.currentUser?.emailVerified,
-        isAnonymous: auth.currentUser?.isAnonymous,
-        tenantId: auth.currentUser?.tenantId,
-        providerInfo: auth.currentUser?.providerData?.map(provider => ({
-          providerId: provider.providerId,
-          email: provider.email,
-        })) || []
-      },
-      operationType,
-      path
-    };
-    const errorMsg = JSON.stringify(errInfo);
-    console.error('Firestore Error: ', errorMsg);
-    throw new Error(errorMsg);
-  };
   const [full_name, setFullName] = useState(profile?.fullName || "");
   const [phone_number, setPhoneNumber] = useState(profile?.phoneNumber || "");
   const [address_val, setAddressVal] = useState(profile?.address || "");
@@ -835,14 +814,39 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
 
       <div className="mx-4 bg-white rounded-[2rem] shadow-sm overflow-hidden p-8 border border-gray-100 group relative">
         <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50 rounded-full blur-3xl -mr-32 -mt-32 opacity-50 transition-transform group-hover:scale-110" />
+        
+        {/* Decorative Animated Bars */}
+        <motion.div 
+          animate={{ 
+            y: [0, -30, 0],
+          }}
+          transition={{ 
+            duration: 4, 
+            repeat: Infinity, 
+            ease: "easeInOut" 
+          }}
+          className="absolute left-4 top-40 w-2 h-24 bg-gradient-to-b from-orange-400 to-rose-500 rounded-full blur-[1px] opacity-80 z-20"
+        />
+        <motion.div 
+          animate={{ 
+            y: [0, 30, 0],
+          }}
+          transition={{ 
+            duration: 4, 
+            repeat: Infinity, 
+            ease: "easeInOut" 
+          }}
+          className="absolute right-4 bottom-40 w-2 h-24 bg-gradient-to-t from-orange-400 to-rose-500 rounded-full blur-[1px] opacity-80 z-20"
+        />
+
         <div className="relative z-10 w-full mb-6">
           <h2 className="text-3xl font-black text-gray-900 mb-2 leading-tight">QuantumTrade <br/><span className="text-indigo-600">Global Markets</span></h2>
           <p className="text-gray-500 text-sm font-medium max-w-[200px]">Trusted by 10M+ traders worldwide since 2018.</p>
         </div>
         <div className="rounded-2xl overflow-hidden aspect-[16/9] relative shadow-2xl">
           <img 
-            src="https://images.unsplash.com/photo-1639322537228-f710d846310a?auto=format&fit=crop&q=80&w=2000" 
-            alt="Futuristic Blockchain Network" 
+            src="https://images.unsplash.com/photo-1621416894569-0f39ed31d247?auto=format&fit=crop&q=80&w=2232" 
+            alt="Bitcoin Market Analytics" 
             referrerPolicy="no-referrer"
             className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-105"
           />
