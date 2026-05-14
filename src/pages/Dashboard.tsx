@@ -16,7 +16,6 @@ import {
   increment 
 } from "firebase/firestore";
 import { 
-  TrendingUp,
   TrendingDown,
   Trophy,
   ArrowDownCircle,
@@ -44,26 +43,26 @@ import { motion, AnimatePresence } from "motion/react";
 import { TradingViewWidget } from "../components/TradingViewWidget";
 
 const CRYPTO_ASSETS = [
-  { symbol: "BINANCE:BTCUSDT", name: "Bitcoin", short: "BTC", color: "bg-orange-500", icon: "₿", imageUrl: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/btc.png" },
-  { symbol: "BINANCE:ETHUSDT", name: "Ethereum", short: "ETH", color: "bg-blue-500", icon: "Ξ", imageUrl: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/eth.png" },
-  { symbol: "BINANCE:SOLUSDT", name: "Solana", short: "SOL", color: "bg-purple-500", icon: "S", imageUrl: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/sol.png" },
-  { symbol: "BINANCE:XRPUSDT", name: "XRP", short: "XRP", color: "bg-slate-400", icon: "X", imageUrl: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/xrp.png" },
-  { symbol: "BINANCE:BNBUSDT", name: "BNB", short: "BNB", color: "bg-yellow-400", icon: "B", imageUrl: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/bnb.png" },
-  { symbol: "BINANCE:ADAUSDT", name: "Cardano", short: "ADA", color: "bg-blue-700", icon: "₳", imageUrl: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/ada.png" },
-  { symbol: "BINANCE:DOGEUSDT", name: "Dogecoin", short: "DOGE", color: "bg-yellow-600", icon: "Ð", imageUrl: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/doge.png" },
-  { symbol: "BINANCE:TRXUSDT", name: "Tron", short: "TRX", color: "bg-red-500", icon: "T", imageUrl: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/trx.png" },
-  { symbol: "BINANCE:AVAXUSDT", name: "Avalanche", short: "AVAX", color: "bg-red-600", icon: "A", imageUrl: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/avax.png" },
-  { symbol: "BINANCE:SHIBUSDT", name: "Shiba Inu", short: "SHIB", color: "bg-orange-600", icon: "S", imageUrl: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/shib.png" },
-  { symbol: "BINANCE:DOTUSDT", name: "Polkadot", short: "DOT", color: "bg-pink-500", icon: "P", imageUrl: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/dot.png" },
-  { symbol: "BINANCE:LINKUSDT", name: "Chainlink", short: "LINK", color: "bg-blue-400", icon: "L", imageUrl: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/link.png" },
-  { symbol: "BINANCE:MATICUSDT", name: "Polygon", short: "MATIC", color: "bg-purple-600", icon: "M", imageUrl: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/matic.png" },
-  { symbol: "BINANCE:LTCUSDT", name: "Litecoin", short: "LTC", color: "bg-slate-300", icon: "Ł", imageUrl: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/ltc.png" },
-  { symbol: "BINANCE:NEARUSDT", name: "Near", short: "NEAR", color: "bg-slate-900", icon: "N", imageUrl: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/near.png" },
-  { symbol: "BINANCE:UNIUSDT", name: "Uniswap", short: "UNI", color: "bg-pink-400", icon: "U", imageUrl: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/uni.png" },
-  { symbol: "BINANCE:APTUSDT", name: "Aptos", short: "APT", color: "bg-teal-500", icon: "A", imageUrl: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/apt.png" },
-  { symbol: "BINANCE:PEPEUSDT", name: "Pepe", short: "PEPE", color: "bg-green-500", icon: "P", imageUrl: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/pepe.png" },
-  { symbol: "BINANCE:ARBUSDT", name: "Arbitrum", short: "ARB", color: "bg-blue-300", icon: "A", imageUrl: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/arb.png" },
-  { symbol: "BINANCE:OPUSDT", name: "Optimism", short: "OP", color: "bg-red-400", icon: "O", imageUrl: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/op.png" },
+  { symbol: "BINANCE:BTCUSDT", name: "Bitcoin", short: "BTC", color: "bg-orange-500", icon: "₿", imageUrl: "https://assets.coincap.io/assets/icons/btc@2x.png" },
+  { symbol: "BINANCE:ETHUSDT", name: "Ethereum", short: "ETH", color: "bg-blue-500", icon: "Ξ", imageUrl: "https://assets.coincap.io/assets/icons/eth@2x.png" },
+  { symbol: "BINANCE:SOLUSDT", name: "Solana", short: "SOL", color: "bg-purple-500", icon: "S", imageUrl: "https://assets.coincap.io/assets/icons/sol@2x.png" },
+  { symbol: "BINANCE:XRPUSDT", name: "XRP", short: "XRP", color: "bg-slate-400", icon: "X", imageUrl: "https://assets.coincap.io/assets/icons/xrp@2x.png" },
+  { symbol: "BINANCE:BNBUSDT", name: "BNB", short: "BNB", color: "bg-yellow-400", icon: "B", imageUrl: "https://assets.coincap.io/assets/icons/bnb@2x.png" },
+  { symbol: "BINANCE:ADAUSDT", name: "Cardano", short: "ADA", color: "bg-blue-700", icon: "₳", imageUrl: "https://assets.coincap.io/assets/icons/ada@2x.png" },
+  { symbol: "BINANCE:DOGEUSDT", name: "Dogecoin", short: "DOGE", color: "bg-yellow-600", icon: "Ð", imageUrl: "https://assets.coincap.io/assets/icons/doge@2x.png" },
+  { symbol: "BINANCE:TRXUSDT", name: "Tron", short: "TRX", color: "bg-red-500", icon: "T", imageUrl: "https://assets.coincap.io/assets/icons/trx@2x.png" },
+  { symbol: "BINANCE:AVAXUSDT", name: "Avalanche", short: "AVAX", color: "bg-red-600", icon: "A", imageUrl: "https://assets.coincap.io/assets/icons/avax@2x.png" },
+  { symbol: "BINANCE:SHIBUSDT", name: "Shiba Inu", short: "SHIB", color: "bg-orange-600", icon: "S", imageUrl: "https://assets.coincap.io/assets/icons/shib@2x.png" },
+  { symbol: "BINANCE:DOTUSDT", name: "Polkadot", short: "DOT", color: "bg-pink-500", icon: "P", imageUrl: "https://assets.coincap.io/assets/icons/dot@2x.png" },
+  { symbol: "BINANCE:LINKUSDT", name: "Chainlink", short: "LINK", color: "bg-blue-400", icon: "L", imageUrl: "https://assets.coincap.io/assets/icons/link@2x.png" },
+  { symbol: "BINANCE:MATICUSDT", name: "Polygon", short: "MATIC", color: "bg-purple-600", icon: "M", imageUrl: "https://assets.coincap.io/assets/icons/matic@2x.png" },
+  { symbol: "BINANCE:LTCUSDT", name: "Litecoin", short: "LTC", color: "bg-slate-300", icon: "Ł", imageUrl: "https://assets.coincap.io/assets/icons/ltc@2x.png" },
+  { symbol: "BINANCE:NEARUSDT", name: "Near", short: "NEAR", color: "bg-slate-900", icon: "N", imageUrl: "https://assets.coincap.io/assets/icons/near@2x.png" },
+  { symbol: "BINANCE:UNIUSDT", name: "Uniswap", short: "UNI", color: "bg-pink-400", icon: "U", imageUrl: "https://assets.coincap.io/assets/icons/uni@2x.png" },
+  { symbol: "BINANCE:APTUSDT", name: "Aptos", short: "APT", color: "bg-teal-500", icon: "A", imageUrl: "https://assets.coincap.io/assets/icons/apt@2x.png" },
+  { symbol: "BINANCE:PEPEUSDT", name: "Pepe", short: "PEPE", color: "bg-green-500", icon: "P", imageUrl: "https://assets.coincap.io/assets/icons/pepe@2x.png" },
+  { symbol: "BINANCE:ARBUSDT", name: "Arbitrum", short: "ARB", color: "bg-blue-300", icon: "A", imageUrl: "https://assets.coincap.io/assets/icons/arb@2x.png" },
+  { symbol: "BINANCE:OPUSDT", name: "Optimism", short: "OP", color: "bg-red-400", icon: "O", imageUrl: "https://assets.coincap.io/assets/icons/op@2x.png" },
 ];
 
 const FOREX_ASSETS = [
@@ -503,7 +502,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
       setIsTrading(false);
       setTimeLeft(null);
       tradeDetailsRef.current = null;
-    } catch (error: any) {
+    } catch (error) {
       handleFirestoreError(error, OperationType.WRITE, "trade-sync");
       toast.dismiss("trade");
       toast.error("Trade synchronization failed");
@@ -605,11 +604,13 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
         createdAt: serverTimestamp(),
       });
       setNewMessage("");
-    } catch (error: any) {
-      toast.error("Failed to send message: " + error.message);
+    } catch (error) {
+      toast.error("Failed to send message: " + (error instanceof Error ? error.message : "Unknown error"));
       try {
         handleFirestoreError(error, OperationType.WRITE, "support_messages");
-      } catch (e) {}
+      } catch (e) {
+        console.error("Support message sync error:", e);
+      }
     } finally {
       setIsSending(false);
     }
@@ -635,11 +636,13 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
       toast.success("Verification submitted for review!");
       setShowVerificationForm(false);
       refreshProfile();
-    } catch (error: any) {
-      toast.error("Failed to submit: " + error.message);
+    } catch (error) {
+      toast.error("Failed to submit: " + (error instanceof Error ? error.message : "Unknown error"));
       try {
         handleFirestoreError(error, OperationType.WRITE, `users/${user.uid}`);
-      } catch (e) {}
+      } catch (e) {
+        console.error("Verification submit sync error:", e);
+      }
     } finally {
       setIsSubmittingVerification(false);
     }
@@ -678,11 +681,13 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
       setShowWithdrawModal(false);
       toast.success("Withdrawal request submitted");
       refreshProfile();
-    } catch (error: any) {
-      toast.error(error.message);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Withdrawal failed");
       try {
         handleFirestoreError(error, OperationType.WRITE, "transactions");
-      } catch (e) {}
+      } catch (e) {
+        console.error("Withdrawal sync error:", e);
+      }
     }
   };
 
@@ -722,11 +727,13 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
       setReceiptFile(null);
       setShowDepositModal(false);
       toast.success("Deposit proof submitted!");
-    } catch (error: any) {
-      toast.error("Failed to submit: " + error.message);
+    } catch (error) {
+      toast.error("Failed to submit: " + (error instanceof Error ? error.message : "Unknown error"));
       try {
         handleFirestoreError(error, OperationType.WRITE, "transactions");
-      } catch (e) {}
+      } catch (e) {
+        console.error("Deposit submit sync error:", e);
+      }
     } finally {
       setIsSubmittingDeposit(false);
     }
@@ -785,12 +792,13 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
-      if (error.code === 'auth/wrong-password') {
+      const errMessage = error instanceof Error ? error.message : "Password change failed";
+      if ((error as any).code === 'auth/wrong-password') {
         toast.error("Incorrect current password");
       } else {
-        toast.error("Password change failed: " + error.message);
+        toast.error("Password change failed: " + errMessage);
       }
     } finally {
       setIsChangingPassword(false);
@@ -890,11 +898,17 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                 >
                   <td className="py-4 px-4">
                     <div className="flex items-center gap-3">
-                      <div className={cn("w-8 h-8 rounded-full flex items-center justify-center font-bold text-white shrink-0 overflow-hidden", asset.color)}>
-                        {(asset as any).imageUrl ? (
-                          <img src={(asset as any).imageUrl} alt={asset.name} className="w-full h-full object-cover" />
-                        ) : (
-                          asset.icon
+                      <div className={cn("w-8 h-8 rounded-full flex items-center justify-center font-bold text-white shrink-0 overflow-hidden relative", asset.color)}>
+                        <span className="absolute inset-0 flex items-center justify-center text-xs">{asset.icon}</span>
+                        {(asset as any).imageUrl && (
+                          <img 
+                            src={(asset as any).imageUrl} 
+                            alt={asset.name} 
+                            className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
+                            onError={(e) => {
+                              (e.currentTarget as HTMLImageElement).style.opacity = '0';
+                            }}
+                          />
                         )}
                       </div>
                       <div>
@@ -979,11 +993,17 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
             <div className="p-8">
               <div className="flex justify-between items-center mb-8">
                 <div className="flex items-center gap-4">
-                  <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold shadow-lg overflow-hidden", selectedAsset.color)}>
-                    {(selectedAsset as any).imageUrl ? (
-                      <img src={(selectedAsset as any).imageUrl} alt={selectedAsset.name} className="w-full h-full object-cover" />
-                    ) : (
-                      selectedAsset.icon
+                  <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold shadow-lg overflow-hidden relative", selectedAsset.color)}>
+                    <span className="absolute inset-0 flex items-center justify-center text-lg">{(selectedAsset as any).icon}</span>
+                    {(selectedAsset as any).imageUrl && (
+                      <img 
+                        src={(selectedAsset as any).imageUrl} 
+                        alt={selectedAsset.name} 
+                        className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300" 
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).style.opacity = '0';
+                        }}
+                      />
                     )}
                   </div>
                   <div>

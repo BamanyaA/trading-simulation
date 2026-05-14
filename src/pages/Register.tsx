@@ -4,7 +4,7 @@ import { auth, db } from "../firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { toast } from "react-hot-toast";
-import { TrendingUp, Mail, Lock, ArrowRight, User, MapPin, FileText, Upload, Phone } from "lucide-react";
+import { TrendingUp, Mail, Lock, ArrowRight } from "lucide-react";
 import { motion } from "motion/react";
 
 export default function Register() {
@@ -45,8 +45,8 @@ export default function Register() {
 
       toast.success("Account created successfully!");
       navigate(isAdminEmail ? "/admin" : "/dashboard");
-    } catch (error: any) {
-      toast.error(error.message || "Registration failed");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Registration failed");
     } finally {
       setLoading(false);
     }

@@ -21,8 +21,8 @@ export default function Login() {
       toast.success("Welcome back!");
       const isAdmin = email === "habeshatilaye@gmail.com";
       navigate(isAdmin ? "/admin" : "/dashboard");
-    } catch (error: any) {
-      toast.error(error.message || "Login failed");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Login failed");
     } finally {
       setLoading(false);
     }

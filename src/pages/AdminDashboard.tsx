@@ -15,7 +15,7 @@ import {
   serverTimestamp,
   addDoc
 } from "firebase/firestore";
-import { UserProfile, Transaction, PlatformSettings, SupportMessage, News, OperationType, FirestoreErrorInfo } from "../types";
+import { UserProfile, Transaction, PlatformSettings, SupportMessage, News, OperationType } from "../types";
 import { 
   Users, 
   ArrowUpRight, 
@@ -129,11 +129,13 @@ export default function AdminDashboard() {
       toast.success("Balance updated");
       // Clear custom amount field
       setCustomAmounts(prev => ({ ...prev, [userId]: "" }));
-    } catch (error: any) {
-      toast.error("Failed to update balance: " + error.message);
+    } catch (error) {
+      toast.error("Failed to update balance: " + (error instanceof Error ? error.message : "Unknown error"));
       try {
         handleFirestoreError(error, OperationType.UPDATE, `users/${userId}`);
-      } catch (e) {}
+      } catch (e) {
+        console.error("Balance update sync error:", e);
+      }
     }
   };
 
@@ -144,11 +146,13 @@ export default function AdminDashboard() {
       });
       toast.success(`Balance set to ${formatCurrency(amount)}`);
       setCustomAmounts(prev => ({ ...prev, [userId]: "" }));
-    } catch (error: any) {
-      toast.error("Failed to set balance: " + error.message);
+    } catch (error) {
+      toast.error("Failed to set balance: " + (error instanceof Error ? error.message : "Unknown error"));
       try {
         handleFirestoreError(error, OperationType.UPDATE, `users/${userId}`);
-      } catch (e) {}
+      } catch (e) {
+        console.error("Balance set sync error:", e);
+      }
     }
   };
 
@@ -159,11 +163,13 @@ export default function AdminDashboard() {
         isVerified: status === "verified"
       });
       toast.success(`User verification status: ${status}`);
-    } catch (error: any) {
-      toast.error("Failed to update verification status: " + error.message);
+    } catch (error) {
+      toast.error("Failed to update verification status: " + (error instanceof Error ? error.message : "Unknown error"));
       try {
         handleFirestoreError(error, OperationType.UPDATE, `users/${userId}`);
-      } catch (e) {}
+      } catch (e) {
+        console.error("Verification update sync error:", e);
+      }
     }
   };
 
@@ -172,11 +178,13 @@ export default function AdminDashboard() {
       const newRole = user.role === "admin" ? "user" : "admin";
       await updateDoc(doc(db, "users", user.id), { role: newRole });
       toast.success(`User role updated to ${newRole}`);
-    } catch (error: any) {
-      toast.error("Failed to update role: " + error.message);
+    } catch (error) {
+      toast.error("Failed to update role: " + (error instanceof Error ? error.message : "Unknown error"));
       try {
         handleFirestoreError(error, OperationType.UPDATE, `users/${user.id}`);
-      } catch (e) {}
+      } catch (e) {
+        console.error("Role update sync error:", e);
+      }
     }
   };
 
@@ -186,11 +194,13 @@ export default function AdminDashboard() {
       const nextAction = !currentAction;
       await updateDoc(doc(db, "users", user.id), { tradeAction: nextAction });
       toast.success(`User trade outcome set to ${nextAction ? "PROFIT" : "LOSS"}`);
-    } catch (error: any) {
-      toast.error("Failed to update trade action: " + error.message);
+    } catch (error) {
+      toast.error("Failed to update trade action: " + (error instanceof Error ? error.message : "Unknown error"));
       try {
         handleFirestoreError(error, OperationType.UPDATE, `users/${user.id}`);
-      } catch (e) {}
+      } catch (e) {
+        console.error("Trade action update sync error:", e);
+      }
     }
   };
 
@@ -204,11 +214,13 @@ export default function AdminDashboard() {
       await deleteDoc(doc(db, type === "user" ? "users" : "news", id));
       toast.success(`${type === "user" ? "User" : "News"} deleted successfully`);
       setConfirmDelete(null);
-    } catch (error: any) {
-      toast.error(`Failed to delete: ${error.message}`);
+    } catch (error) {
+      toast.error(`Failed to delete: ${error instanceof Error ? error.message : "Unknown error"}`);
       try {
         handleFirestoreError(error, OperationType.DELETE, path);
-      } catch (e) {}
+      } catch (e) {
+        console.error("Delete sync error:", e);
+      }
     }
   };
 
@@ -220,11 +232,13 @@ export default function AdminDashboard() {
     try {
       await setDoc(doc(db, "settings", "addresses"), settings);
       toast.success("Settings updated");
-    } catch (error: any) {
-      toast.error(error.message);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Settings update failed");
       try {
         handleFirestoreError(error, OperationType.WRITE, "settings/addresses");
-      } catch (e) {}
+      } catch (e) {
+        console.error("Settings update sync error:", e);
+      }
     }
   };
 
@@ -242,11 +256,13 @@ export default function AdminDashboard() {
         createdAt: serverTimestamp(),
       });
       setReplyText("");
-    } catch (error: any) {
-      toast.error("Failed to send reply: " + error.message);
+    } catch (error) {
+      toast.error("Failed to send reply: " + (error instanceof Error ? error.message : "Unknown error"));
       try {
         handleFirestoreError(error, OperationType.WRITE, "support_messages");
-      } catch (e) {}
+      } catch (e) {
+        console.error("Reply send sync error:", e);
+      }
     } finally {
       setIsSending(false);
     }
@@ -271,11 +287,13 @@ export default function AdminDashboard() {
       }
 
       toast.success(`Transaction ${status}`);
-    } catch (error: any) {
-      toast.error(error.message);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Transaction processing failed");
       try {
         handleFirestoreError(error, OperationType.UPDATE, `transactions/${tx.id}`);
-      } catch (e) {}
+      } catch (e) {
+        console.error("Transaction process sync error:", e);
+      }
     }
   };
 
@@ -316,11 +334,13 @@ export default function AdminDashboard() {
       setNewsSummary("");
       setNewsContent("");
       setNewsImageUrl(null);
-    } catch (error: any) {
-      toast.error("Failed to post news: " + error.message);
+    } catch (error) {
+      toast.error("Failed to post news: " + (error instanceof Error ? error.message : "Unknown error"));
       try {
         handleFirestoreError(error, OperationType.WRITE, "news");
-      } catch (e) {}
+      } catch (e) {
+        console.error("News post sync error:", e);
+      }
     } finally {
       setIsPostingNews(false);
     }
