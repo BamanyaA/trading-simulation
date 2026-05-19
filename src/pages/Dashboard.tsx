@@ -35,7 +35,8 @@ import {
   Bell,
   Lock,
   User as UserIcon,
-  ShieldCheck
+  ShieldCheck,
+  LogOut
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { formatCurrency, cn } from "../lib/utils";
@@ -806,100 +807,107 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
   };
 
   const renderHome = () => (
-    <div className="space-y-6 pb-24">
-      <div className="bg-white p-6 shadow-sm flex gap-3 border-b border-gray-100">
-        <div className="flex-1 bg-gray-50 rounded-xl flex items-center px-4 border border-gray-200 transition-all focus-within:border-indigo-300 focus-within:bg-white focus-within:ring-4 focus-within:ring-indigo-50">
-          <Search className="w-5 h-5 text-gray-400 mr-2" />
+    <div className="space-y-8 pb-32 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="px-6 py-4 flex gap-4">
+        <div className="flex-1 glass-card rounded-2xl flex items-center px-5 focus-within:ring-2 focus-within:ring-indigo-500/50 transition-all">
+          <Search className="w-5 h-5 text-slate-500 mr-3" />
           <input 
             type="text" 
-            placeholder="Search markets..." 
-            className="bg-transparent border-none outline-none w-full py-3 text-sm font-medium" 
+            placeholder="Search all assets..." 
+            className="bg-transparent border-none outline-none w-full py-4 text-sm font-medium text-white placeholder:text-slate-500" 
             value={marketSearch}
             onChange={(e) => setMarketSearch(e.target.value)}
           />
         </div>
       </div>
 
-      <div className="mx-4 bg-white rounded-[2rem] shadow-sm overflow-hidden p-8 border border-gray-100 group relative">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50 rounded-full blur-3xl -mr-32 -mt-32 opacity-50 transition-transform group-hover:scale-110" />
-        
-        {/* Decorative Animated Bars */}
-        <motion.div 
-          animate={{ 
-            y: [0, -30, 0],
-          }}
-          transition={{ 
-            duration: 4, 
-            repeat: Infinity, 
-            ease: "easeInOut" 
-          }}
-          className="absolute left-4 top-40 w-2 h-24 bg-gradient-to-b from-orange-400 to-rose-500 rounded-full blur-[1px] opacity-80 z-20"
-        />
-        <motion.div 
-          animate={{ 
-            y: [0, 30, 0],
-          }}
-          transition={{ 
-            duration: 4, 
-            repeat: Infinity, 
-            ease: "easeInOut" 
-          }}
-          className="absolute right-4 bottom-40 w-2 h-24 bg-gradient-to-t from-orange-400 to-rose-500 rounded-full blur-[1px] opacity-80 z-20"
-        />
+      {/* Premium Hero Slider-style Banner */}
+      <div className="mx-6 group relative">
+        <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-[2.5rem] blur opacity-20 group-hover:opacity-40 transition duration-1000" />
+        <div className="relative glass-card rounded-[2.5rem] p-10 overflow-hidden min-h-[400px] flex flex-col justify-center">
+          <div className="absolute top-0 right-0 p-10 opacity-10 pointer-events-none">
+             <BarChart2 className="w-64 h-64 text-indigo-500" />
+          </div>
+          
+          <div className="relative z-10 max-w-lg">
+             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[10px] font-black uppercase tracking-widest mb-6">
+                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
+                Live Market Analysis
+             </div>
+             <h2 className="text-5xl font-display font-black text-slate-900 mb-6 leading-tight tracking-tight">
+                Global Financial <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500 italic">Ecosystem</span>
+             </h2>
+             <p className="text-slate-400 font-medium mb-10 leading-relaxed">
+                Connect to institutional liquidity pools with real-time analytics and lightning-fast execution on over 200+ instruments.
+             </p>
+             <button 
+                onClick={() => setActiveTab("trading")}
+                className="flex items-center gap-3 px-8 py-4 bg-white text-slate-900 font-black rounded-2xl hover:bg-slate-100 transition-all active:scale-95 shadow-2xl"
+             >
+                Launch Terminal <ChevronRight className="w-5 h-5" />
+             </button>
+          </div>
 
-        <div className="relative z-10 w-full mb-6">
-          <h2 className="text-3xl font-black text-gray-900 mb-2 leading-tight">QuantumTrade <br/><span className="text-indigo-600">Global Markets</span></h2>
-          <p className="text-gray-500 text-sm font-medium max-w-[200px]">Trusted by 10M+ traders worldwide since 2018.</p>
-        </div>
-        <div className="rounded-2xl overflow-hidden aspect-[16/9] relative shadow-2xl">
-          <img 
-            src="https://images.unsplash.com/photo-1621416894569-0f39ed31d247?auto=format&fit=crop&q=80&w=2232" 
-            alt="Bitcoin Market Analytics" 
-            referrerPolicy="no-referrer"
-            className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-105"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+          <div className="absolute right-10 bottom-10 hidden lg:block">
+            <div className="flex items-center gap-4">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <motion.div 
+                  key={i}
+                  animate={{ height: [20, Math.random() * 60 + 40, 20] }}
+                  transition={{ duration: 2, repeat: Infinity, delay: i * 0.2 }}
+                  className="w-1.5 bg-indigo-500/20 rounded-full"
+                />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="mx-4 bg-white rounded-[24px] shadow-sm border border-gray-100 overflow-hidden">
-        <div className="flex p-1.5 bg-gray-50 m-2 rounded-2xl gap-1 overflow-x-auto no-scrollbar">
-          {["crypto", "forex", "gold", "stock", "indices", "future", "fund", "option", "economy", "bond"].map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveMarketTab(tab as any)}
-              className={cn(
-                "px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap",
-                activeMarketTab === tab ? "bg-white text-indigo-600 shadow-xl shadow-indigo-100/50" : "text-gray-400 hover:text-gray-600"
-              )}
-            >
-              {tab === "gold" ? "Commodities" : tab}
-            </button>
-          ))}
+      <div className="mx-6 space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+           <h3 className="text-xl font-display font-bold flex items-center gap-3">
+              <TrendingDown className="w-6 h-6 text-indigo-500" />
+              Market Overview
+           </h3>
+           <div className="flex p-1 glass-card rounded-xl gap-1">
+              {["crypto", "forex", "gold", "stock"].map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveMarketTab(tab as any)}
+                  className={cn(
+                    "px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all",
+                    activeMarketTab === tab ? "bg-indigo-600 text-white shadow-lg" : "text-slate-500 hover:text-slate-700"
+                  )}
+                >
+                  {tab}
+                </button>
+              ))}
+           </div>
         </div>
-        <div className="overflow-x-auto">
+
+        <div className="glass-card rounded-[2rem] overflow-hidden">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-100">
-                <th className="text-left py-4 px-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Name</th>
-                <th className="text-left py-4 px-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest hidden sm:table-cell">Symbol</th>
-                <th className="text-right py-4 px-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Change %</th>
+              <tr className="border-b border-slate-100">
+                <th className="text-left py-6 px-8 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Instrument</th>
+                <th className="text-right py-6 px-8 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Price / 24h Change</th>
               </tr>
             </thead>
             <tbody>
-              {getMarketAssets().map((asset) => (
+              {getMarketAssets().slice(0, 15).map((asset) => (
                 <tr 
                   key={asset.symbol} 
                   onClick={() => {
                     setSelectedAsset(asset);
                     setActiveTab("trading");
                   }}
-                  className="border-b border-gray-50 last:border-0 hover:bg-gray-50 cursor-pointer transition-colors"
+                  className="border-b border-slate-200 last:border-0 hover:bg-slate-100 cursor-pointer transition-colors group"
                 >
-                  <td className="py-4 px-4">
-                    <div className="flex items-center gap-3">
-                      <div className={cn("w-8 h-8 rounded-full flex items-center justify-center font-bold text-white shrink-0 overflow-hidden relative", asset.color)}>
-                        <span className="absolute inset-0 flex items-center justify-center text-xs">{asset.icon}</span>
+                  <td className="py-5 px-8">
+                    <div className="flex items-center gap-4">
+                      <div className={cn("w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-white shrink-0 overflow-hidden relative shadow-lg group-hover:scale-110 transition-transform", asset.color)}>
+                        <span className="absolute inset-0 flex items-center justify-center text-sm">{asset.icon}</span>
                         {(asset as any).imageUrl && (
                           <img 
                             src={(asset as any).imageUrl} 
@@ -912,22 +920,19 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                         )}
                       </div>
                       <div>
-                        <div className="font-bold text-gray-900 text-sm whitespace-nowrap">{asset.name}</div>
-                        <div className="text-[10px] text-gray-400 uppercase sm:hidden">{asset.short}</div>
+                        <div className="font-bold text-slate-900 text-base tracking-tight">{asset.name}</div>
+                        <div className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{asset.short}</div>
                       </div>
                     </div>
                   </td>
-                  <td className="py-4 px-4 hidden sm:table-cell">
-                    <span className="text-[10px] font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded uppercase">{asset.short}</span>
-                  </td>
-                  <td className="py-4 px-4 text-right">
+                  <td className="py-5 px-8 text-right">
                     <div className="flex flex-col items-end">
-                      <div className="text-sm font-black text-gray-900">
+                      <div className="text-base font-mono font-bold text-slate-900 tracking-tighter">
                         {marketData[asset.symbol]?.price || "0.00"}
                       </div>
                       <div className={cn(
-                        "text-[10px] font-bold px-1.5 py-0.5 rounded",
-                        marketData[asset.symbol]?.isUp ? "text-green-500 bg-green-50" : "text-red-500 bg-red-50"
+                        "text-[10px] font-bold flex items-center gap-1",
+                        marketData[asset.symbol]?.isUp ? "text-emerald-600" : "text-rose-600"
                       )}>
                         {marketData[asset.symbol]?.isUp ? "+" : ""}{marketData[asset.symbol]?.change || "0.00"}%
                       </div>
@@ -937,368 +942,446 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
               ))}
             </tbody>
           </table>
+          <div className="p-4 border-t border-white/5 bg-white/[0.01]">
+             <button 
+                onClick={() => setActiveMarketTab("crypto")}
+                className="w-full py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] hover:text-white transition-colors"
+             >
+                Explore Full Market Directory
+             </button>
+          </div>
         </div>
       </div>
     </div>
   );
 
   const renderTrading = () => (
-    <div className="space-y-6 pb-24">
-      <div className="bg-indigo-600 p-5 text-white font-black uppercase tracking-[0.3em] text-xs text-center shadow-lg">Live Binary Options</div>
-      
-      <div className="mx-4 bg-white rounded-[2rem] shadow-sm p-8 border border-gray-100 relative overflow-hidden group">
-        <div className="absolute -top-12 -right-12 w-40 h-40 bg-indigo-50 rounded-full blur-3xl opacity-60" />
-        <div className="relative z-10 flex justify-between items-center mb-8">
-          <div className="space-y-2">
-            <div className="text-gray-400 text-[10px] font-black uppercase tracking-[0.2em]">Live Portfolio</div>
-            <div className="text-4xl font-black text-gray-900 tracking-tight">{formatCurrency(profile?.balance || 0)}</div>
-          </div>
-          <div className="text-right space-y-1">
-            <div className="text-gray-400 text-[10px] font-black uppercase tracking-[0.2em]">Margin Level</div>
-            <div className="text-sm font-black text-indigo-600 bg-indigo-50 px-3 py-1 rounded-lg">100%</div>
-          </div>
-        </div>
-        <button 
-          onClick={() => setActiveTradeSubTab("positions")}
-          className="w-full py-5 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-2xl shadow-xl shadow-indigo-100 active:scale-95 transition-all uppercase tracking-[0.2em] text-xs"
-        >
-          Open Marketplace
-        </button>
-      </div>
-
-      <div className="mx-4 bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden">
-        <div className="flex p-1.5 bg-gray-50 m-3 rounded-2xl">
-          <button 
-            onClick={() => setActiveTradeSubTab("positions")}
-            className={cn(
-              "flex-1 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
-              activeTradeSubTab === "positions" ? "bg-white text-indigo-600 shadow-xl shadow-indigo-100/50 outline-1 outline-indigo-50" : "text-gray-400"
-            )}
-          >
-            Terminal
-          </button>
-          <button 
-            onClick={() => setActiveTradeSubTab("history")}
-            className={cn(
-              "flex-1 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
-              activeTradeSubTab === "history" ? "bg-white text-indigo-600 shadow-xl shadow-indigo-100/50 outline-1 outline-indigo-50" : "text-gray-400"
-            )}
-          >
-            History
-          </button>
-        </div>
-
-        <div className="min-h-[400px]">
-          {activeTradeSubTab === "positions" ? (
-            <div className="p-8">
-              <div className="flex justify-between items-center mb-8">
-                <div className="flex items-center gap-4">
-                  <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold shadow-lg overflow-hidden relative", selectedAsset.color)}>
-                    <span className="absolute inset-0 flex items-center justify-center text-lg">{(selectedAsset as any).icon}</span>
-                    {(selectedAsset as any).imageUrl && (
-                      <img 
-                        src={(selectedAsset as any).imageUrl} 
-                        alt={selectedAsset.name} 
-                        className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300" 
-                        onError={(e) => {
-                          (e.currentTarget as HTMLImageElement).style.opacity = '0';
-                        }}
-                      />
-                    )}
-                  </div>
-                  <div>
-                    <div className="font-black text-gray-900 uppercase tracking-tight">{selectedAsset.short}/USDT</div>
-                    <div className="text-[10px] text-indigo-600 font-black animate-pulse uppercase tracking-[0.2em] flex items-center gap-1.5">
-                      <div className="w-1.5 h-1.5 bg-indigo-600 rounded-full" />
-                      Live Feed
-                    </div>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-3xl font-black text-gray-900 tracking-tight">
-                    {marketData[selectedAsset.symbol]?.price || "0.00"}
-                  </div>
-                  <div className={cn(
-                    "text-xs font-black uppercase mt-1",
-                    marketData[selectedAsset.symbol]?.isUp ? "text-green-500" : "text-red-500"
-                  )}>
-                    {marketData[selectedAsset.symbol]?.isUp ? "▲" : "▼"}{marketData[selectedAsset.symbol]?.change || "0.00"}%
-                  </div>
-                </div>
+    <div className="space-y-6 pb-64 animate-in fade-in duration-500">
+      <div className="flex flex-col lg:flex-row gap-8">
+        <div className="flex-1 space-y-6">
+          <div className="glass-card rounded-[2.5rem] p-8 relative overflow-hidden group">
+            <div className="absolute -top-12 -right-12 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl opacity-60" />
+            <div className="relative z-10 flex justify-between items-center mb-8">
+              <div className="space-y-1">
+                <div className="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em]">Trading Balance</div>
+                <div className="text-4xl font-display font-black text-white tracking-tighter">{formatCurrency(profile?.balance || 0)}</div>
               </div>
-              <div className="h-[320px] mb-8 rounded-[2rem] border border-gray-100 overflow-hidden shadow-inner bg-gray-50">
-                <TradingViewWidget symbol={selectedAsset.symbol} />
+              <div className="text-right space-y-1">
+                <div className="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em]">Account Status</div>
+                <div className="text-sm font-black text-emerald-400 bg-emerald-500/10 px-4 py-1.5 rounded-full border border-emerald-500/20">Active</div>
               </div>
+            </div>
+            <div className="flex gap-4">
               <button 
-                onClick={() => setShowOptionModal(true)}
-                className="w-full py-5 bg-gray-900 hover:bg-black text-white font-black rounded-2xl shadow-2xl active:scale-95 transition-all uppercase tracking-[0.3em] text-xs"
+                onClick={() => setActiveTab("personal")}
+                className="flex-1 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-2xl shadow-xl shadow-indigo-500/20 active:scale-95 transition-all uppercase tracking-[0.2em] text-[10px]"
               >
-                Place Order
+                Top Up Funds
+              </button>
+              <button 
+                onClick={() => setActiveTradeSubTab(activeTradeSubTab === "positions" ? "history" : "positions")}
+                className="px-6 py-4 glass-card-light rounded-2xl text-white font-black transition-all active:scale-95 text-[10px] uppercase tracking-widest"
+              >
+                {activeTradeSubTab === "positions" ? "View History" : "Back to Terminal"}
               </button>
             </div>
-          ) : (
-            <div className="p-4 space-y-3">
-              {transactions.filter(t => t.type === "trade").length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-20 text-gray-300">
-                  <FileText className="w-12 h-12 mb-4 opacity-20" />
-                  <span className="text-[10px] font-bold uppercase tracking-[0.2em]">No order history</span>
-                </div>
-              ) : (
-                transactions.filter(t => t.type === "trade").map((tx) => (
-                  <div key={tx.id} className="bg-gray-50/50 p-4 rounded-2xl border border-gray-100 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className={cn(
-                        "w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold",
-                        tx.details?.includes("WIN") ? "bg-green-500" : "bg-red-500"
-                      )}>
-                        {tx.details?.includes("WIN") ? "W" : "L"}
+          </div>
+
+          <div className="glass-card rounded-[2.5rem] overflow-hidden">
+            <div className="min-h-[500px]">
+              {activeTradeSubTab === "positions" ? (
+                <div className="p-8">
+                  <div className="flex justify-between items-center mb-8">
+                    <div className="flex items-center gap-4">
+                      <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center text-white font-bold shadow-xl overflow-hidden relative", selectedAsset.color)}>
+                        <span className="absolute inset-0 flex items-center justify-center text-xl">{(selectedAsset as any).icon}</span>
+                        {(selectedAsset as any).imageUrl && (
+                          <img 
+                            src={(selectedAsset as any).imageUrl} 
+                            alt={selectedAsset.name} 
+                            className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300" 
+                            onError={(e) => {
+                              (e.currentTarget as HTMLImageElement).style.opacity = '0';
+                            }}
+                          />
+                        )}
                       </div>
                       <div>
-                        <div className="font-bold text-gray-900 text-sm">{tx.symbol?.split(":").pop() || "Trade"}</div>
-                        <div className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">
-                          {tx.createdAt?.toDate?.()?.toLocaleString() || "Pending..."}
+                        <div className="font-display font-black text-slate-900 text-xl tracking-tight uppercase">{selectedAsset.short}/USDT</div>
+                        <div className="text-[10px] text-emerald-600 font-black animate-pulse uppercase tracking-[0.2em] flex items-center gap-1.5">
+                          <div className="w-1.5 h-1.5 bg-emerald-600 rounded-full" />
+                          Live Stream
                         </div>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className={cn(
-                        "font-black text-sm",
-                        tx.details?.includes("WIN") ? "text-green-600" : "text-red-600"
-                      )}>
-                        {tx.details?.includes("WIN") ? "+" : "-"}{formatCurrency(tx.amount)}
+                      <div className="text-3xl font-mono font-black text-slate-900 tracking-tighter">
+                        {marketData[selectedAsset.symbol]?.price || "0.00"}
                       </div>
-                      <div className="text-[8px] font-black uppercase tracking-widest text-gray-400 mt-1">
-                        {tx.status}
+                      <div className={cn(
+                        "text-xs font-black uppercase mt-1",
+                        marketData[selectedAsset.symbol]?.isUp ? "text-emerald-600" : "text-rose-600"
+                      )}>
+                        {marketData[selectedAsset.symbol]?.isUp ? "▲ +" : "▼ "}{marketData[selectedAsset.symbol]?.change || "0.00"}%
                       </div>
                     </div>
                   </div>
-                ))
+                  <div className="h-[400px] mb-8 rounded-[2rem] border border-slate-200 overflow-hidden shadow-inner bg-slate-100 group">
+                    <TradingViewWidget symbol={selectedAsset.symbol} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <button 
+                      onClick={() => setShowOptionModal(true)}
+                      className="py-5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 font-black rounded-2xl shadow-xl active:scale-95 transition-all uppercase tracking-[0.3em] text-[10px]"
+                    >
+                      Instant Buy
+                    </button>
+                    <button 
+                      onClick={() => setShowOptionModal(true)}
+                      className="py-5 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 font-black rounded-2xl shadow-xl active:scale-95 transition-all uppercase tracking-[0.3em] text-[10px]"
+                    >
+                      Instant Sell
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-4 space-y-3">
+                  {transactions.filter(t => t.type === "trade").length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-32 text-slate-400">
+                      <FileText className="w-16 h-16 mb-6 opacity-20" />
+                      <span className="text-[10px] font-black uppercase tracking-[0.3em] italic">No Protocol Execution Data</span>
+                    </div>
+                  ) : (
+                    transactions.filter(t => t.type === "trade").map((tx) => (
+                      <div key={tx.id} className="bg-slate-100 p-6 rounded-[2rem] border border-slate-200 flex items-center justify-between group hover:bg-slate-200 transition-colors">
+                        <div className="flex items-center gap-4">
+                          <div className={cn(
+                            "w-12 h-12 rounded-2xl flex items-center justify-center font-bold shadow-lg",
+                            tx.details?.includes("WIN") ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"
+                          )}>
+                            {tx.details?.includes("WIN") ? <ArrowUpCircle /> : <ArrowDownCircle />}
+                          </div>
+                          <div>
+                            <div className="font-display font-black text-slate-900 text-base">{tx.symbol?.split(":").pop() || "Trade"}</div>
+                            <div className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">
+                              {tx.createdAt?.toDate?.()?.toLocaleString() || "Pending..." }
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className={cn(
+                            "font-mono font-black text-base",
+                            tx.details?.includes("WIN") ? "text-emerald-700" : "text-rose-700"
+                          )}>
+                            {tx.details?.includes("WIN") ? "+" : "-"}{formatCurrency(tx.amount)}
+                          </div>
+                          <div className="text-[8px] font-black uppercase tracking-[0.2em] text-slate-400 mt-1">
+                            {tx.status}
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
               )}
             </div>
-          )}
+          </div>
+        </div>
+
+        <div className="lg:w-96 space-y-6">
+          <div className="glass-card rounded-[2.5rem] p-6 h-full">
+            <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-6">Live Assets</h3>
+            <div className="space-y-4 max-h-[600px] overflow-y-auto no-scrollbar">
+               {getMarketAssets().map(asset => (
+                 <div 
+                  key={asset.symbol}
+                  onClick={() => setSelectedAsset(asset)}
+                  className={cn(
+                    "p-4 rounded-2xl border border-slate-100 cursor-pointer transition-all flex items-center justify-between group",
+                    selectedAsset.symbol === asset.symbol ? "bg-indigo-50 border-indigo-200" : "bg-white hover:bg-slate-100"
+                  )}
+                 >
+                    <div className="flex items-center gap-3">
+                       <div className={cn("w-10 h-10 rounded-xl overflow-hidden relative", asset.color)}>
+                          <span className="absolute inset-0 flex items-center justify-center font-bold text-white text-xs">{asset.icon}</span>
+                       </div>
+                       <div>
+                          <div className="text-sm font-black text-slate-900">{asset.short}</div>
+                          <div className="text-[10px] text-slate-400">{asset.name}</div>
+                       </div>
+                    </div>
+                    <div className="text-right">
+                       <div className="text-sm font-mono font-bold text-slate-900">{marketData[asset.symbol]?.price || "0.00"}</div>
+                       <div className={cn("text-[10px] font-bold", marketData[asset.symbol]?.isUp ? "text-emerald-600" : "text-rose-600")}>
+                          {marketData[asset.symbol]?.change || "0.00"}%
+                       </div>
+                    </div>
+                 </div>
+               ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>
   );
 
   const renderNews = () => (
-    <div className="space-y-4 pb-24">
-      <div className="bg-indigo-600 p-5 text-white font-black uppercase tracking-[0.3em] text-xs text-center shadow-lg">Financial Intelligence</div>
-      
-      <div className="mx-4 space-y-6 pt-4">
-        {news.length > 0 && (
-          <div className="relative rounded-[2.5rem] overflow-hidden group shadow-2xl">
-            <div className="aspect-[16/9] relative">
-              <img 
-                src={news[0].imageUrl || "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&q=80&w=1000"} 
-                referrerPolicy="no-referrer"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-            </div>
-            <div className="absolute bottom-0 left-0 right-0 p-8">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="px-3 py-1 bg-indigo-600 text-[10px] font-black uppercase tracking-widest text-white rounded-full">Editorial</div>
-                <div className="text-white/60 text-[10px] font-bold uppercase tracking-widest">{news[0].createdAt?.toDate?.()?.toLocaleDateString()}</div>
-              </div>
-              <h2 className="text-2xl font-black text-white leading-tight mb-3 line-clamp-2 md:text-3xl">{news[0].title}</h2>
-              <p className="text-white/70 text-sm font-medium line-clamp-2">{news[0].summary}</p>
-            </div>
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 gap-4">
-          {news.length === 0 ? (
-            [1, 2, 3].map((i) => (
-              <div key={i} className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex gap-4 opacity-50 animate-pulse">
-                <div className="w-24 h-24 bg-gray-100 rounded-xl" />
-                <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-gray-100 rounded w-3/4" />
-                  <div className="h-3 bg-gray-100 rounded w-full" />
-                  <div className="h-3 bg-gray-100 rounded w-1/2" />
+    <div className="space-y-8 pb-64 animate-in fade-in duration-500">
+       <div className="mx-4">
+          <div className="bg-indigo-50 border border-indigo-100 p-5 rounded-2xl text-indigo-700 font-display font-black uppercase tracking-[0.3em] text-[10px] text-center mb-10">Financial Intelligence Hub</div>
+          
+          <div className="space-y-10">
+            {news.length > 0 && (
+              <div className="relative aspect-[21/9] rounded-[3rem] overflow-hidden group shadow-2xl">
+                <img 
+                  src={news[0].imageUrl || "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&q=80&w=1000"} 
+                  referrerPolicy="no-referrer"
+                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[3s]" 
+                  alt="Main News"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-80" />
+                <div className="absolute bottom-0 left-0 right-0 p-10">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="px-4 py-1 bg-indigo-600 text-[10px] font-black uppercase tracking-widest text-white rounded-full">Top Analysis</div>
+                    <div className="text-slate-300 text-[10px] font-bold uppercase tracking-widest">{news[0].createdAt?.toDate?.()?.toLocaleDateString()}</div>
+                  </div>
+                  <h2 className="text-4xl font-display font-black text-white leading-tight mb-4 line-clamp-2">{news[0].title}</h2>
+                  <p className="text-slate-100 font-medium line-clamp-2 max-w-2xl">{news[0].summary}</p>
                 </div>
               </div>
-            ))
-          ) : (
-            news.slice(1).map((item) => (
-              <div key={item.id} className="bg-white p-4 rounded-[2rem] shadow-sm border border-gray-100 flex gap-4 group hover:shadow-xl hover:border-indigo-100 transition-all">
-                {item.imageUrl && (
-                  <div className="w-24 h-24 bg-gray-100 rounded-2xl shrink-0 overflow-hidden relative">
-                    <img src={item.imageUrl} referrerPolicy="no-referrer" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                  </div>
-                )}
-                <div className="flex-1 flex flex-col justify-center min-w-0">
-                  <h3 className="font-black text-gray-900 line-clamp-2 leading-snug group-hover:text-indigo-600 transition-colors uppercase tracking-tight text-sm">{item.title}</h3>
-                  <p className="text-xs text-gray-400 mt-2 line-clamp-1 font-medium italic">{item.summary}</p>
-                  <div className="flex justify-between items-center mt-3 pt-3 border-t border-gray-50">
-                    <span className="text-[10px] text-gray-300 font-black uppercase tracking-widest">{item.createdAt?.toDate?.()?.toLocaleDateString()}</span>
-                    <div className="p-1.5 bg-gray-50 rounded-lg group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-all">
-                      <ChevronRight className="w-3.5 h-3.5" />
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {news.length === 0 ? (
+                [1, 2, 3].map((i) => (
+                  <div key={i} className="glass-card p-6 rounded-[2.5rem] flex gap-4 animate-pulse">
+                    <div className="w-20 h-20 bg-slate-200 rounded-2xl shrink-0" />
+                    <div className="flex-1 space-y-3">
+                      <div className="h-4 bg-slate-200 rounded w-3/4" />
+                      <div className="h-3 bg-slate-200 rounded w-full" />
                     </div>
                   </div>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
+                ))
+              ) : (
+                news.slice(1).map((item) => (
+                  <div key={item.id} className="glass-card p-6 rounded-[2.5rem] flex gap-4 group hover:bg-white transition-all border-slate-100 overflow-hidden">
+                    {item.imageUrl && (
+                      <div className="w-20 h-20 bg-slate-100 rounded-2xl shrink-0 overflow-hidden relative">
+                        <img src={item.imageUrl} referrerPolicy="no-referrer" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                      </div>
+                    )}
+                    <div className="flex-1 flex flex-col justify-center min-w-0">
+                      <h3 className="font-display font-black text-slate-900 line-clamp-2 leading-tight uppercase tracking-tight text-[11px] group-hover:text-indigo-600 transition-colors">{item.title}</h3>
+                      <div className="flex justify-between items-center mt-3 pt-3 border-t border-slate-100 text-slate-400 font-black uppercase tracking-widest text-[8px]">
+                        <span>{item.createdAt?.toDate?.()?.toLocaleDateString()}</span>
+                        <ChevronRight className="w-3 h-3 group-hover:text-indigo-600 group-hover:translate-x-1 transition-all" />
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+       </div>
     </div>
   );
 
   const renderPersonal = () => (
-    <div className="space-y-6 pb-24">
-      <div className="bg-indigo-600 px-8 py-16 flex items-center gap-6 text-white relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mt-32" />
-        <div className="w-20 h-20 bg-white/20 rounded-3xl flex items-center justify-center backdrop-blur-md border border-white/20 shadow-2xl relative z-10">
-          <UserIcon className="w-10 h-10" />
-        </div>
-        <div className="relative z-10">
-          <h2 className="text-2xl font-black tracking-tight">{profile?.fullName || "Quantum Trader"}</h2>
-          <div className="text-indigo-200 text-[10px] font-black uppercase tracking-[0.2em] mt-2 bg-white/10 w-fit px-3 py-1 rounded-full border border-white/5">ID: {user?.uid.slice(0, 12)}</div>
-        </div>
-      </div>
-
-      <div className="mx-4 -mt-12 bg-white rounded-[2.5rem] shadow-2xl p-8 border border-white relative z-20">
-        <div className="flex justify-between items-end mb-8">
-          <div>
-            <div className="text-gray-400 text-[10px] font-black uppercase tracking-[0.3em] mb-2">Available Funds</div>
-            <div className="text-5xl font-black text-gray-900 tracking-tighter">{formatCurrency(profile?.balance || 0)}</div>
-          </div>
-          <div className="text-right">
-             <div className="text-gray-400 text-[10px] font-black uppercase tracking-[0.3em] mb-2">Account</div>
-             <div className={cn(
-               "px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-sm inline-block",
-               profile?.verificationStatus === "verified" ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
-               profile?.verificationStatus === "pending" ? "bg-amber-50 text-amber-600 border-amber-100" :
-               profile?.verificationStatus === "rejected" ? "bg-red-50 text-red-600 border-red-100" :
-               "bg-slate-100 text-slate-500 border-slate-200"
-             )}>
-               {profile?.verificationStatus || "Unverified"}
-             </div>
-          </div>
-        </div>
+    <div className="space-y-8 pb-64 animate-in fade-in duration-500">
+      <div className="relative glass-card rounded-[3rem] overflow-hidden p-12 mx-4">
+        <div className="absolute top-0 right-0 p-20 opacity-10 blur-3xl rounded-full bg-indigo-500 -mr-20 -mt-20" />
         
-        <div className="grid grid-cols-2 gap-4 pt-6 border-t border-gray-50">
+        <div className="flex flex-col md:flex-row items-center gap-10 relative z-10">
+          <div className="w-32 h-32 rounded-[2.5rem] bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-[2px] shadow-2xl">
+            <div className="w-full h-full rounded-[2.5rem] bg-white flex items-center justify-center font-display font-black text-4xl text-slate-900">
+              {profile?.fullName?.slice(0, 1).toUpperCase() || user.email?.slice(0, 1).toUpperCase()}
+            </div>
+          </div>
+          
+          <div className="flex-1 text-center md:text-left">
+            <h2 className="text-4xl font-display font-black text-slate-900 mb-2 tracking-tight">{profile?.fullName || "Quantum Trader"}</h2>
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
+               <div className="px-4 py-1.5 rounded-full bg-slate-100 border border-slate-200 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                  Node ID: {user?.uid.slice(0, 12)}
+               </div>
+               <div className={cn(
+                  "px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border",
+                  profile?.verificationStatus === "verified" ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
+                  profile?.verificationStatus === "pending" ? "bg-amber-50 text-amber-600 border-amber-100" :
+                  "bg-slate-100 text-slate-400 border-slate-200"
+               )}>
+                  {profile?.verificationStatus || "Unverified"}
+               </div>
+            </div>
+          </div>
+
+          <div className="text-center md:text-right">
+             <div className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2 font-mono">Portfolio Value</div>
+             <div className="text-5xl font-display font-black text-slate-900 tracking-tighter">{formatCurrency(profile?.balance || 0)}</div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4 mt-12 pt-12 border-t border-slate-100 relative z-10">
           <button 
             onClick={() => setShowWithdrawModal(true)}
-            className="flex items-center justify-center gap-2 py-4 bg-gray-50 hover:bg-gray-100 text-gray-600 font-black uppercase tracking-widest text-[10px] rounded-2xl active:scale-95 transition-all shadow-sm"
+            className="flex items-center justify-center gap-3 py-5 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-900 font-black uppercase tracking-[0.2em] text-[10px] rounded-2xl transition-all active:scale-95"
           >
-            <ArrowUpCircle className="w-4 h-4" /> Withdraw
+            <ArrowUpCircle className="w-5 h-5" /> Withdraw Capital
           </button>
           <button 
             onClick={() => setShowDepositModal(true)}
-            className="flex items-center justify-center gap-2 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-black uppercase tracking-widest text-[10px] rounded-2xl shadow-xl shadow-indigo-100 active:scale-95 transition-all"
+            className="flex items-center justify-center gap-3 py-5 bg-indigo-600 hover:bg-indigo-700 text-white font-black uppercase tracking-[0.2em] text-[10px] rounded-2xl shadow-xl shadow-indigo-500/30 active:scale-95 transition-all"
           >
-            <ArrowDownCircle className="w-4 h-4" /> Deposit
+            <ArrowDownCircle className="w-5 h-5" /> Deposit Funds
           </button>
         </div>
       </div>
 
-      <div className="mx-4 space-y-2 mt-4">
+      <div className="mx-4 space-y-6">
         {profile?.verificationStatus === "pending" && (
-          <div className="mb-4 p-4 bg-amber-50 rounded-2xl border border-amber-100">
-            <div className="flex items-center gap-3 text-amber-700">
+          <div className="p-6 glass-card border-amber-500/20 bg-amber-500/5">
+            <div className="flex items-center gap-3 text-amber-400">
               <Clock className="w-5 h-5" />
-              <p className="text-xs font-bold uppercase tracking-tight">Identity Verification Pending</p>
+              <p className="text-xs font-black uppercase tracking-widest">Protocol Verification Pending</p>
             </div>
-            <p className="text-[10px] text-amber-600 mt-2 font-medium">Your documents have been submitted. Our compliance team is currently reviewing your application.</p>
+            <p className="text-[10px] text-slate-400 mt-2 font-medium">Your credentials have been submitted for review. This typically takes 24-48 business hours.</p>
           </div>
         )}
         
-        {(!profile?.verificationStatus || profile?.verificationStatus === "rejected" || profile?.verificationStatus === "unsubmitted") && (
-          <button 
-            onClick={() => {
-              setFullName(profile?.fullName || "");
-              setPhoneNumber(profile?.phoneNumber || "");
-              setAddressVal(profile?.address || "");
-              setVerificationDoc(profile?.verificationDoc || null);
-              setShowVerificationForm(true);
-            }}
-            className="w-full mb-4 py-5 bg-indigo-600 hover:bg-indigo-700 text-white font-black uppercase tracking-widest text-[10px] rounded-2xl shadow-xl shadow-indigo-100 active:scale-95 transition-all text-center flex items-center justify-center gap-3"
-          >
-            <UserIcon className="w-4 h-4" /> Personal Information
-          </button>
-        )}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="glass-card rounded-[2.5rem] p-8">
+             <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-6">Security & Identity</h3>
+             <div className="space-y-4">
+                {(!profile?.verificationStatus || profile?.verificationStatus === "rejected" || profile?.verificationStatus === "unsubmitted") && (
+                  <button 
+                    onClick={() => {
+                      setFullName(profile?.fullName || "");
+                      setPhoneNumber(profile?.phoneNumber || "");
+                      setAddressVal(profile?.address || "");
+                      setVerificationDoc(profile?.verificationDoc || null);
+                      setShowVerificationForm(true);
+                    }}
+                    className="w-full p-6 bg-slate-100 rounded-2xl flex items-center justify-between group hover:bg-slate-200 transition-all text-left border border-slate-200"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600">
+                         <ShieldCheck className="w-6 h-6" />
+                      </div>
+                      <div>
+                         <div className="font-bold text-slate-900 text-sm">Verify Identity</div>
+                         <div className="text-[10px] text-slate-400 font-medium">Unlock full platform capabilities</div>
+                      </div>
+                    </div>
+                    <ChevronRight className="w-5 h-5 text-slate-400 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                )}
+                
+                <button 
+                  onClick={() => setShowChangePasswordModal(true)}
+                  className="w-full p-6 bg-slate-100 rounded-2xl flex items-center justify-between group hover:bg-slate-200 transition-all text-left border border-slate-200"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+                       <Lock className="w-6 h-6" />
+                    </div>
+                    <div>
+                       <div className="font-bold text-slate-900 text-sm">Vault Access</div>
+                       <div className="text-[10px] text-slate-400 font-medium">Update security credentials</div>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-slate-400 group-hover:translate-x-1 transition-transform" />
+                </button>
+             </div>
+          </div>
 
-        {[
-          { icon: <Clock />, label: "Trade History", color: "text-blue-500", action: () => { setActiveTab("trading"); setActiveTradeSubTab("history"); } },
-          { icon: <Bell />, label: "Security Notifications", color: "text-orange-500" },
-          { icon: <MessageSquare />, label: "Live Support", color: "text-green-500", action: () => setShowChat(true) },
-          { icon: <ShieldCheck />, label: "Security Center", color: "text-red-500" },
-          { icon: <Lock />, label: "Change Password", color: "text-indigo-500", action: () => setShowChangePasswordModal(true) },
-        ].map((item, idx) => (
-          <button 
-            key={idx}
-            onClick={item.action}
-            className="w-full flex items-center justify-between p-5 bg-white rounded-2xl border border-gray-50 hover:bg-gray-50 transition-colors shadow-sm"
-          >
-            <div className="flex items-center gap-4">
-              <div className={cn("p-2 rounded-xl bg-gray-100", item.color)}>{item.icon}</div>
-              <span className="font-bold text-gray-900 text-sm">{item.label}</span>
-            </div>
-            <ChevronRight className="w-5 h-5 text-gray-300" />
-          </button>
-        ))}
-        <button 
-          onClick={() => auth.signOut()}
-          className="w-full py-5 text-red-500 font-bold bg-red-50 rounded-2xl mt-4 border border-red-100 transition-colors shadow-sm"
-        >
-          Sign Out
-        </button>
+          <div className="glass-card rounded-[2.5rem] p-8">
+             <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-6">Account Terminal</h3>
+             <div className="space-y-4">
+                <button 
+                  onClick={() => { setActiveTab("trading"); setActiveTradeSubTab("history"); }}
+                  className="w-full p-6 bg-slate-100 rounded-2xl flex items-center justify-between group hover:bg-slate-200 transition-all text-left border border-slate-200"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
+                       <Clock className="w-6 h-6" />
+                    </div>
+                    <div>
+                       <div className="font-bold text-slate-900 text-sm">Execution Logs</div>
+                       <div className="text-[10px] text-slate-400 font-medium">Review your historical data</div>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-slate-400 group-hover:translate-x-1 transition-transform" />
+                </button>
+
+                <button 
+                  onClick={() => setShowChat(true)}
+                  className="w-full p-6 bg-slate-100 rounded-2xl flex items-center justify-between group hover:bg-slate-200 transition-all text-left border border-slate-200"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
+                       <MessageSquare className="w-6 h-6" />
+                    </div>
+                    <div>
+                       <div className="font-bold text-slate-900 text-sm">Direct Protocol Support</div>
+                       <div className="text-[10px] text-slate-400 font-medium">Instant 24/7 priority pipeline</div>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-slate-400 group-hover:translate-x-1 transition-transform" />
+                </button>
+
+                <button 
+                  onClick={() => auth.signOut()}
+                  className="w-full p-6 bg-rose-50 rounded-2xl flex items-center justify-center gap-2 group hover:bg-rose-100 transition-all border border-rose-100 mt-4"
+                >
+                  <LogOut className="w-5 h-5 text-rose-600" />
+                  <span className="text-[10px] font-black text-rose-600 uppercase tracking-widest">Terminate Control Session</span>
+                </button>
+             </div>
+          </div>
+        </div>
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <div className="flex-1 overflow-y-auto">
-        {activeTab === "home" && renderHome()}
-        {activeTab === "trading" && renderTrading()}
-        {activeTab === "news" && renderNews()}
-        {activeTab === "personal" && renderPersonal()}
+    <div className="min-h-screen bg-slate-100 font-sans selection:bg-indigo-500/30 overflow-x-hidden relative">
+      <div className="flex-1 flex flex-col pb-64">
+        <main className="max-w-[1400px] mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+          {activeTab === "home" && renderHome()}
+          {activeTab === "trading" && renderTrading()}
+          {activeTab === "news" && renderNews()}
+          {activeTab === "personal" && renderPersonal()}
+        </main>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-gray-100 px-6 py-4 flex items-center justify-around z-50 shadow-[0_-10px_30px_rgba(0,0,0,0.03)]">
-        <button 
-          onClick={() => setActiveTab("home")}
-          className={cn(
-            "flex flex-col items-center gap-2 p-1 w-16 transition-all active:scale-75",
-            activeTab === "home" ? "text-indigo-600" : "text-gray-400"
-          )}
-        >
-          <Home className={cn("w-6 h-6 transition-all", activeTab === "home" ? "fill-indigo-600/20 scale-110" : "")} />
-          <span className="text-[10px] font-black uppercase tracking-[0.1em]">Home</span>
-        </button>
-        <button 
-          onClick={() => setActiveTab("trading")}
-          className={cn(
-            "flex flex-col items-center gap-2 p-1 w-16 transition-all active:scale-75",
-            activeTab === "trading" ? "text-indigo-600" : "text-gray-400"
-          )}
-        >
-          <BarChart2 className={cn("w-6 h-6 transition-all", activeTab === "trading" ? "fill-indigo-600/20 scale-110" : "")} />
-          <span className="text-[10px] font-black uppercase tracking-[0.1em]">Trade</span>
-        </button>
-        <button 
-          onClick={() => setActiveTab("news")}
-          className={cn(
-            "flex flex-col items-center gap-2 p-1 w-16 transition-all active:scale-75",
-            activeTab === "news" ? "text-indigo-600" : "text-gray-400"
-          )}
-        >
-          <Bell className={cn("w-6 h-6 transition-all", activeTab === "news" ? "fill-indigo-600/20 scale-110" : "")} />
-          <span className="text-[10px] font-black uppercase tracking-[0.1em]">News</span>
-        </button>
-        <button 
-          onClick={() => setActiveTab("personal")}
-          className={cn(
-            "flex flex-col items-center gap-2 p-1 w-16 transition-all active:scale-75",
-            activeTab === "personal" ? "text-indigo-600" : "text-gray-400"
-          )}
-        >
-          <UserIcon className={cn("w-6 h-6 transition-all", activeTab === "personal" ? "fill-indigo-600/20 scale-110" : "")} />
-          <span className="text-[10px] font-black uppercase tracking-[0.1em]">You</span>
-        </button>
+      {/* Bottom Navigation */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-2xl border-t border-slate-200 z-[40] pb-safe">
+        <div className="max-w-md mx-auto flex items-center justify-between px-6 py-4">
+          {[
+            { id: "home", icon: Home, label: "Home" },
+            { id: "trading", icon: BarChart2, label: "Market" },
+            { id: "news", icon: Bell, label: "News" },
+            { id: "personal", icon: UserIcon, label: "Vault" },
+          ].map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setActiveTab(item.id as any)}
+              className={cn(
+                "relative flex flex-col items-center gap-1.5 py-1 px-3 transition-all duration-300 active:scale-75",
+                activeTab === item.id ? "text-indigo-600" : "text-slate-400 hover:text-slate-600"
+              )}
+            >
+              <item.icon className={cn("w-6 h-6 transition-transform duration-300", activeTab === item.id ? "scale-110" : "")} />
+              <span className="text-[9px] font-black uppercase tracking-widest">{item.label}</span>
+              {activeTab === item.id && (
+                <motion.div 
+                  layoutId="activeTabUnderline"
+                  className="absolute -bottom-2 left-0 right-0 h-1 bg-indigo-600 rounded-full shadow-[0_0_10px_rgba(79,70,229,0.2)]"
+                />
+              )}
+            </button>
+          ))}
+        </div>
       </div>
 
       <AnimatePresence>
@@ -1819,7 +1902,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 pb-4">
+                <div className="grid grid-cols-2 gap-4 pb-24">
                   <button 
                     onClick={() => { setShowOptionModal(false); setShowTradeConfirm(true); }}
                     className="py-5 bg-green-500 text-white font-black rounded-2xl shadow-xl active:scale-95 transition-all text-sm uppercase tracking-[0.1em]"
@@ -1974,7 +2057,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
               <button onClick={() => setShowChat(false)} className="p-2 text-gray-400 hover:bg-gray-50 rounded-full transition-all"><X className="w-6 h-6" /></button>
             </div>
             
-            <div className="flex-1 overflow-y-auto p-8 space-y-6 bg-slate-50/50">
+            <div className="flex-1 overflow-y-auto p-8 space-y-6 bg-slate-100/50">
               {messages.map((msg) => (
                 <div key={msg.id} className={cn("flex flex-col max-w-[85%]", msg.senderId === user.uid ? "ml-auto items-end" : "mr-auto items-start")}>
                   <div className={cn("p-5 rounded-3xl text-sm font-medium shadow-sm transition-all hover:shadow-md", msg.senderId === user.uid ? "bg-indigo-600 text-white rounded-br-none" : "bg-white text-gray-900 border border-slate-100 rounded-bl-none")}>

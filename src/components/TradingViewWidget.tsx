@@ -36,8 +36,8 @@ export function TradingViewWidget({ symbol }: TradingViewWidgetProps) {
         src={iframeUrl}
         width="100%"
         height="100%"
-        frameBorder="0"
-        allowTransparency={true}
+        style={{ border: 0 }}
+        {...{ allowtransparency: "true" } as any}
         scrolling="no"
         allowFullScreen
         title="TradingView Chart"

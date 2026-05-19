@@ -367,14 +367,14 @@ export default function AdminDashboard() {
           </div>
         </div>
         
-        <div className="flex bg-slate-100 p-1.5 rounded-2xl shadow-inner">
+        <div className="flex bg-slate-200 p-1.5 rounded-2xl shadow-inner">
           {(["users", "transactions", "support", "news", "settings"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={cn(
                 "px-8 py-3 rounded-[1.25rem] text-sm font-black capitalize transition-all",
-                activeTab === tab ? "bg-white text-indigo-600 shadow-xl" : "text-slate-400 hover:text-slate-600"
+                activeTab === tab ? "bg-white text-indigo-600 shadow-xl" : "text-slate-500 hover:text-slate-700"
               )}
             >
               {tab}
@@ -401,7 +401,7 @@ export default function AdminDashboard() {
             <div className="bg-white border border-slate-50 rounded-[2.5rem] overflow-hidden shadow-2xl shadow-slate-200/50">
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
-                  <thead className="bg-slate-50/50 border-b border-slate-100">
+                  <thead className="bg-slate-100/50 border-b border-slate-200">
                     <tr>
                       <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">User Profile</th>
                       <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Verification</th>
@@ -452,7 +452,7 @@ export default function AdminDashboard() {
                             <input 
                               type="number"
                               placeholder="0.00"
-                              className="w-28 bg-slate-50 border border-slate-100 rounded-xl py-2 px-3 text-slate-900 focus:bg-white focus:border-indigo-500 outline-none text-sm font-bold shadow-inner transition-all"
+                              className="w-28 bg-slate-100 border border-slate-200 rounded-xl py-2 px-3 text-slate-900 focus:bg-white focus:border-indigo-500 outline-none text-sm font-bold shadow-inner transition-all"
                               value={customAmounts[u.id] || ""}
                               onChange={(e) => setCustomAmounts({ ...customAmounts, [u.id]: e.target.value })}
                             />
@@ -496,7 +496,7 @@ export default function AdminDashboard() {
                               </button>
                               <button
                                 onClick={() => handleToggleRole(u)}
-                                className="p-3 bg-slate-50 hover:bg-slate-900 text-slate-400 hover:text-white rounded-xl transition-all"
+                                className="p-3 bg-slate-100 hover:bg-slate-800 text-slate-400 hover:text-white rounded-xl transition-all"
                                 title="Toggle Admin"
                               >
                                 <ShieldCheck className="w-4 h-4" />
@@ -564,12 +564,12 @@ export default function AdminDashboard() {
                   <p className="text-slate-500 font-medium text-sm">Monitor and verify all system movements.</p>
                 </div>
               </div>
-              <div className="flex bg-slate-100 p-1.5 rounded-2xl shadow-inner">
+              <div className="flex bg-slate-200 p-1.5 rounded-2xl shadow-inner">
                 <button 
                   onClick={() => setTxFilter("pending")}
                   className={cn(
                     "px-6 py-2.5 rounded-[1.15rem] text-xs font-black uppercase tracking-widest transition-all",
-                    txFilter === "pending" ? "bg-white text-indigo-600 shadow-xl" : "text-slate-400 hover:text-slate-600"
+                    txFilter === "pending" ? "bg-white text-indigo-600 shadow-xl" : "text-slate-500 hover:text-slate-700"
                   )}
                 >
                   Pending Action
@@ -590,7 +590,7 @@ export default function AdminDashboard() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {pendingTxs.map((tx) => (
-                  <div key={tx.id} className="p-8 bg-slate-50 border border-slate-100 rounded-[2rem] space-y-6 hover:bg-white hover:shadow-2xl hover:shadow-slate-200/50 transition-all group">
+                  <div key={tx.id} className="p-8 bg-slate-100 border border-slate-200 rounded-[2rem] space-y-6 hover:bg-white hover:shadow-2xl hover:shadow-slate-200/50 transition-all group">
                     <div className="flex justify-between items-start">
                       <div className="space-y-3">
                         <div className={cn(
@@ -668,7 +668,7 @@ export default function AdminDashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 min-h-[700px]">
             {/* User List */}
             <div className="lg:col-span-1 bg-white border border-slate-100 rounded-[2.5rem] overflow-hidden flex flex-col shadow-2xl shadow-slate-200/50">
-              <div className="p-8 border-b border-slate-50 bg-slate-50/30">
+              <div className="p-8 border-b border-slate-100 bg-slate-100/30">
                 <h3 className="font-black text-slate-900 tracking-tight flex items-center gap-3">
                   <MessageSquare className="w-6 h-6 text-indigo-600" />
                   Terminal Chats
@@ -686,8 +686,8 @@ export default function AdminDashboard() {
                         key={uId}
                         onClick={() => setSelectedUserChat(uId)}
                         className={cn(
-                          "w-full p-6 flex items-center gap-4 hover:bg-slate-50 transition-all text-left",
-                          selectedUserChat === uId ? "bg-indigo-50/50 border-r-4 border-indigo-600" : "border-b border-slate-50"
+                          "w-full p-6 flex items-center gap-4 hover:bg-slate-100 transition-all text-left",
+                          selectedUserChat === uId ? "bg-indigo-50/50 border-r-4 border-indigo-600" : "border-b border-slate-100"
                         )}
                       >
                         <div className="w-12 h-12 rounded-2xl bg-white shadow-sm border border-slate-100 flex items-center justify-center text-indigo-600">
@@ -718,7 +718,7 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                   
-                  <div className="flex-1 overflow-y-auto p-10 space-y-8 bg-slate-50/30">
+                  <div className="flex-1 overflow-y-auto p-10 space-y-8 bg-slate-100/30">
                     {allMessages.filter(m => m.userId === selectedUserChat).map((msg) => (
                       <div key={msg.id} className={cn(
                         "flex flex-col max-w-[75%]",
@@ -744,7 +744,7 @@ export default function AdminDashboard() {
                       <input 
                         type="text"
                         placeholder="Transmit response..."
-                        className="flex-1 bg-slate-50 border border-slate-100 rounded-2xl px-6 py-5 text-slate-900 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-50 focus:border-indigo-400 transition-all font-medium shadow-inner"
+                        className="flex-1 bg-slate-100 border border-slate-200 rounded-2xl px-6 py-5 text-slate-900 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-50 focus:border-indigo-400 transition-all font-medium shadow-inner"
                         value={replyText}
                         onChange={(e) => setReplyText(e.target.value)}
                       />
@@ -761,7 +761,7 @@ export default function AdminDashboard() {
                 </>
               ) : (
                 <div className="flex-1 flex flex-col items-center justify-center text-center p-24 space-y-8 opacity-50">
-                  <div className="w-24 h-24 bg-slate-50 rounded-[2rem] flex items-center justify-center shadow-inner">
+                  <div className="w-24 h-24 bg-slate-100 rounded-[2rem] flex items-center justify-center shadow-inner">
                     <MessageSquare className="w-12 h-12 text-slate-300" />
                   </div>
                   <div>
@@ -785,7 +785,7 @@ export default function AdminDashboard() {
                     <input 
                       type="text"
                       required
-                      className="w-full bg-slate-50 border border-slate-100 rounded-xl py-3 px-4 text-sm text-slate-900 focus:bg-white focus:border-indigo-500 outline-none font-medium"
+                      className="w-full bg-slate-100 border border-slate-200 rounded-xl py-3 px-4 text-sm text-slate-900 focus:bg-white focus:border-indigo-500 outline-none font-medium"
                       placeholder="e.g. Bitcoin Hits New All-Time High"
                       value={newsTitle}
                       onChange={(e) => setNewsTitle(e.target.value)}
@@ -795,7 +795,7 @@ export default function AdminDashboard() {
                     <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Summary (Short)</label>
                     <input 
                       type="text"
-                      className="w-full bg-slate-50 border border-slate-100 rounded-xl py-3 px-4 text-sm text-slate-900 focus:bg-white focus:border-indigo-500 outline-none font-medium"
+                      className="w-full bg-slate-100 border border-slate-200 rounded-xl py-3 px-4 text-sm text-slate-900 focus:bg-white focus:border-indigo-500 outline-none font-medium"
                       placeholder="Brief overview of the news"
                       value={newsSummary}
                       onChange={(e) => setNewsSummary(e.target.value)}
@@ -808,7 +808,7 @@ export default function AdminDashboard() {
                   <textarea 
                     required
                     rows={4}
-                    className="w-full bg-slate-50 border border-slate-100 rounded-xl py-3 px-4 text-sm text-slate-900 focus:bg-white focus:border-indigo-500 outline-none font-medium resize-none"
+                    className="w-full bg-slate-100 border border-slate-200 rounded-xl py-3 px-4 text-sm text-slate-900 focus:bg-white focus:border-indigo-500 outline-none font-medium resize-none"
                     placeholder="Full news content..."
                     value={newsContent}
                     onChange={(e) => setNewsContent(e.target.value)}
@@ -827,7 +827,7 @@ export default function AdminDashboard() {
                     />
                     <label 
                       htmlFor="news-img-upload"
-                      className="flex items-center justify-center gap-3 bg-slate-50 border-2 border-dashed border-slate-100 rounded-xl py-4 px-6 text-slate-400 hover:border-indigo-300 hover:bg-indigo-50/50 transition-all cursor-pointer flex-1"
+                      className="flex items-center justify-center gap-3 bg-slate-100 border-2 border-dashed border-slate-200 rounded-xl py-4 px-6 text-slate-400 hover:border-indigo-300 hover:bg-indigo-50/50 transition-all cursor-pointer flex-1"
                     >
                       {newsImageUrl ? (
                         <div className="flex items-center gap-3 text-indigo-600">
@@ -903,7 +903,7 @@ export default function AdminDashboard() {
                   <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">{coin} Secure Handle</label>
                   <input 
                     type="text"
-                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-5 px-6 text-slate-900 focus:bg-white focus:ring-4 focus:ring-indigo-50 focus:border-indigo-400 outline-none font-mono text-sm shadow-inner transition-all"
+                    className="w-full bg-slate-100 border border-slate-200 rounded-2xl py-5 px-6 text-slate-900 focus:bg-white focus:ring-4 focus:ring-indigo-50 focus:border-indigo-400 outline-none font-mono text-sm shadow-inner transition-all"
                     value={(settings as any)[`${coin}_address`] || ""}
                     onChange={(e) => setSettings({ ...settings, [`${coin}_address`]: e.target.value })}
                   />
@@ -959,18 +959,18 @@ export default function AdminDashboard() {
 
               <div className="flex-1 overflow-y-auto p-12 space-y-12">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  <div className="space-y-3 bg-slate-50 p-6 rounded-[2rem] border border-slate-100 shadow-inner">
+                  <div className="space-y-3 bg-slate-100 p-6 rounded-[2rem] border border-slate-200 shadow-inner">
                     <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Legal Identity</label>
                     <p className="text-slate-900 font-black text-lg leading-tight">{selectedUserKYC.fullName || "UNREGISTERED"}</p>
                   </div>
-                  <div className="space-y-3 bg-slate-50 p-6 rounded-[2rem] border border-slate-100 shadow-inner">
+                  <div className="space-y-3 bg-slate-100 p-6 rounded-[2rem] border border-slate-200 shadow-inner">
                     <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Comm Vector</label>
                     <div className="flex items-start gap-3">
                        <Phone className="w-5 h-5 text-indigo-400 shrink-0" />
                        <p className="text-slate-900 font-black tracking-tight">{selectedUserKYC.phoneNumber || "UNLINKED"}</p>
                     </div>
                   </div>
-                  <div className="space-y-3 bg-slate-50 p-6 rounded-[2rem] border border-slate-100 shadow-inner">
+                  <div className="space-y-3 bg-slate-100 p-6 rounded-[2rem] border border-slate-200 shadow-inner">
                     <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Base Coordinates</label>
                     <div className="flex items-start gap-3">
                        <MapPin className="w-5 h-5 text-indigo-400 shrink-0" />
@@ -998,14 +998,14 @@ export default function AdminDashboard() {
                       <div className="absolute inset-0 bg-indigo-600/0 group-hover:bg-indigo-600/5 transition-colors pointer-events-none" />
                     </div>
                   ) : (
-                    <div className="p-24 text-center bg-slate-50 rounded-[2.5rem] border border-slate-100 text-slate-400 font-black italic uppercase tracking-widest text-xs">
+                    <div className="p-24 text-center bg-slate-100 rounded-[2.5rem] border border-slate-200 text-slate-400 font-black italic uppercase tracking-widest text-xs">
                       No visual confirmation object available.
                     </div>
                   )}
                 </div>
               </div>
               
-              <div className="p-8 bg-slate-50 border-t border-slate-100 flex justify-between items-center">
+              <div className="p-8 bg-slate-100 border-t border-slate-200 flex justify-between items-center">
                 <div className="flex gap-4">
                   {selectedUserKYC.verificationStatus === "pending" && (
                     <>
@@ -1090,7 +1090,7 @@ export default function AdminDashboard() {
                 </p>
               </div>
               
-              <div className="p-8 bg-slate-50 border-t border-slate-100 flex justify-end">
+              <div className="p-8 bg-slate-100 border-t border-slate-200 flex justify-end">
                 <button 
                   onClick={() => setSelectedReceipt(null)}
                   className="px-12 py-4 bg-slate-900 hover:bg-black text-white font-black rounded-2xl transition-all shadow-xl uppercase tracking-widest text-xs"
@@ -1108,7 +1108,7 @@ export default function AdminDashboard() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setConfirmDelete(null)}
-              className="absolute inset-0 bg-slate-950/80 backdrop-blur-md"
+              className="absolute inset-0 bg-slate-900/80 backdrop-blur-md"
             />
             <motion.div 
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
