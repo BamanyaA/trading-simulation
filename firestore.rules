@@ -59,8 +59,8 @@ service cloud.firestore {
                       isValidId(userId) && 
                       incoming().keys().hasAll(['email', 'balance', 'role', 'createdAt']) &&
                       isValidUser(incoming()) && 
-                      (incoming().role == 'user' || (incoming().role == 'admin' && request.auth.token.email == 'habeshatilaye@gmail.com')) && 
-                      incoming().balance == 0 &&
+                      (incoming().get('role', 'user') == 'user' || (incoming().get('role', 'user') == 'admin' && request.auth.token.email == 'habeshatilaye@gmail.com')) && 
+                      incoming().get('balance', 0) == 0 &&
                       (incoming().createdAt is timestamp || incoming().createdAt == request.time);
       
       allow update: if (isOwner(userId) || isAdmin()) && 
@@ -69,9 +69,9 @@ service cloud.firestore {
         (isOwner(userId) && incoming().diff(existing()).affectedKeys().hasOnly(['balance', 'fullName', 'phoneNumber', 'address', 'verificationDoc', 'verificationStatus']))
       ) && (
         isAdmin() || (
-          (!('email' in incoming()) || incoming().email == existing().email) &&
-          (!('role' in incoming()) || incoming().role == existing().role) &&
-          (!('createdAt' in incoming()) || incoming().createdAt == existing().createdAt)
+          (!('email' in incoming()) || incoming().get('email', '') == existing().get('email', '')) &&
+          (!('role' in incoming()) || incoming().get('role', 'user') == existing().get('role', 'user')) &&
+          (!('createdAt' in incoming()) || incoming().get('createdAt', null) == existing().get('createdAt', null))
         )
       );
       allow delete: if isAdmin();
