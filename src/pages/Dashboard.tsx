@@ -45,43 +45,53 @@ import { TradingViewWidget } from "../components/TradingViewWidget";
 
 const compressImage = (base64Str: string, maxWidth = 1000, maxHeight = 1000, quality = 0.5): Promise<string> => {
   return new Promise((resolve) => {
-    // If it's not an image format, return as is
-    if (!base64Str.startsWith("data:image/")) {
-      resolve(base64Str);
-      return;
-    }
-    const img = new Image();
-    img.src = base64Str;
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      let width = img.width;
-      let height = img.height;
-
-      if (width > height) {
-        if (width > maxWidth) {
-          height = Math.round((height * maxWidth) / width);
-          width = maxWidth;
-        }
-      } else {
-        if (height > maxHeight) {
-          width = Math.round((width * maxHeight) / height);
-          height = maxHeight;
-        }
-      }
-
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext("2d");
-      if (ctx) {
-        ctx.drawImage(img, 0, 0, width, height);
-        resolve(canvas.toDataURL("image/jpeg", quality));
-      } else {
+    try {
+      if (!base64Str || typeof base64Str !== "string" || !base64Str.startsWith("data:image/")) {
         resolve(base64Str);
+        return;
       }
-    };
-    img.onerror = () => {
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const canvas = document.createElement("canvas");
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > maxWidth) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            }
+          } else {
+            if (height > maxHeight) {
+              width = Math.round((width * maxHeight) / height);
+              height = maxHeight;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL("image/jpeg", quality));
+          } else {
+            resolve(base64Str);
+          }
+        } catch (innerErr) {
+          console.error("Canvas compression failed, using raw base64:", innerErr);
+          resolve(base64Str);
+        }
+      };
+      img.onerror = (e) => {
+        console.error("Image load failed, using raw base64:", e);
+        resolve(base64Str);
+      };
+      img.src = base64Str;
+    } catch (outerErr) {
+      console.error("compressImage outer error, using raw base64:", outerErr);
       resolve(base64Str);
-    };
+    }
   });
 };
 
