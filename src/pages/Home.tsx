@@ -104,7 +104,7 @@ export default function Home() {
               <div className="absolute -inset-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-[3rem] blur-2xl opacity-10" />
               <div className="relative aspect-[4/3] rounded-[2.5rem] overflow-hidden border border-slate-200 bg-white shadow-2xl">
                 <img 
-                  src="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&q=80&w=2232" 
+                  src="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&q=80&w=1200" 
                   alt="Blockchain Technology Visualization"
                   referrerPolicy="no-referrer"
                   className="w-full h-full object-cover opacity-90"

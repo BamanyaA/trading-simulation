@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "./firebase";
@@ -8,11 +8,11 @@ import { UserProfile } from "./types";
 
 // Pages
 import Home from "./pages/Home";
-import About from "./pages/About";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Dashboard from "./pages/Dashboard";
-import AdminDashboard from "./pages/AdminDashboard";
+const About = lazy(() => import("./pages/About"));
+const Login = lazy(() => import("./pages/Login"));
+const Register = lazy(() => import("./pages/Register"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 
 // Components
 import Navbar from "./components/Navbar";
@@ -69,28 +69,34 @@ function AppContent() {
     <div className="min-h-screen bg-slate-50 transition-colors duration-500 flex flex-col">
       <Navbar user={user} profile={profile} />
       <main className="flex-1">
-        <Routes>
-          <Route path="/" element={!user ? <Home /> : <Navigate to={defaultRedirect} />} />
-          <Route path="/about" element={!user ? <About /> : <Navigate to={defaultRedirect} />} />
-          <Route path="/login" element={!user ? <Login /> : <Navigate to={defaultRedirect} />} />
-          <Route path="/register" element={!user ? <Register /> : <Navigate to={defaultRedirect} />} />
-          
-          <Route 
-            path="/dashboard" 
-            element={
-              user ? (
-                <Dashboard user={user} profile={profile} refreshProfile={() => fetchProfile(user.uid)} />
-              ) : <Navigate to="/login" />
-            } 
-          />
-          
-          <Route 
-            path="/admin" 
-            element={isAdmin ? <AdminDashboard /> : <Navigate to="/dashboard" />} 
-          />
+        <Suspense fallback={
+          <div className="min-h-[60vh] flex items-center justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
+          </div>
+        }>
+          <Routes>
+            <Route path="/" element={!user ? <Home /> : <Navigate to={defaultRedirect} />} />
+            <Route path="/about" element={!user ? <About /> : <Navigate to={defaultRedirect} />} />
+            <Route path="/login" element={!user ? <Login /> : <Navigate to={defaultRedirect} />} />
+            <Route path="/register" element={!user ? <Register /> : <Navigate to={defaultRedirect} />} />
+            
+            <Route 
+              path="/dashboard" 
+              element={
+                user ? (
+                  <Dashboard user={user} profile={profile} refreshProfile={() => fetchProfile(user.uid)} />
+                ) : <Navigate to="/login" />
+              } 
+            />
+            
+            <Route 
+              path="/admin" 
+              element={isAdmin ? <AdminDashboard /> : <Navigate to="/dashboard" />} 
+            />
 
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
+        </Suspense>
       </main>
       
       {!hideFooter && <Footer />}

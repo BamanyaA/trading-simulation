@@ -1134,7 +1134,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
             {news.length > 0 && (
               <div className="relative aspect-[21/9] rounded-[3rem] overflow-hidden group shadow-2xl">
                 <img 
-                  src={news[0].imageUrl || "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&q=80&w=1000"} 
+                  src={news[0].imageUrl || "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&q=70&w=800"} 
                   referrerPolicy="no-referrer"
                   className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[3s]" 
                   alt="Main News"
