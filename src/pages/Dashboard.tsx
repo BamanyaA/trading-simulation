@@ -43,6 +43,48 @@ import { formatCurrency, cn } from "../lib/utils";
 import { motion, AnimatePresence } from "motion/react";
 import { TradingViewWidget } from "../components/TradingViewWidget";
 
+const compressImage = (base64Str: string, maxWidth = 1000, maxHeight = 1000, quality = 0.5): Promise<string> => {
+  return new Promise((resolve) => {
+    // If it's not an image format, return as is
+    if (!base64Str.startsWith("data:image/")) {
+      resolve(base64Str);
+      return;
+    }
+    const img = new Image();
+    img.src = base64Str;
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      let width = img.width;
+      let height = img.height;
+
+      if (width > height) {
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+      } else {
+        if (height > maxHeight) {
+          width = Math.round((width * maxHeight) / height);
+          height = maxHeight;
+        }
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      } else {
+        resolve(base64Str);
+      }
+    };
+    img.onerror = () => {
+      resolve(base64Str);
+    };
+  });
+};
+
 const CRYPTO_ASSETS = [
   { symbol: "BINANCE:BTCUSDT", name: "Bitcoin", short: "BTC", color: "bg-orange-500", icon: "₿", imageUrl: "https://assets.coincap.io/assets/icons/btc@2x.png" },
   { symbol: "BINANCE:ETHUSDT", name: "Ethereum", short: "ETH", color: "bg-blue-500", icon: "Ξ", imageUrl: "https://assets.coincap.io/assets/icons/eth@2x.png" },
@@ -224,8 +266,17 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
         return;
       }
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setVerificationDoc(reader.result as string);
+      reader.onloadend = async () => {
+        const rawBase64 = reader.result as string;
+        toast.loading("Compressing and optimizing document...", { id: "optDoc" });
+        try {
+          const compressed = await compressImage(rawBase64);
+          setVerificationDoc(compressed);
+          toast.success("Document optimized successfully!", { id: "optDoc" });
+        } catch (error) {
+          setVerificationDoc(rawBase64);
+          toast.dismiss("optDoc");
+        }
       };
       reader.readAsDataURL(file);
     }
@@ -700,8 +751,17 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
         return;
       }
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setReceiptFile(reader.result as string);
+      reader.onloadend = async () => {
+        const rawBase64 = reader.result as string;
+        toast.loading("Optimizing receipt image...", { id: "optRec" });
+        try {
+          const compressed = await compressImage(rawBase64);
+          setReceiptFile(compressed);
+          toast.success("Receipt optimized!", { id: "optRec" });
+        } catch (error) {
+          setReceiptFile(rawBase64);
+          toast.dismiss("optRec");
+        }
       };
       reader.readAsDataURL(file);
     }
