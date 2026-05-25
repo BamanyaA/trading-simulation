@@ -268,14 +268,30 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
       const reader = new FileReader();
       reader.onloadend = async () => {
         const rawBase64 = reader.result as string;
-        toast.loading("Compressing and optimizing document...", { id: "optDoc" });
+        toast.loading("Uploading and optimizing document...", { id: "optDoc" });
         try {
           const compressed = await compressImage(rawBase64);
-          setVerificationDoc(compressed);
-          toast.success("Document optimized successfully!", { id: "optDoc" });
+          const response = await fetch("/api/upload", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              filename: file.name,
+              base64: compressed,
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error("Upload failed on server");
+          }
+
+          const data = await response.json();
+          setVerificationDoc(data.url);
+          toast.success("Document uploaded and optimized!", { id: "optDoc" });
         } catch (error) {
-          setVerificationDoc(rawBase64);
-          toast.dismiss("optDoc");
+          console.error("Upload error:", error);
+          toast.error("Failed to upload document. Please try again.", { id: "optDoc" });
         }
       };
       reader.readAsDataURL(file);
@@ -753,14 +769,30 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
       const reader = new FileReader();
       reader.onloadend = async () => {
         const rawBase64 = reader.result as string;
-        toast.loading("Optimizing receipt image...", { id: "optRec" });
+        toast.loading("Uploading and optimizing receipt...", { id: "optRec" });
         try {
           const compressed = await compressImage(rawBase64);
-          setReceiptFile(compressed);
-          toast.success("Receipt optimized!", { id: "optRec" });
+          const response = await fetch("/api/upload", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              filename: file.name,
+              base64: compressed,
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error("Upload failed on server");
+          }
+
+          const data = await response.json();
+          setReceiptFile(data.url);
+          toast.success("Receipt uploaded successfully!", { id: "optRec" });
         } catch (error) {
-          setReceiptFile(rawBase64);
-          toast.dismiss("optRec");
+          console.error("Upload error:", error);
+          toast.error("Failed to upload receipt. Please try again.", { id: "optRec" });
         }
       };
       reader.readAsDataURL(file);
