@@ -36,7 +36,7 @@ import {
   Trash2
 } from "lucide-react";
 import { toast } from "react-hot-toast";
-import { formatCurrency, cn } from "../lib/utils";
+import { formatCurrency, cn, compressImage, uploadOrFallback, handleFileUploadFlow } from "../lib/utils";
 import { motion, AnimatePresence } from "motion/react";
 
 export default function AdminDashboard() {
@@ -300,39 +300,7 @@ export default function AdminDashboard() {
   const handleNewsImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 10 * 1024 * 1024) {
-        toast.error("Image too large. Max 10MB");
-        return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const rawBase64 = reader.result as string;
-        toast.loading("Uploading news image...", { id: "optNews" });
-        try {
-          const response = await fetch("/api/upload", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              filename: file.name,
-              base64: rawBase64,
-            }),
-          });
-          
-          if (!response.ok) {
-            throw new Error("Upload failed on server");
-          }
-          
-          const data = await response.json();
-          setNewsImageUrl(data.url);
-          toast.success("News image uploaded successfully!", { id: "optNews" });
-        } catch (error) {
-          console.error("Upload error:", error);
-          toast.error("Failed to upload news image.", { id: "optNews" });
-        }
-      };
-      reader.readAsDataURL(file);
+      handleFileUploadFlow(file, setNewsImageUrl, "optNews", "News image uploaded successfully!");
     }
   };
 

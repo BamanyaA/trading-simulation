@@ -40,61 +40,9 @@ import {
   LogOut
 } from "lucide-react";
 import { toast } from "react-hot-toast";
-import { formatCurrency, cn } from "../lib/utils";
+import { formatCurrency, cn, compressImage, uploadOrFallback, handleFileUploadFlow } from "../lib/utils";
 import { motion, AnimatePresence } from "motion/react";
 import { TradingViewWidget } from "../components/TradingViewWidget";
-
-const compressImage = (base64Str: string, maxWidth = 1000, maxHeight = 1000, quality = 0.5): Promise<string> => {
-  return new Promise((resolve) => {
-    try {
-      if (!base64Str || typeof base64Str !== "string" || !base64Str.startsWith("data:image/")) {
-        resolve(base64Str);
-        return;
-      }
-      const img = new Image();
-      img.onload = () => {
-        try {
-          const canvas = document.createElement("canvas");
-          let width = img.width;
-          let height = img.height;
-
-          if (width > height) {
-            if (width > maxWidth) {
-              height = Math.round((height * maxWidth) / width);
-              width = maxWidth;
-            }
-          } else {
-            if (height > maxHeight) {
-              width = Math.round((width * maxHeight) / height);
-              height = maxHeight;
-            }
-          }
-
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext("2d");
-          if (ctx) {
-            ctx.drawImage(img, 0, 0, width, height);
-            resolve(canvas.toDataURL("image/jpeg", quality));
-          } else {
-            resolve(base64Str);
-          }
-        } catch (innerErr) {
-          console.error("Canvas compression failed, using raw base64:", innerErr);
-          resolve(base64Str);
-        }
-      };
-      img.onerror = (e) => {
-        console.error("Image load failed, using raw base64:", e);
-        resolve(base64Str);
-      };
-      img.src = base64Str;
-    } catch (outerErr) {
-      console.error("compressImage outer error, using raw base64:", outerErr);
-      resolve(base64Str);
-    }
-  });
-};
 
 const CRYPTO_ASSETS = [
   { symbol: "BINANCE:BTCUSDT", name: "Bitcoin", short: "BTC", color: "bg-orange-500", icon: "₿", imageUrl: "https://assets.coincap.io/assets/icons/btc@2x.png" },
@@ -272,40 +220,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
   const handleVerificationFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 15 * 1024 * 1024) {
-        toast.error("File is too large. Maximum size is 15MB");
-        return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const rawBase64 = reader.result as string;
-        toast.loading("Uploading and optimizing document...", { id: "optDoc" });
-        try {
-          const compressed = await compressImage(rawBase64);
-          const response = await fetch("/api/upload", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              filename: file.name,
-              base64: compressed,
-            }),
-          });
-
-          if (!response.ok) {
-            throw new Error("Upload failed on server");
-          }
-
-          const data = await response.json();
-          setVerificationDoc(data.url);
-          toast.success("Document uploaded and optimized!", { id: "optDoc" });
-        } catch (error) {
-          console.error("Upload error:", error);
-          toast.error("Failed to upload document. Please try again.", { id: "optDoc" });
-        }
-      };
-      reader.readAsDataURL(file);
+      handleFileUploadFlow(file, setVerificationDoc, "optDoc", "Document uploaded and optimized!");
     }
   };
 
@@ -805,40 +720,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 15 * 1024 * 1024) {
-        toast.error("File is too large. Maximum size is 15MB");
-        return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const rawBase64 = reader.result as string;
-        toast.loading("Uploading and optimizing receipt...", { id: "optRec" });
-        try {
-          const compressed = await compressImage(rawBase64);
-          const response = await fetch("/api/upload", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              filename: file.name,
-              base64: compressed,
-            }),
-          });
-
-          if (!response.ok) {
-            throw new Error("Upload failed on server");
-          }
-
-          const data = await response.json();
-          setReceiptFile(data.url);
-          toast.success("Receipt uploaded successfully!", { id: "optRec" });
-        } catch (error) {
-          console.error("Upload error:", error);
-          toast.error("Failed to upload receipt. Please try again.", { id: "optRec" });
-        }
-      };
-      reader.readAsDataURL(file);
+      handleFileUploadFlow(file, setReceiptFile, "optRec", "Receipt uploaded successfully!");
     }
   };
 
