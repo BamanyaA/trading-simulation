@@ -6,9 +6,9 @@ import { OperationType, FirestoreErrorInfo } from "./types";
 
 const app = initializeApp(firebaseConfig);
 
-// Use initializeFirestore with settings to enable long polling for better reliability in restricted environments
+// Use initializeFirestore with settings for optimal connection stability and fallback in sandbox environments
 export const db = initializeFirestore(app, {
-  experimentalForceLongPolling: true,
+  experimentalAutoDetectLongPolling: true,
   cacheSizeBytes: CACHE_SIZE_UNLIMITED,
 }, firebaseConfig.firestoreDatabaseId);
 
@@ -40,16 +40,16 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
 // Validate Connection
 async function testConnection() {
   try {
-    // Attempt to get a document that shouldn't exist to test connectivity
-    await getDocFromServer(doc(db, "test", "connection"));
+    // Attempt to get a document from a publicly readable collection to test connectivity and avoid permission-denied warnings
+    await getDocFromServer(doc(db, "news", "connection-test"));
     console.log("Firestore connection test: SUCCESS");
   } catch (error) {
     if (error instanceof Error) {
-      if (error.message.includes("unavailable") || error.message.includes("the client is offline")) {
-        console.error("CRITICAL: Could not reach Cloud Firestore backend. This apps functionality will be limited.");
+      if (error.message.includes("unavailable") || error.message.includes("the client is offline") || error.message.includes("Could not reach Cloud")) {
+        console.error("CRITICAL: Could not reach Cloud Firestore backend. This app's functionality will be limited.");
         console.error("Please ensure your Firebase project is correctly configured and Firestore is enabled.");
       } else {
-        console.warn("Firestore connection test encountered an error (this may be normal if path is restricted):", error.message);
+        console.warn("Firestore connection test had a non-fatal error:", error.message);
       }
     }
   }

@@ -13,7 +13,8 @@ import {
   where,
   increment,
   serverTimestamp,
-  addDoc
+  addDoc,
+  getDocs
 } from "firebase/firestore";
 import { UserProfile, Transaction, PlatformSettings, SupportMessage, News, OperationType } from "../types";
 import { 
@@ -71,6 +72,7 @@ export default function AdminDashboard() {
   const [newsContent, setNewsContent] = useState("");
   const [newsImageUrl, setNewsImageUrl] = useState<string | null>(null);
   const [isPostingNews, setIsPostingNews] = useState(false);
+  const [isCleaning, setIsCleaning] = useState(false);
 
   useEffect(() => {
     // Listen to users
@@ -210,12 +212,41 @@ export default function AdminDashboard() {
     const { type, id } = confirmDelete;
     const path = type === "user" ? `users/${id}` : `news/${id}`;
 
+    if (type === "user") {
+      toast.loading("Purging user credentials, support chats, and transaction history...", { id: "cascadeDel" });
+    }
+
     try {
+      if (type === "user") {
+        // Query support messages of the deleted user ID
+        const chatQ = query(collection(db, "support_messages"), where("userId", "==", id));
+        const chatSnap = await getDocs(chatQ);
+        const chatDeletes = chatSnap.docs.map(docSnap => deleteDoc(docSnap.ref));
+        
+        // Query transactions of the deleted user ID
+        const txQ = query(collection(db, "transactions"), where("userId", "==", id));
+        const txSnap = await getDocs(txQ);
+        const txDeletes = txSnap.docs.map(docSnap => deleteDoc(docSnap.ref));
+
+        // Wait for all cascades to complete
+        await Promise.all([...chatDeletes, ...txDeletes]);
+      }
+
       await deleteDoc(doc(db, type === "user" ? "users" : "news", id));
-      toast.success(`${type === "user" ? "User" : "News"} deleted successfully`);
+      
+      if (type === "user") {
+        toast.success("User and all associated data purged successfully", { id: "cascadeDel" });
+      } else {
+        toast.success("News deleted successfully");
+      }
       setConfirmDelete(null);
     } catch (error) {
-      toast.error(`Failed to delete: ${error instanceof Error ? error.message : "Unknown error"}`);
+      const errorMsg = error instanceof Error ? error.message : "Unknown error";
+      if (type === "user") {
+        toast.error(`Purging failed: ${errorMsg}`, { id: "cascadeDel" });
+      } else {
+        toast.error(`Failed to delete news: ${errorMsg}`);
+      }
       try {
         handleFirestoreError(error, OperationType.DELETE, path);
       } catch (e) {
@@ -226,6 +257,51 @@ export default function AdminDashboard() {
 
   const handleDeleteUser = (user: UserProfile) => {
     setConfirmDelete({ type: "user", id: user.id, name: user.email });
+  };
+
+  const purgeOrphanedData = async () => {
+    setIsCleaning(true);
+    const toastId = toast.loading("Executing deep database integrity scan...");
+    try {
+      const existingUserIds = new Set(users.map(u => u.id));
+      
+      const messagesSnap = await getDocs(collection(db, "support_messages"));
+      const txSnap = await getDocs(collection(db, "transactions"));
+      
+      let deletedMsgsCount = 0;
+      let deletedTxsCount = 0;
+      
+      const deletePromises: Promise<void>[] = [];
+      
+      messagesSnap.docs.forEach(docSnap => {
+        const msg = docSnap.data();
+        if (msg.userId && !existingUserIds.has(msg.userId)) {
+          deletePromises.push(deleteDoc(docSnap.ref));
+          deletedMsgsCount++;
+        }
+      });
+      
+      txSnap.docs.forEach(docSnap => {
+        const tx = docSnap.data();
+        if (tx.userId && !existingUserIds.has(tx.userId)) {
+          deletePromises.push(deleteDoc(docSnap.ref));
+          deletedTxsCount++;
+        }
+      });
+      
+      if (deletePromises.length > 0) {
+        await Promise.all(deletePromises);
+        toast.success(`Success! Safely purged ${deletedMsgsCount} support chats and ${deletedTxsCount} transactions belonging to deleted users.`, { id: toastId, duration: 6000 });
+      } else {
+        toast.success("Database is clean! No orphaned records or lingering emails found.", { id: toastId });
+      }
+    } catch (error) {
+      console.error(error);
+      const msg = error instanceof Error ? error.message : "Unknown error";
+      toast.error(`Database sweep failed: ${msg}`, { id: toastId });
+    } finally {
+      setIsCleaning(false);
+    }
   };
 
   const handleUpdateSettings = async () => {
@@ -879,36 +955,89 @@ export default function AdminDashboard() {
         )}
 
         {activeTab === "settings" && (
-          <div className="max-w-4xl bg-white border border-slate-100 rounded-[2.5rem] p-12 shadow-2xl shadow-slate-200/50">
-            <div className="flex items-center gap-6 mb-12">
-              <div className="p-4 bg-amber-50 rounded-[1.5rem]">
-                <Bitcoin className="w-8 h-8 text-amber-500" />
-              </div>
-              <div>
-                <h3 className="text-3xl font-black text-slate-900 tracking-tight">Protocol Gateways</h3>
-                <p className="text-slate-500 font-medium">Update institutional receiving handles.</p>
-              </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-              {(["btc", "eth", "sol", "bnb", "xrp", "usdt"] as const).map((coin) => (
-                <div key={coin} className="space-y-3">
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">{coin} Secure Handle</label>
-                  <input 
-                    type="text"
-                    className="w-full bg-slate-100 border border-slate-200 rounded-2xl py-5 px-6 text-slate-900 focus:bg-white focus:ring-4 focus:ring-indigo-50 focus:border-indigo-400 outline-none font-mono text-sm shadow-inner transition-all"
-                    value={(settings as any)[`${coin}_address`] || ""}
-                    onChange={(e) => setSettings({ ...settings, [`${coin}_address`]: e.target.value })}
-                  />
+          <div className="space-y-10 max-w-4xl">
+            {/* Protocol Gateways Card */}
+            <div className="bg-white border border-slate-100 rounded-[2.5rem] p-12 shadow-2xl shadow-slate-200/50">
+              <div className="flex items-center gap-6 mb-12">
+                <div className="p-4 bg-amber-50 rounded-[1.5rem]">
+                  <Bitcoin className="w-8 h-8 text-amber-500" />
                 </div>
-              ))}
+                <div>
+                  <h3 className="text-3xl font-black text-slate-900 tracking-tight">Protocol Gateways</h3>
+                  <p className="text-slate-500 font-medium">Update institutional receiving handles.</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                {(["btc", "eth", "sol", "bnb", "xrp", "usdt"] as const).map((coin) => (
+                  <div key={coin} className="space-y-3">
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">{coin} Secure Handle</label>
+                    <input 
+                      type="text"
+                      className="w-full bg-slate-100 border border-slate-200 rounded-2xl py-5 px-6 text-slate-900 focus:bg-white focus:ring-4 focus:ring-indigo-50 focus:border-indigo-400 outline-none font-mono text-sm shadow-inner transition-all"
+                      value={(settings as any)[`${coin}_address`] || ""}
+                      onChange={(e) => setSettings({ ...settings, [`${coin}_address`]: e.target.value })}
+                    />
+                  </div>
+                ))}
+              </div>
+              <div className="mt-12 pt-12 border-t border-slate-100">
+                <button 
+                  onClick={handleUpdateSettings}
+                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-6 rounded-2xl transition-all flex items-center justify-center gap-4 shadow-2xl shadow-indigo-200 active:scale-95 uppercase tracking-widest"
+                >
+                  <Save className="w-6 h-6" /> Commit Protocol Changes
+                </button>
+              </div>
             </div>
-            <div className="mt-12 pt-12 border-t border-slate-100">
-              <button 
-                onClick={handleUpdateSettings}
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-6 rounded-2xl transition-all flex items-center justify-center gap-4 shadow-2xl shadow-indigo-200 active:scale-95 uppercase tracking-widest"
-              >
-                <Save className="w-6 h-6" /> Commit Protocol Changes
-              </button>
+
+            {/* Database Integrity & Privacy Sync Card */}
+            <div className="bg-white border border-slate-100 rounded-[2.5rem] p-12 shadow-2xl shadow-slate-200/50">
+              <div className="flex items-center gap-6 mb-12">
+                <div className="p-4 bg-rose-50 rounded-[1.5rem]">
+                  <ShieldCheck className="w-8 h-8 text-rose-500" />
+                </div>
+                <div>
+                  <h3 className="text-3xl font-black text-slate-900 tracking-tight">Data Integrity & Privacy</h3>
+                  <p className="text-slate-500 font-medium">Synchronize database collections to enforce compliance and complete erasure requests.</p>
+                </div>
+              </div>
+
+              <div className="bg-slate-50 rounded-3xl p-8 space-y-6">
+                <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 pb-6 border-b border-slate-200/60">
+                  <div>
+                    <h4 className="font-black text-sm text-slate-900 uppercase tracking-widest">Leftover Support Chats</h4>
+                    <p className="text-xs text-slate-500 font-medium mt-1">Chat documents containing deleted user emails or messages.</p>
+                  </div>
+                  <div className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider ${
+                    allMessages.filter(m => m.userId && !new Set(users.map(u => u.id)).has(m.userId)).length > 0
+                      ? "bg-amber-100 text-amber-800 animate-pulse" 
+                      : "bg-emerald-100 text-emerald-800"
+                  }`}>
+                    {allMessages.filter(m => m.userId && !new Set(users.map(u => u.id)).has(m.userId)).length} Orphaned Messages
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+                  <div>
+                    <h4 className="font-black text-sm text-slate-900 uppercase tracking-widest">Orphaned Transactions</h4>
+                    <p className="text-xs text-slate-500 font-medium mt-1">Transaction entries with credentials from deleted operator accounts.</p>
+                  </div>
+                  <div className="text-slate-400 text-xs font-black uppercase tracking-wider italic">
+                    Requires Deep Scan
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-12 pt-12 border-t border-slate-100">
+                <button 
+                  onClick={purgeOrphanedData}
+                  disabled={isCleaning}
+                  className="w-full bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white font-black py-6 rounded-2xl transition-all flex items-center justify-center gap-4 shadow-2xl shadow-rose-200 active:scale-95 uppercase tracking-widest text-sm"
+                >
+                  <Trash2 className="w-6 h-6" /> 
+                  {isCleaning ? "Deep Sweeping Database..." : "Purge Orphaned Datasets & Emails"}
+                </button>
+              </div>
             </div>
           </div>
         )}
