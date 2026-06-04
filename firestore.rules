@@ -103,6 +103,7 @@ service cloud.firestore {
       allow update: if isAdmin() && 
                       isValidTransaction(incoming()) &&
                       incoming().diff(existing()).affectedKeys().hasAny(['status', 'amount']);
+      allow delete: if isAdmin();
     }
 
     // --- Settings Validation ---
@@ -138,6 +139,7 @@ service cloud.firestore {
         (isOwner(incoming().userId) && incoming().senderId == request.auth.uid && incoming().isAdmin == false) ||
         (isAdmin() && incoming().isAdmin == true)
       ) && incoming().createdAt == request.time;
+      allow delete: if isAdmin();
     }
 
     // --- Admin List ---

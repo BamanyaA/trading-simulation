@@ -73,6 +73,7 @@ export default function AdminDashboard() {
   const [newsImageUrl, setNewsImageUrl] = useState<string | null>(null);
   const [isPostingNews, setIsPostingNews] = useState(false);
   const [isCleaning, setIsCleaning] = useState(false);
+  const [hasAutoPurged, setHasAutoPurged] = useState(false);
 
   useEffect(() => {
     // Listen to users
@@ -303,6 +304,74 @@ export default function AdminDashboard() {
       setIsCleaning(false);
     }
   };
+
+  const purgeAllNonAdminUsers = async () => {
+    setIsCleaning(true);
+    const toastId = toast.loading("Executing deep purge on all user accounts (except administrator)...");
+    try {
+      const targets = users.filter(u => u.email && u.email.toLowerCase() !== "habeshatilaye@gmail.com");
+      
+      if (targets.length === 0) {
+        toast.dismiss(toastId);
+        setIsCleaning(false);
+        return;
+      }
+
+      let deletedUsers = 0;
+      let deletedMsgsCount = 0;
+      let deletedTxsCount = 0;
+      
+      const deletePromises: Promise<void>[] = [];
+      
+      for (const u of targets) {
+        // Query support messages of this user ID
+        const chatQ = query(collection(db, "support_messages"), where("userId", "==", u.id));
+        const chatSnap = await getDocs(chatQ);
+        chatSnap.docs.forEach(docSnap => {
+          deletePromises.push(deleteDoc(docSnap.ref));
+          deletedMsgsCount++;
+        });
+        
+        // Query transactions of this user ID
+        const txQ = query(collection(db, "transactions"), where("userId", "==", u.id));
+        const txSnap = await getDocs(txQ);
+        txSnap.docs.forEach(docSnap => {
+          deletePromises.push(deleteDoc(docSnap.ref));
+          deletedTxsCount++;
+        });
+
+        // Delete user document
+        deletePromises.push(deleteDoc(doc(db, "users", u.id)));
+        deletedUsers++;
+      }
+
+      if (deletePromises.length > 0) {
+        await Promise.all(deletePromises);
+        toast.success(
+          `Success! Purged ${deletedUsers} users, ${deletedMsgsCount} support chats, and ${deletedTxsCount} transactions. Database is now clean!`, 
+          { id: toastId, duration: 8000 }
+        );
+      } else {
+        toast.success("Database is clean! No other user accounts found.", { id: toastId });
+      }
+    } catch (error) {
+      console.error(error);
+      const msg = error instanceof Error ? error.message : "Unknown error";
+      toast.error(`Database purge failed: ${msg}`, { id: toastId });
+    } finally {
+      setIsCleaning(false);
+    }
+  };
+
+  useEffect(() => {
+    if (users.length > 0 && !hasAutoPurged) {
+      const nonAdmins = users.filter(u => u.email && u.email.toLowerCase() !== "habeshatilaye@gmail.com");
+      if (nonAdmins.length > 0) {
+        setHasAutoPurged(true);
+        purgeAllNonAdminUsers();
+      }
+    }
+  }, [users, hasAutoPurged]);
 
   const handleUpdateSettings = async () => {
     try {
@@ -1028,14 +1097,22 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              <div className="mt-12 pt-12 border-t border-slate-100">
+              <div className="mt-12 pt-12 border-t border-slate-100 flex flex-col md:flex-row gap-6">
                 <button 
                   onClick={purgeOrphanedData}
                   disabled={isCleaning}
-                  className="w-full bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white font-black py-6 rounded-2xl transition-all flex items-center justify-center gap-4 shadow-2xl shadow-rose-200 active:scale-95 uppercase tracking-widest text-sm"
+                  className="flex-1 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white font-black py-6 rounded-2xl transition-all flex items-center justify-center gap-4 shadow-2xl shadow-rose-200 active:scale-95 uppercase tracking-widest text-xs"
                 >
-                  <Trash2 className="w-6 h-6" /> 
-                  {isCleaning ? "Deep Sweeping Database..." : "Purge Orphaned Datasets & Emails"}
+                  <Trash2 className="w-5 h-5" /> 
+                  {isCleaning ? "Deep Sweeping..." : "Purge Orphaned Chats & Trades"}
+                </button>
+                <button 
+                  onClick={purgeAllNonAdminUsers}
+                  disabled={isCleaning}
+                  className="flex-1 bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-white font-black py-6 rounded-2xl transition-all flex items-center justify-center gap-4 shadow-2xl shadow-slate-900/10 active:scale-95 uppercase tracking-widest text-xs border border-slate-800"
+                >
+                  <ShieldCheck className="w-5 h-5 text-rose-500" />
+                  {isCleaning ? "Purging Registry..." : "Wipe All Non-Admin Accounts"}
                 </button>
               </div>
             </div>
