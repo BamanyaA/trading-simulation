@@ -229,6 +229,26 @@ export default function AdminDashboard() {
         const txSnap = await getDocs(txQ);
         const txDeletes = txSnap.docs.map(docSnap => deleteDoc(docSnap.ref));
 
+        // Call the server API to delete credentials from Firebase Auth
+        try {
+          const token = await auth.currentUser?.getIdToken();
+          const authDelResponse = await fetch("/api/admin/delete-user", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({ uid: id })
+          });
+
+          if (!authDelResponse.ok) {
+            const errData = await authDelResponse.json();
+            console.warn("Auth credential deletion synced response:", errData.error);
+          }
+        } catch (authErr) {
+          console.error("Firebase Auth syncer error:", authErr);
+        }
+
         // Wait for all cascades to complete
         await Promise.all([...chatDeletes, ...txDeletes]);
       }
@@ -262,7 +282,7 @@ export default function AdminDashboard() {
 
   const purgeOrphanedData = async () => {
     setIsCleaning(true);
-    const toastId = toast.loading("Executing deep database integrity scan...");
+    const toastId = toast.loading("Executing query scans and Firebase Authentication sweep...");
     try {
       const existingUserIds = new Set(users.map(u => u.id));
       
@@ -289,12 +309,35 @@ export default function AdminDashboard() {
           deletedTxsCount++;
         }
       });
+
+      // Synchronously purge all non-admin registration records inside Firebase Authentication too
+      let authCleanedCount = 0;
+      try {
+        const token = await auth.currentUser?.getIdToken();
+        const authPurgeRes = await fetch("/api/admin/purge-non-admins", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          }
+        });
+        
+        if (authPurgeRes.ok) {
+          const authData = await authPurgeRes.json();
+          authCleanedCount = authData.deletedCount || 0;
+        }
+      } catch (authErr) {
+        console.error("Auth bulk purger error:", authErr);
+      }
       
-      if (deletePromises.length > 0) {
+      if (deletePromises.length > 0 || authCleanedCount > 0) {
         await Promise.all(deletePromises);
-        toast.success(`Success! Safely purged ${deletedMsgsCount} support chats and ${deletedTxsCount} transactions belonging to deleted users.`, { id: toastId, duration: 6000 });
+        toast.success(
+          `Success! Safely purged ${deletedMsgsCount} support chats, ${deletedTxsCount} transactions, and ${authCleanedCount} Firebase Auth profiles.`, 
+          { id: toastId, duration: 6000 }
+        );
       } else {
-        toast.success("Database is clean! No orphaned records or lingering emails found.", { id: toastId });
+        toast.success("Database is clean! No orphaned records or lingering registration emails found.", { id: toastId });
       }
     } catch (error) {
       console.error(error);
@@ -307,16 +350,10 @@ export default function AdminDashboard() {
 
   const purgeAllNonAdminUsers = async () => {
     setIsCleaning(true);
-    const toastId = toast.loading("Executing deep purge on all user accounts (except administrator)...");
+    const toastId = toast.loading("Executing deep purge on all user accounts and Auth registries...");
     try {
       const targets = users.filter(u => u.email && u.email.toLowerCase() !== "habeshatilaye@gmail.com");
       
-      if (targets.length === 0) {
-        toast.dismiss(toastId);
-        setIsCleaning(false);
-        return;
-      }
-
       let deletedUsers = 0;
       let deletedMsgsCount = 0;
       let deletedTxsCount = 0;
@@ -345,10 +382,30 @@ export default function AdminDashboard() {
         deletedUsers++;
       }
 
-      if (deletePromises.length > 0) {
+      // Purge all other user profiles from the Firebase Authentication list
+      let authCleanedCount = 0;
+      try {
+        const token = await auth.currentUser?.getIdToken();
+        const authPurgeRes = await fetch("/api/admin/purge-non-admins", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          }
+        });
+        
+        if (authPurgeRes.ok) {
+          const authData = await authPurgeRes.json();
+          authCleanedCount = authData.deletedCount || 0;
+        }
+      } catch (authErr) {
+        console.error("Auth bulk purger error:", authErr);
+      }
+
+      if (deletePromises.length > 0 || authCleanedCount > 0) {
         await Promise.all(deletePromises);
         toast.success(
-          `Success! Purged ${deletedUsers} users, ${deletedMsgsCount} support chats, and ${deletedTxsCount} transactions. Database is now clean!`, 
+          `Success! Purged ${deletedUsers} Firestore users, ${deletedMsgsCount} support chats, ${deletedTxsCount} transactions, and ${authCleanedCount} Firebase Auth profiles.`, 
           { id: toastId, duration: 8000 }
         );
       } else {
@@ -364,14 +421,14 @@ export default function AdminDashboard() {
   };
 
   useEffect(() => {
-    if (users.length > 0 && !hasAutoPurged) {
+    if (users.length > 0 && auth.currentUser && !hasAutoPurged) {
       const nonAdmins = users.filter(u => u.email && u.email.toLowerCase() !== "habeshatilaye@gmail.com");
       if (nonAdmins.length > 0) {
         setHasAutoPurged(true);
         purgeAllNonAdminUsers();
       }
     }
-  }, [users, hasAutoPurged]);
+  }, [users, auth.currentUser, hasAutoPurged]);
 
   const handleUpdateSettings = async () => {
     try {

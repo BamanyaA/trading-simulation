@@ -3,10 +3,27 @@ import { createServer as createViteServer } from "vite";
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
+import admin from "firebase-admin";
 
 // ESM __dirname fix
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Initialize Firebase Admin SDK
+try {
+  const configPath = path.join(process.cwd(), "firebase-applet-config.json");
+  if (fs.existsSync(configPath)) {
+    const firebaseConfig = JSON.parse(fs.readFileSync(configPath, "utf8"));
+    admin.initializeApp({
+      projectId: firebaseConfig.projectId,
+    });
+    console.log("Firebase Admin initialized successfully under project ID:", firebaseConfig.projectId);
+  } else {
+    console.warn("firebase-applet-config.json not found. Firebase Admin might not be pre-initialized.");
+  }
+} catch (err) {
+  console.error("Firebase Admin initialization error:", err);
+}
 
 async function startServer() {
   const app = express();
@@ -28,6 +45,84 @@ async function startServer() {
   // API Routes
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok" });
+  });
+
+  // Firebase Admin endpoints for secure administrative user purges
+  app.post("/api/admin/delete-user", async (req, res) => {
+    try {
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return res.status(401).json({ error: "Unauthorized: Missing token" });
+      }
+      const token = authHeader.split("Bearer ").pop();
+      if (!token) {
+        return res.status(401).json({ error: "Unauthorized: Invalid token format" });
+      }
+
+      const decodedToken = await admin.auth().verifyIdToken(token);
+      if (decodedToken.email !== "habeshatilaye@gmail.com") {
+        return res.status(403).json({ error: "Forbidden: Admin access only" });
+      }
+
+      const { uid } = req.body;
+      if (!uid) {
+        return res.status(400).json({ error: "Missing required uid parameter" });
+      }
+
+      await admin.auth().deleteUser(uid);
+      console.log(`Successfully deleted auth user: ${uid}`);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error in delete-user:", error);
+      res.status(500).json({ error: error instanceof Error ? error.message : "Internal error" });
+    }
+  });
+
+  app.post("/api/admin/purge-non-admins", async (req, res) => {
+    try {
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return res.status(401).json({ error: "Unauthorized: Missing token" });
+      }
+      const token = authHeader.split("Bearer ").pop();
+      if (!token) {
+        return res.status(401).json({ error: "Unauthorized: Invalid token format" });
+      }
+
+      const decodedToken = await admin.auth().verifyIdToken(token);
+      if (decodedToken.email !== "habeshatilaye@gmail.com") {
+        return res.status(403).json({ error: "Forbidden: Admin access only" });
+      }
+
+      // List all users in Firebase Auth
+      let usersToDelete: string[] = [];
+      let nextPageToken: string | undefined = undefined;
+
+      do {
+        const listUsersResult = await admin.auth().listUsers(1000, nextPageToken);
+        listUsersResult.users.forEach((userRecord) => {
+          if (userRecord.email && userRecord.email.toLowerCase() !== "habeshatilaye@gmail.com") {
+            usersToDelete.push(userRecord.uid);
+          }
+        });
+        nextPageToken = listUsersResult.pageToken;
+      } while (nextPageToken);
+
+      if (usersToDelete.length > 0) {
+        const deleteUsersResult = await admin.auth().deleteUsers(usersToDelete);
+        console.log(`Successfully deleted ${deleteUsersResult.successCount} users from Firebase Auth.`);
+        res.json({ 
+          success: true, 
+          deletedCount: deleteUsersResult.successCount, 
+          failedCount: deleteUsersResult.failureCount 
+        });
+      } else {
+        res.json({ success: true, deletedCount: 0, message: "No non-admin accounts found in Firebase Authentication." });
+      }
+    } catch (error) {
+      console.error("Error in purge-non-admins:", error);
+      res.status(500).json({ error: error instanceof Error ? error.message : "Internal error" });
+    }
   });
 
   // Base64 file upload endpoint to save files on the server and return relative URL
