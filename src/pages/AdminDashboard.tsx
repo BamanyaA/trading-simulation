@@ -34,7 +34,8 @@ import {
   X,
   MapPin,
   Phone,
-  Trash2
+  Trash2,
+  RefreshCw
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { formatCurrency, cn, compressImage, uploadOrFallback, handleFileUploadFlow } from "../lib/utils";
@@ -73,12 +74,15 @@ export default function AdminDashboard() {
   const [newsImageUrl, setNewsImageUrl] = useState<string | null>(null);
   const [isPostingNews, setIsPostingNews] = useState(false);
   const [isCleaning, setIsCleaning] = useState(false);
-  const [hasAutoPurged, setHasAutoPurged] = useState(false);
+  const [isSyncingUsers, setIsSyncingUsers] = useState(false);
+  const [hasAutoSynced, setHasAutoSynced] = useState(false);
+  const [hasLoadedUsers, setHasLoadedUsers] = useState(false);
 
   useEffect(() => {
     // Listen to users
     const usersUnsub = onSnapshot(collection(db, "users"), (snapshot) => {
       setUsers(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as UserProfile)));
+      setHasLoadedUsers(true);
     });
 
     // Listen to transactions
@@ -420,15 +424,56 @@ export default function AdminDashboard() {
     }
   };
 
-  useEffect(() => {
-    if (users.length > 0 && auth.currentUser && !hasAutoPurged) {
-      const nonAdmins = users.filter(u => u.email && u.email.toLowerCase() !== "habeshatilaye@gmail.com");
-      if (nonAdmins.length > 0) {
-        setHasAutoPurged(true);
-        purgeAllNonAdminUsers();
-      }
+  const reconcileAuthUsers = async (showToast = false) => {
+    setIsSyncingUsers(true);
+    let toastId = null;
+    if (showToast) {
+      toastId = toast.loading("Checking registered Auth credentials and syncing to database...");
     }
-  }, [users, auth.currentUser, hasAutoPurged]);
+    try {
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) {
+        throw new Error("Missing authentication token");
+      }
+      
+      const response = await fetch("/api/admin/reconcile-users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.error || "Failed to reconcile accounts");
+      }
+
+      const data = await response.json();
+      if (showToast) {
+        if (data.createdCount > 0) {
+          toast.success(`Success! Recovered ${data.createdCount} user profiles from the registration registry.`, { id: toastId, duration: 6000 });
+        } else {
+          toast.success("Database registry is complete and fully synchronized!", { id: toastId });
+        }
+      }
+      return data;
+    } catch (error) {
+      console.error("Reconciliation error:", error);
+      if (showToast) {
+        toast.error("Reconciliation failed: " + (error instanceof Error ? error.message : "Unknown error"), { id: toastId });
+      }
+    } finally {
+      setIsSyncingUsers(false);
+    }
+  };
+
+  useEffect(() => {
+    if (hasLoadedUsers && auth.currentUser && auth.currentUser.email === "habeshatilaye@gmail.com" && !hasAutoSynced) {
+      setHasAutoSynced(true);
+      reconcileAuthUsers(false);
+    }
+  }, [hasLoadedUsers, auth.currentUser, hasAutoSynced]);
 
   const handleUpdateSettings = async () => {
     try {
@@ -544,7 +589,7 @@ export default function AdminDashboard() {
     setConfirmDelete({ type: "news", id: newsId, name: title });
   };
 
-  const filteredUsers = users.filter(u => u.email.toLowerCase().includes(search.toLowerCase()));
+  const filteredUsers = users.filter(u => (u.email || "").toLowerCase().includes(search.toLowerCase()));
 
   return (
     <div className="container mx-auto px-4 py-12 max-w-7xl">
@@ -581,15 +626,26 @@ export default function AdminDashboard() {
         
         {activeTab === "users" && (
           <div className="space-y-8">
-            <div className="relative max-w-md group">
-              <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 group-focus-within:text-indigo-500 transition-colors" />
-              <input 
-                type="text"
-                placeholder="Search operators by email..."
-                className="w-full bg-white border border-slate-100 rounded-2xl py-4 pl-14 pr-6 text-slate-900 focus:ring-4 focus:ring-indigo-50 focus:border-indigo-500 transition-all outline-none font-medium shadow-sm"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
+            <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between">
+              <div className="relative max-w-md w-full group">
+                <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 group-focus-within:text-indigo-500 transition-colors" />
+                <input 
+                  type="text"
+                  placeholder="Search operators by email..."
+                  className="w-full bg-white border border-slate-100 rounded-2xl py-4 pl-14 pr-6 text-slate-900 focus:ring-4 focus:ring-indigo-50 focus:border-indigo-500 transition-all outline-none font-medium shadow-sm"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </div>
+
+              <button
+                onClick={() => reconcileAuthUsers(true)}
+                disabled={isSyncingUsers}
+                className="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-black px-6 py-4 rounded-2xl transition-all flex items-center justify-center gap-3 shadow-xl shadow-indigo-200 active:scale-95 text-xs uppercase tracking-widest min-w-[220px]"
+              >
+                <RefreshCw className={cn("w-4 h-4", isSyncingUsers && "animate-spin")} />
+                {isSyncingUsers ? "Syncing Registry..." : "Reconcile Auth Users"}
+              </button>
             </div>
 
             <div className="bg-white border border-slate-50 rounded-[2.5rem] overflow-hidden shadow-2xl shadow-slate-200/50">
@@ -1162,6 +1218,14 @@ export default function AdminDashboard() {
                 >
                   <Trash2 className="w-5 h-5" /> 
                   {isCleaning ? "Deep Sweeping..." : "Purge Orphaned Chats & Trades"}
+                </button>
+                <button 
+                  onClick={() => reconcileAuthUsers(true)}
+                  disabled={isSyncingUsers}
+                  className="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-black py-6 rounded-2xl transition-all flex items-center justify-center gap-4 shadow-2xl shadow-indigo-100 active:scale-95 uppercase tracking-widest text-xs"
+                >
+                  <RefreshCw className={cn("w-5 h-5", isSyncingUsers && "animate-spin")} />
+                  {isSyncingUsers ? "Syncing..." : "Sync Registered Profiles"}
                 </button>
                 <button 
                   onClick={purgeAllNonAdminUsers}

@@ -46,7 +46,12 @@ export default function Register() {
       toast.success("Account created successfully!");
       navigate(isAdminEmail ? "/admin" : "/dashboard");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Registration failed");
+      const errMsg = error instanceof Error ? error.message : "Registration failed";
+      if (errMsg.includes("email-already-in-use") || errMsg.includes("already-in-use") || errMsg.includes("already exists")) {
+        toast.error("Email already in use. Please log in as the administrator (habeshatilaye@gmail.com) first to trigger a deep database sweep and clear registration cache.", { duration: 8000 });
+      } else {
+        toast.error(errMsg);
+      }
     } finally {
       setLoading(false);
     }

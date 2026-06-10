@@ -125,6 +125,86 @@ async function startServer() {
     }
   });
 
+  app.post("/api/admin/reconcile-users", async (req, res) => {
+    try {
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return res.status(401).json({ error: "Unauthorized: Missing token" });
+      }
+      const token = authHeader.split("Bearer ").pop();
+      if (!token) {
+        return res.status(401).json({ error: "Unauthorized: Invalid token format" });
+      }
+
+      const decodedToken = await admin.auth().verifyIdToken(token);
+      if (decodedToken.email !== "habeshatilaye@gmail.com") {
+        return res.status(403).json({ error: "Forbidden: Admin access only" });
+      }
+
+      // Initialize Firestore on Admin SDK
+      let dbInstance: admin.firestore.Firestore;
+      try {
+        const configPath = path.join(process.cwd(), "firebase-applet-config.json");
+        if (fs.existsSync(configPath)) {
+          const firebaseConfig = JSON.parse(fs.readFileSync(configPath, "utf8"));
+          if (firebaseConfig.firestoreDatabaseId) {
+            dbInstance = admin.firestore(firebaseConfig.firestoreDatabaseId);
+          } else {
+            dbInstance = admin.firestore();
+          }
+        } else {
+          dbInstance = admin.firestore();
+        }
+      } catch (err) {
+        console.error("Failed to get custom firestore instance, falling back to default:", err);
+        dbInstance = admin.firestore();
+      }
+
+      // Fetch all users from Firebase Auth
+      let authUsers: admin.auth.UserRecord[] = [];
+      let nextPageToken: string | undefined = undefined;
+
+      do {
+        const listUsersResult = await admin.auth().listUsers(1000, nextPageToken);
+        authUsers.push(...listUsersResult.users);
+        nextPageToken = listUsersResult.pageToken;
+      } while (nextPageToken);
+
+      let createdCount = 0;
+      const details: string[] = [];
+
+      // Reconcile each Auth user with Firestore users collection
+      for (const authUser of authUsers) {
+        const userDocRef = dbInstance.collection("users").doc(authUser.uid);
+        const docSnap = await userDocRef.get();
+
+        if (!docSnap.exists) {
+          const isAdminEmail = authUser.email === "habeshatilaye@gmail.com";
+          await userDocRef.set({
+            email: authUser.email || "",
+            fullName: authUser.displayName || "",
+            address: "",
+            phoneNumber: authUser.phoneNumber || "",
+            verificationDoc: null,
+            balance: 0,
+            role: isAdminEmail ? "admin" : "user",
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            verificationStatus: "unsubmitted",
+            isVerified: false,
+            tradeAction: false
+          });
+          createdCount++;
+          details.push(`Recovered Firestore profile for: ${authUser.email || authUser.uid}`);
+        }
+      }
+
+      res.json({ success: true, createdCount, details });
+    } catch (error) {
+      console.error("Error in reconcile-users:", error);
+      res.status(500).json({ error: error instanceof Error ? error.message : "Internal error" });
+    }
+  });
+
   // Base64 file upload endpoint to save files on the server and return relative URL
   app.post("/api/upload", (req, res) => {
     try {
