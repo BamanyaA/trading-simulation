@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "r
 import { Toaster } from "react-hot-toast";
 import { useEffect, useState, lazy, Suspense } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { auth, db } from "./firebase";
 import { UserProfile } from "./types";
 
@@ -29,6 +29,29 @@ function AppContent() {
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
       setProfile({ id: docSnap.id, ...docSnap.data() } as UserProfile);
+    } else if (auth.currentUser) {
+      const user = auth.currentUser;
+      const isAdminEmail = user.email === "habeshatilaye@gmail.com";
+      const newProfile = {
+        email: user.email || "",
+        fullName: user.displayName || "",
+        address: "",
+        phoneNumber: user.phoneNumber || "",
+        verificationDoc: null,
+        balance: 0,
+        role: isAdminEmail ? "admin" : "user",
+        createdAt: new Date(),
+        verificationStatus: "unsubmitted",
+        isVerified: false,
+        tradeAction: true
+      };
+      try {
+        await setDoc(docRef, newProfile);
+        setProfile({ id: uid, ...newProfile } as any);
+        console.log("Missing Firestore profile repaired on login for:", user.email);
+      } catch (err) {
+        console.error("Failed to auto-repair missing Firestore profile:", err);
+      }
     }
   };
 

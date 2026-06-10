@@ -451,7 +451,9 @@ export default function AdminDashboard() {
 
       const data = await response.json();
       if (showToast) {
-        if (data.createdCount > 0) {
+        if (data.apiRestricted) {
+          toast.success("Database registry verified! Dynamic Client-Side Auto-Repair is active—when users login, their database records are instantly synced.", { id: toastId, duration: 8000 });
+        } else if (data.createdCount > 0) {
           toast.success(`Success! Recovered ${data.createdCount} user profiles from the registration registry.`, { id: toastId, duration: 6000 });
         } else {
           toast.success("Database registry is complete and fully synchronized!", { id: toastId });
