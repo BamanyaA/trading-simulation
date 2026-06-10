@@ -45,14 +45,14 @@ export default function Login() {
 
         <form onSubmit={handleLogin} className="space-y-8">
           <div className="space-y-2">
-            <label className="block text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Email Access</label>
+            <label className="block text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Email Address</label>
             <div className="relative group">
               <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 group-focus-within:text-indigo-500 transition-colors" />
               <input 
                 type="email"
                 required
                 className="w-full bg-slate-100 border border-slate-200 rounded-2xl py-4 pl-14 pr-6 text-slate-900 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100/50 transition-all outline-none font-medium"
-                placeholder="commander@quantum.trade"
+                placeholder="user@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -60,7 +60,7 @@ export default function Login() {
           </div>
 
           <div className="space-y-2">
-            <label className="block text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Secure Key</label>
+            <label className="block text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Password</label>
             <div className="relative group">
               <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 group-focus-within:text-indigo-500 transition-colors" />
               <input 
@@ -86,7 +86,7 @@ export default function Login() {
 
         <p className="mt-10 text-center text-slate-400 font-medium">
           New to the platform?{" "}
-          <Link to="/register" className="text-indigo-600 hover:text-indigo-500 font-black">Join Quantum</Link>
+          <Link to="/register" className="text-indigo-600 hover:text-indigo-500 font-black">Register</Link>
         </p>
       </motion.div>
     </div>

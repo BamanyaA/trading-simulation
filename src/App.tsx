@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "r
 import { Toaster } from "react-hot-toast";
 import { useEffect, useState, lazy, Suspense } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
 import { auth, db } from "./firebase";
 import { UserProfile } from "./types";
 
@@ -37,7 +37,7 @@ function AppContent() {
         fullName: user.displayName || "",
         address: "",
         phoneNumber: user.phoneNumber || "",
-        verificationDoc: null,
+        verificationDoc: "",
         balance: 0,
         role: isAdminEmail ? "admin" : "user",
         createdAt: new Date(),
@@ -56,12 +56,51 @@ function AppContent() {
   };
 
   useEffect(() => {
+    let profileUnsub: (() => void) | null = null;
+
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       try {
         setUser(firebaseUser);
         if (firebaseUser) {
-          await fetchProfile(firebaseUser.uid);
+          const docRef = doc(db, "users", firebaseUser.uid);
+          
+          if (profileUnsub) {
+            profileUnsub();
+          }
+
+          profileUnsub = onSnapshot(docRef, (docSnap) => {
+            if (docSnap.exists()) {
+              setProfile({ id: docSnap.id, ...docSnap.data() } as UserProfile);
+            } else {
+              // Auto-repair missing profile
+              const isAdminEmail = firebaseUser.email === "habeshatilaye@gmail.com";
+              const newProfile = {
+                email: firebaseUser.email || "",
+                fullName: firebaseUser.displayName || "",
+                address: "",
+                phoneNumber: firebaseUser.phoneNumber || "",
+                verificationDoc: "",
+                balance: 0,
+                role: isAdminEmail ? "admin" : "user",
+                createdAt: new Date(),
+                verificationStatus: "unsubmitted",
+                isVerified: false,
+                tradeAction: true
+              };
+              setDoc(docRef, newProfile).then(() => {
+                setProfile({ id: firebaseUser.uid, ...newProfile } as any);
+              }).catch(err => {
+                console.error("Failed to auto-repair on listener:", err);
+              });
+            }
+          }, (err) => {
+            console.error("Profile onSnapshot error:", err);
+          });
         } else {
+          if (profileUnsub) {
+            profileUnsub();
+            profileUnsub = null;
+          }
           setProfile(null);
         }
       } catch (error) {
@@ -71,7 +110,10 @@ function AppContent() {
       }
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+      if (profileUnsub) profileUnsub();
+    };
   }, []);
 
   const isAdmin = profile?.role === "admin" || user?.email === "habeshatilaye@gmail.com";

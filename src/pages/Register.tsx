@@ -69,12 +69,12 @@ export default function Register() {
             <TrendingUp className="w-8 h-8 text-white" />
           </div>
           <h2 className="text-4xl font-black text-slate-900 tracking-tight text-center leading-tight">Create <br/> <span className="text-indigo-600">Account</span></h2>
-          <p className="text-slate-400 mt-3 font-medium">Start your institutional trading journey</p>
+          <p className="text-slate-400 mt-3 font-medium">Start your trading journey</p>
         </div>
 
         <form onSubmit={handleRegister} className="space-y-6">
           <div className="space-y-2">
-            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email Access</label>
+            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email Address</label>
             <div className="relative group">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-indigo-500 transition-colors" />
               <input 
@@ -89,7 +89,7 @@ export default function Register() {
           </div>
 
           <div className="space-y-2">
-            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Security Key</label>
+            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Password</label>
             <div className="relative group">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-indigo-500 transition-colors" />
               <input 
@@ -104,7 +104,7 @@ export default function Register() {
           </div>
 
           <div className="space-y-2">
-            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Confirm Security Key</label>
+            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Confirm Password</label>
             <div className="relative group">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-indigo-500 transition-colors" />
               <input 
@@ -123,14 +123,14 @@ export default function Register() {
             disabled={loading}
             className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-black py-5 rounded-2xl transition-all flex items-center justify-center gap-3 group shadow-2xl shadow-indigo-100 active:scale-95 text-sm uppercase tracking-[0.2em]"
           >
-            {loading ? "Establishing Infrastructure..." : "Initialize Profile"}
+            {loading ? "Creating Account..." : "Create Account"}
             {!loading && <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />}
           </button>
         </form>
 
         <p className="mt-10 text-center text-slate-400 text-xs font-medium uppercase tracking-widest leading-relaxed">
-          Already a partner?{" "}
-          <Link to="/login" className="text-indigo-600 hover:text-indigo-500 font-black">Login to Terminal</Link>
+          Already registered?{" "}
+          <Link to="/login" className="text-indigo-600 hover:text-indigo-500 font-black">Sign In</Link>
         </p>
       </motion.div>
     </div>

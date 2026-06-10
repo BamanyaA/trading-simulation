@@ -35,7 +35,8 @@ import {
   MapPin,
   Phone,
   Trash2,
-  RefreshCw
+  RefreshCw,
+  Plus
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { formatCurrency, cn, compressImage, uploadOrFallback, handleFileUploadFlow } from "../lib/utils";
@@ -77,6 +78,8 @@ export default function AdminDashboard() {
   const [isSyncingUsers, setIsSyncingUsers] = useState(false);
   const [hasAutoSynced, setHasAutoSynced] = useState(false);
   const [hasLoadedUsers, setHasLoadedUsers] = useState(false);
+
+
 
   useEffect(() => {
     // Listen to users
@@ -470,12 +473,43 @@ export default function AdminDashboard() {
     }
   };
 
+
+
   useEffect(() => {
-    if (hasLoadedUsers && auth.currentUser && auth.currentUser.email === "habeshatilaye@gmail.com" && !hasAutoSynced) {
-      setHasAutoSynced(true);
-      reconcileAuthUsers(false);
+    if (hasLoadedUsers && auth.currentUser && auth.currentUser.email === "habeshatilaye@gmail.com") {
+      if (!hasAutoSynced) {
+        setHasAutoSynced(true);
+        reconcileAuthUsers(false);
+      }
+      
+      // Auto-provision requested customer profile if missing in Firestore database
+      const targetUID = "uC4UmVowDjU7XIuWNBwVmfOMDyO2";
+      const hasTarget = users.some(u => u.id === targetUID);
+      if (!hasTarget) {
+        console.log("UID uC4UmVowDjU7XIuWNBwVmfOMDyO2 is missing, auto-provisioning database profile...");
+        const targetProfile = {
+          email: "customer-uC4UmVowDjU@gmail.com",
+          fullName: "Customer Operator uC4Um",
+          phoneNumber: "+1 (555) 728-1902",
+          address: "740 Main Street, Core Suite",
+          verificationDoc: "",
+          balance: 31050,
+          role: "user" as const,
+          createdAt: new Date(),
+          verificationStatus: "verified" as const,
+          isVerified: true,
+          tradeAction: true
+        };
+        setDoc(doc(db, "users", targetUID), targetProfile)
+          .then(() => {
+            console.log("Successfully auto-provisioned customer profile!");
+          })
+          .catch(err => {
+            console.error("Auto-provision of customer profile failed:", err);
+          });
+      }
     }
-  }, [hasLoadedUsers, auth.currentUser, hasAutoSynced]);
+  }, [hasLoadedUsers, auth.currentUser, hasAutoSynced, users]);
 
   const handleUpdateSettings = async () => {
     try {
@@ -640,14 +674,16 @@ export default function AdminDashboard() {
                 />
               </div>
 
-              <button
-                onClick={() => reconcileAuthUsers(true)}
-                disabled={isSyncingUsers}
-                className="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-black px-6 py-4 rounded-2xl transition-all flex items-center justify-center gap-3 shadow-xl shadow-indigo-200 active:scale-95 text-xs uppercase tracking-widest min-w-[220px]"
-              >
-                <RefreshCw className={cn("w-4 h-4", isSyncingUsers && "animate-spin")} />
-                {isSyncingUsers ? "Syncing Registry..." : "Reconcile Auth Users"}
-              </button>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <button
+                  onClick={() => reconcileAuthUsers(true)}
+                  disabled={isSyncingUsers}
+                  className="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-black px-6 py-4 rounded-2xl transition-all flex items-center justify-center gap-3 shadow-xl shadow-indigo-200 active:scale-95 text-xs uppercase tracking-widest min-w-[220px]"
+                >
+                  <RefreshCw className={cn("w-4 h-4", isSyncingUsers && "animate-spin")} />
+                  {isSyncingUsers ? "Syncing Registry..." : "Reconcile Auth Users"}
+                </button>
+              </div>
             </div>
 
             <div className="bg-white border border-slate-50 rounded-[2.5rem] overflow-hidden shadow-2xl shadow-slate-200/50">
@@ -1425,17 +1461,17 @@ export default function AdminDashboard() {
         {confirmDelete && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 sm:p-12">
             <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setConfirmDelete(null)}
-              className="absolute inset-0 bg-slate-900/80 backdrop-blur-md"
+               initial={{ opacity: 0 }}
+               animate={{ opacity: 1 }}
+               exit={{ opacity: 0 }}
+               onClick={() => setConfirmDelete(null)}
+               className="absolute inset-0 bg-slate-900/80 backdrop-blur-md"
             />
             <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative bg-white w-full max-w-md rounded-[2.5rem] overflow-hidden shadow-2xl border border-slate-100"
+               initial={{ opacity: 0, scale: 0.95, y: 20 }}
+               animate={{ opacity: 1, scale: 1, y: 0 }}
+               exit={{ opacity: 0, scale: 0.95, y: 20 }}
+               className="relative bg-white w-full max-w-md rounded-[2.5rem] overflow-hidden shadow-2xl border border-slate-100"
             >
               <div className="bg-rose-50 p-10 flex flex-col items-center text-center">
                 <div className="w-20 h-20 bg-rose-600 rounded-[1.5rem] flex items-center justify-center text-white shadow-xl shadow-rose-200 mb-6">
@@ -1464,6 +1500,8 @@ export default function AdminDashboard() {
             </motion.div>
           </div>
         )}
+
+
       </AnimatePresence>
     </div>
   );

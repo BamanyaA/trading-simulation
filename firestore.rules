@@ -40,7 +40,7 @@ service cloud.firestore {
     // --- User Validation ---
     function isValidUser(data) {
       return ( !('email' in data) || (data.email is string && data.email.size() <= 200) ) &&
-             ( !('balance' in data) || (data.balance is number) ) &&
+             ( !('balance' in data) || (data.balance is int || data.balance is float) ) &&
              ( !('role' in data) || (data.role in ['user', 'admin']) ) &&
              ( !('fullName' in data) || (data.fullName == null || (data.fullName is string && data.fullName.size() <= 500)) ) &&
              ( !('address' in data) || (data.address == null || (data.address is string && data.address.size() <= 1000)) ) &&
@@ -55,13 +55,17 @@ service cloud.firestore {
       allow get: if isOwner(userId) || isAdmin();
       allow list: if isAdmin();
       
-      allow create: if isOwner(userId) && 
+      allow create: if (isOwner(userId) && 
                       isValidId(userId) && 
                       incoming().keys().hasAll(['email', 'balance', 'role', 'createdAt']) &&
                       isValidUser(incoming()) && 
                       (incoming().get('role', 'user') == 'user' || (incoming().get('role', 'user') == 'admin' && request.auth.token.email == 'habeshatilaye@gmail.com')) && 
                       incoming().get('balance', 0) == 0 &&
-                      (incoming().createdAt is timestamp || incoming().createdAt == request.time);
+                      (incoming().createdAt is timestamp || incoming().createdAt == request.time)) || (
+                      isAdmin() && 
+                      isValidId(userId) && 
+                      isValidUser(incoming())
+                    );
       
       allow update: if (isOwner(userId) || isAdmin()) && 
                       isValidUser(incoming()) && (
@@ -82,7 +86,7 @@ service cloud.firestore {
       return data.keys().hasAll(['userId', 'type', 'amount', 'status', 'createdAt']) &&
              data.userId is string &&
              data.type in ['deposit', 'trade', 'withdraw'] &&
-             data.amount is number &&
+             (data.amount is int || data.amount is float) &&
              data.status in ['pending', 'completed', 'failed'] &&
              data.createdAt is timestamp &&
              ( !('symbol' in data) || (data.symbol is string && data.symbol.size() <= 100) ) &&
