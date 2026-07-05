@@ -894,6 +894,7 @@ export default function AdminDashboard() {
                   const txUser = users.find(u => u.id === tx.userId);
                   const withdrawAddress = getWithdrawalAddress(tx.details);
                   const withdrawNetwork = getWithdrawalNetwork(tx.details);
+                  const txName = tx.userName || txUser?.fullName || (tx.details?.match(/Name:\s*([^|]+)/i)?.[1]?.trim()) || "User";
 
                   return (
                     <div key={tx.id} className="p-8 bg-slate-100 border border-slate-200 rounded-[2rem] space-y-6 hover:bg-white hover:shadow-2xl hover:shadow-slate-200/50 transition-all group">
@@ -910,13 +911,13 @@ export default function AdminDashboard() {
                             </span>
                             {/* User name beside requested amount */}
                             <span className="text-[10px] font-black uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2.5 py-1.5 rounded-full border border-indigo-100 shadow-sm shrink-0">
-                              {txUser?.fullName || "User"}
+                              {txName}
                             </span>
                           </div>
                           <div className="flex flex-col">
                             <span className="text-3xl font-black text-slate-900 tracking-tighter font-mono">{formatCurrency(tx.amount)}</span>
                             <span className="text-xs font-semibold text-slate-500 mt-1">
-                              Requester: <span className="text-slate-800 font-bold">{txUser?.fullName || "N/A"}</span>
+                              Requester: <span className="text-slate-800 font-bold">{txName}</span>
                             </span>
                           </div>
                         </div>
@@ -934,9 +935,9 @@ export default function AdminDashboard() {
                             <div className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse shrink-0" />
                             <span className="text-xs font-black text-slate-800 break-all">{txUser?.email || tx.userEmail || "Unknown Email"}</span>
                           </div>
-                          {txUser?.fullName && (
+                          {txName && (
                             <span className="text-[10px] font-bold text-slate-500 bg-slate-200/60 px-2 py-0.5 rounded-md shrink-0">
-                              {txUser.fullName}
+                              {txName}
                             </span>
                           )}
                         </div>
@@ -950,7 +951,10 @@ export default function AdminDashboard() {
                             Withdrawal Destination Address
                           </div>
                           <div className="bg-white p-3 rounded-xl border border-rose-100/50 font-mono text-xs text-slate-800 break-all select-all flex items-center justify-between gap-2 shadow-sm">
-                            <span className="font-semibold break-all selection:bg-rose-100">{withdrawAddress || "N/A"}</span>
+                            <div className="flex flex-col gap-1 w-full">
+                              <span className="font-semibold break-all selection:bg-rose-100">{withdrawAddress || "N/A"}</span>
+                              <span className="text-[10px] text-slate-500 font-sans font-bold">Payee: <span className="text-indigo-600 uppercase font-black">{txName}</span></span>
+                            </div>
                             <button
                               onClick={() => {
                                 navigator.clipboard.writeText(withdrawAddress || "");

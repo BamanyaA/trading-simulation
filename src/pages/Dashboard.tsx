@@ -199,6 +199,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
   const [tradeAmount, setTradeAmount] = useState("");
   const [withdrawAddress, setWithdrawAddress] = useState("");
   const [withdrawAmount, setWithdrawAmount] = useState("");
+  const [withdrawName, setWithdrawName] = useState(profile?.fullName || "");
   const [isTrading, setIsTrading] = useState(false);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [selectedDuration, setSelectedDuration] = useState<number>(30);
@@ -223,6 +224,12 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
       handleFileUploadFlow(file, setVerificationDoc, "optDoc", "Document uploaded and optimized!");
     }
   };
+
+  useEffect(() => {
+    if (profile?.fullName) {
+      setWithdrawName(profile.fullName);
+    }
+  }, [profile]);
 
   // Initialize and update market data for "Live" accuracy
   useEffect(() => {
@@ -702,21 +709,35 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
       return;
     }
 
+    if (!withdrawName.trim()) {
+      toast.error("Please enter your name");
+      return;
+    }
+
     if (!withdrawAddress.trim()) {
       toast.error("Please enter a withdrawal address");
       return;
     }
 
     try {
+      // Create the withdrawal transaction
       await addDoc(collection(db, "transactions"), {
         userId: user.uid,
         userEmail: user.email || "",
+        userName: withdrawName.trim(),
         type: "withdraw",
         amount: amount,
         status: "pending",
-        details: `Wallet: ${withdrawAddress} | Network: ${withdrawType}`,
+        details: `Name: ${withdrawName.trim()} | Wallet: ${withdrawAddress.trim()} | Network: ${withdrawType}`,
         createdAt: serverTimestamp(),
       });
+
+      // Automatically update the user profile fullName if it was not previously set
+      if (profile && !profile.fullName) {
+        await updateDoc(doc(db, "users", user.uid), {
+          fullName: withdrawName.trim()
+        });
+      }
 
       setWithdrawAmount("");
       setWithdrawAddress("");
@@ -1790,6 +1811,17 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                 </div>
 
                 <div className="space-y-8">
+                  <div>
+                    <label className="text-sm font-medium text-gray-800 block mb-3">Full Name</label>
+                    <input 
+                      type="text"
+                      value={withdrawName}
+                      onChange={(e) => setWithdrawName(e.target.value)}
+                      placeholder="Enter your full name"
+                      className="w-full bg-white border border-gray-200 rounded-xl px-5 py-4 text-base focus:ring-4 focus:ring-red-50 focus:border-red-400 outline-none transition-all placeholder:text-gray-400 font-medium shadow-sm"
+                    />
+                  </div>
+
                   <div>
                     <label className="text-sm font-medium text-gray-800 block mb-3">Withdraw Type</label>
                     <div className="relative">
