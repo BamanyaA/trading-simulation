@@ -809,6 +809,16 @@ export default function AdminDashboard() {
                               >
                                 <FileText className="w-4 h-4" />
                               </button>
+                              <button
+                                onClick={() => {
+                                  setSelectedUserChat(u.id);
+                                  setActiveTab("support");
+                                }}
+                                className="p-3 bg-indigo-50 hover:bg-indigo-600 text-indigo-600 hover:text-white rounded-xl transition-all shadow-sm"
+                                title="Contact User"
+                              >
+                                <MessageSquare className="w-4 h-4" />
+                              </button>
                             </div>
                           </td>
                           <td className="px-8 py-6">
@@ -1035,17 +1045,47 @@ export default function AdminDashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 min-h-[700px]">
             {/* User List */}
             <div className="lg:col-span-1 bg-white border border-slate-100 rounded-[2.5rem] overflow-hidden flex flex-col shadow-2xl shadow-slate-200/50">
-              <div className="p-8 border-b border-slate-100 bg-slate-100/30">
+              <div className="p-8 border-b border-slate-100 bg-slate-100/30 space-y-4">
                 <h3 className="font-black text-slate-900 tracking-tight flex items-center gap-3">
                   <MessageSquare className="w-6 h-6 text-indigo-600" />
                   Terminal Chats
                 </h3>
+                <div className="space-y-1.5">
+                  <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest">Start New Chat</label>
+                  <select
+                    value={selectedUserChat || ""}
+                    onChange={(e) => {
+                      if (e.target.value) {
+                        setSelectedUserChat(e.target.value);
+                      }
+                    }}
+                    className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-sm"
+                  >
+                    <option value="">-- Choose User --</option>
+                    {users.filter(u => u.email !== "habeshatilaye@gmail.com").map(u => (
+                      <option key={u.id} value={u.id}>
+                        {u.email} {u.fullName ? `(${u.fullName})` : ""}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
               <div className="flex-1 overflow-y-auto">
-                {Array.from(new Set(allMessages.map(m => m.userId))).length === 0 ? (
-                  <div className="p-12 text-center text-slate-400 italic">No incoming transmissions.</div>
-                ) : (
-                  Array.from(new Set(allMessages.map(m => m.userId))).map(uId => {
+                {(() => {
+                  const chatUserIds = Array.from(new Set(allMessages.map(m => m.userId)));
+                  if (selectedUserChat && !chatUserIds.includes(selectedUserChat)) {
+                    chatUserIds.unshift(selectedUserChat);
+                  }
+
+                  if (chatUserIds.length === 0) {
+                    return (
+                      <div className="p-12 text-center text-slate-400 italic">
+                        No active support chats. Select a user above to begin.
+                      </div>
+                    );
+                  }
+
+                  return chatUserIds.map(uId => {
                     const userProfile = users.find(u => u.id === uId);
                     const lastMsg = allMessages.filter(m => m.userId === uId).pop();
                     return (
@@ -1062,12 +1102,12 @@ export default function AdminDashboard() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="text-sm font-black text-slate-900 truncate">{userProfile?.email || uId}</div>
-                          <div className="text-[10px] text-slate-500 truncate font-medium">{lastMsg?.text}</div>
+                          <div className="text-[10px] text-slate-500 truncate font-medium">{lastMsg?.text || "No transmissions yet"}</div>
                         </div>
                       </button>
                     );
-                  })
-                )}
+                  });
+                })()}
               </div>
             </div>
 
