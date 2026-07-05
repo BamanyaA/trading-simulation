@@ -8,7 +8,7 @@ const app = initializeApp(firebaseConfig);
 
 // Use initializeFirestore with settings for optimal connection stability and fallback in sandbox environments
 export const db = initializeFirestore(app, {
-  experimentalAutoDetectLongPolling: true,
+  experimentalForceLongPolling: true,
   cacheSizeBytes: CACHE_SIZE_UNLIMITED,
 }, firebaseConfig.firestoreDatabaseId);
 

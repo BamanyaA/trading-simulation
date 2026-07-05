@@ -28,6 +28,7 @@ export interface Transaction {
   details?: string;
   symbol?: string;
   receipt?: string; // Base64 or URL
+  userEmail?: string;
 }
 
 export interface PlatformSettings {

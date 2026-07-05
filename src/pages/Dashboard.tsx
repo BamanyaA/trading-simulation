@@ -479,6 +479,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
 
       await addDoc(collection(db, "transactions"), {
         userId: user.uid,
+        userEmail: user.email || "",
         type: "trade",
         amount: isWin ? finalAmount : amount * lossPercent,
         status: isWin ? "completed" : "failed",
@@ -709,6 +710,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
     try {
       await addDoc(collection(db, "transactions"), {
         userId: user.uid,
+        userEmail: user.email || "",
         type: "withdraw",
         amount: amount,
         status: "pending",
@@ -747,6 +749,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
     try {
       await addDoc(collection(db, "transactions"), {
         userId: user.uid,
+        userEmail: user.email || "",
         type: "deposit",
         amount: amount,
         status: "pending",

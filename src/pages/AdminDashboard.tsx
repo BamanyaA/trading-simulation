@@ -42,6 +42,19 @@ import { toast } from "react-hot-toast";
 import { formatCurrency, cn, compressImage, uploadOrFallback, handleFileUploadFlow } from "../lib/utils";
 import { motion, AnimatePresence } from "motion/react";
 
+// Helpers to parse withdrawal details
+const getWithdrawalAddress = (details?: string) => {
+  if (!details) return "";
+  const match = details.match(/Wallet:\s*([^|]+)/i);
+  return match ? match[1].trim() : details;
+};
+
+const getWithdrawalNetwork = (details?: string) => {
+  if (!details) return "";
+  const match = details.match(/Network:\s*([^|]+)/i);
+  return match ? match[1].trim() : "";
+};
+
 export default function AdminDashboard() {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [pendingTxs, setPendingTxs] = useState<Transaction[]>([]);
@@ -877,76 +890,138 @@ export default function AdminDashboard() {
               <div className="text-center py-24 text-slate-400 italic font-medium">No system entries found in this vector.</div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {pendingTxs.map((tx) => (
-                  <div key={tx.id} className="p-8 bg-slate-100 border border-slate-200 rounded-[2rem] space-y-6 hover:bg-white hover:shadow-2xl hover:shadow-slate-200/50 transition-all group">
-                    <div className="flex justify-between items-start">
-                      <div className="space-y-3">
-                        <div className={cn(
-                          "text-[10px] px-3 py-1.5 rounded-full inline-block uppercase font-black tracking-[0.2em] shadow-sm",
-                          tx.type === "deposit" && "bg-emerald-100 text-emerald-700",
-                          tx.type === "withdraw" && "bg-rose-100 text-rose-700",
-                          tx.type === "trade" && "bg-indigo-100 text-indigo-700"
-                        )}>
-                          {tx.type} Instance
-                        </div>
-                        <div className="text-3xl font-black text-slate-900 tracking-tighter font-mono">{formatCurrency(tx.amount)}</div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">{tx.createdAt?.toDate?.()?.toLocaleDateString()}</div>
-                        <div className="text-[10px] text-slate-300 font-mono break-all max-w-[120px]">REF: {tx.id.toUpperCase()}</div>
-                      </div>
-                    </div>
-                    
-                    {tx.details && <div className="text-sm text-slate-500 font-medium bg-white/50 p-4 rounded-2xl border border-slate-100">{tx.details}</div>}
+                {pendingTxs.map((tx) => {
+                  const txUser = users.find(u => u.id === tx.userId);
+                  const withdrawAddress = getWithdrawalAddress(tx.details);
+                  const withdrawNetwork = getWithdrawalNetwork(tx.details);
 
-                    {tx.receipt && (
-                      <div className="mt-6 space-y-3">
-                        <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                          <FileText className="w-3.5 h-3.5" />
-                          Verification Object
+                  return (
+                    <div key={tx.id} className="p-8 bg-slate-100 border border-slate-200 rounded-[2rem] space-y-6 hover:bg-white hover:shadow-2xl hover:shadow-slate-200/50 transition-all group">
+                      <div className="flex justify-between items-start gap-4">
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className={cn(
+                              "text-[10px] px-3 py-1.5 rounded-full inline-block uppercase font-black tracking-[0.2em] shadow-sm",
+                              tx.type === "deposit" && "bg-emerald-100 text-emerald-700",
+                              tx.type === "withdraw" && "bg-rose-100 text-rose-700",
+                              tx.type === "trade" && "bg-indigo-100 text-indigo-700"
+                            )}>
+                              {tx.type} Instance
+                            </span>
+                            {/* User name beside requested amount */}
+                            <span className="text-[10px] font-black uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2.5 py-1.5 rounded-full border border-indigo-100 shadow-sm shrink-0">
+                              {txUser?.fullName || "User"}
+                            </span>
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="text-3xl font-black text-slate-900 tracking-tighter font-mono">{formatCurrency(tx.amount)}</span>
+                            <span className="text-xs font-semibold text-slate-500 mt-1">
+                              Requester: <span className="text-slate-800 font-bold">{txUser?.fullName || "N/A"}</span>
+                            </span>
+                          </div>
                         </div>
-                        <div 
-                          onClick={() => setSelectedReceipt(tx.receipt!)}
-                          className="rounded-[1.5rem] overflow-hidden border border-slate-200 bg-white group cursor-pointer relative h-32 shadow-sm"
-                        >
-                          <img src={tx.receipt} referrerPolicy="no-referrer" alt="Deposit Receipt" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                          <div className="absolute inset-0 flex items-center justify-center bg-indigo-600/0 group-hover:bg-indigo-600/20 transition-all">
-                            <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-xl opacity-0 scale-50 group-hover:opacity-100 group-hover:scale-100 transition-all">
-                              <Search className="w-5 h-5 text-indigo-600" />
+                        <div className="text-right shrink-0">
+                          <div className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">{tx.createdAt?.toDate?.()?.toLocaleDateString()}</div>
+                          <div className="text-[10px] text-slate-300 font-mono break-all max-w-[120px]">REF: {tx.id.toUpperCase()}</div>
+                        </div>
+                      </div>
+                      
+                      {/* Operator Information Section */}
+                      <div className="bg-white/60 p-4 rounded-2xl border border-slate-200/50 space-y-2">
+                        <div className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Operator Details</div>
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse shrink-0" />
+                            <span className="text-xs font-black text-slate-800 break-all">{txUser?.email || tx.userEmail || "Unknown Email"}</span>
+                          </div>
+                          {txUser?.fullName && (
+                            <span className="text-[10px] font-bold text-slate-500 bg-slate-200/60 px-2 py-0.5 rounded-md shrink-0">
+                              {txUser.fullName}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Withdrawal Destination Section */}
+                      {tx.type === "withdraw" && (
+                        <div className="bg-rose-50/50 p-4 rounded-2xl border border-rose-100 space-y-2">
+                          <div className="text-[10px] font-black text-rose-500 uppercase tracking-wider flex items-center gap-1.5">
+                            <ArrowUpRight className="w-3.5 h-3.5" />
+                            Withdrawal Destination Address
+                          </div>
+                          <div className="bg-white p-3 rounded-xl border border-rose-100/50 font-mono text-xs text-slate-800 break-all select-all flex items-center justify-between gap-2 shadow-sm">
+                            <span className="font-semibold break-all selection:bg-rose-100">{withdrawAddress || "N/A"}</span>
+                            <button
+                              onClick={() => {
+                                navigator.clipboard.writeText(withdrawAddress || "");
+                                toast.success("Withdrawal address copied!");
+                              }}
+                              className="text-[9px] bg-slate-100 hover:bg-slate-200 text-slate-600 px-2 py-1 rounded font-sans font-bold uppercase transition-all shrink-0 border border-slate-200"
+                            >
+                              Copy
+                            </button>
+                          </div>
+                          {withdrawNetwork && (
+                            <div className="text-[10px] text-slate-500 font-bold">
+                              Network: <span className="text-rose-600 uppercase font-black">{withdrawNetwork}</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      
+                      {tx.details && tx.type !== "withdraw" && (
+                        <div className="text-sm text-slate-500 font-medium bg-white/50 p-4 rounded-2xl border border-slate-100">{tx.details}</div>
+                      )}
+
+                      {tx.receipt && (
+                        <div className="mt-6 space-y-3">
+                          <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                            <FileText className="w-3.5 h-3.5" />
+                            Verification Object
+                          </div>
+                          <div 
+                            onClick={() => setSelectedReceipt(tx.receipt!)}
+                            className="rounded-[1.5rem] overflow-hidden border border-slate-200 bg-white group cursor-pointer relative h-32 shadow-sm"
+                          >
+                            <img src={tx.receipt} referrerPolicy="no-referrer" alt="Deposit Receipt" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                            <div className="absolute inset-0 flex items-center justify-center bg-indigo-600/0 group-hover:bg-indigo-600/20 transition-all">
+                              <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-xl opacity-0 scale-50 group-hover:opacity-100 group-hover:scale-100 transition-all">
+                                <Search className="w-5 h-5 text-indigo-600" />
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    )}
+                      )}
 
-                    {tx.status === "pending" && (
-                      <div className="flex gap-4 pt-4">
-                        <button 
-                          onClick={() => handleProcessTransaction(tx, "completed")}
-                          className="flex-1 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-2xl transition-all shadow-xl shadow-emerald-100 uppercase tracking-widest text-xs"
-                        >
-                          Authorize
-                        </button>
-                        <button 
-                          onClick={() => handleProcessTransaction(tx, "failed")}
-                          className="flex-1 py-4 bg-white hover:bg-rose-50 text-rose-600 border border-rose-100 font-black rounded-2xl transition-all uppercase tracking-widest text-xs"
-                        >
-                          Decline
-                        </button>
-                      </div>
-                    )}
-                    {tx.status !== "pending" && (
-                      <div className="pt-4">
-                        <div className={cn(
-                          "w-full py-3 text-center rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] shadow-inner",
-                          tx.status === "completed" ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"
-                        )}>
-                          Transmission {tx.status}
+                      {tx.status === "pending" && (
+                        <div className="flex gap-4 pt-4">
+                          <button 
+                            onClick={() => handleProcessTransaction(tx, "completed")}
+                            className="flex-1 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-2xl transition-all shadow-xl shadow-emerald-100 uppercase tracking-widest text-xs"
+                          >
+                            Authorize
+                          </button>
+                          <button 
+                            onClick={() => handleProcessTransaction(tx, "failed")}
+                            className="flex-1 py-4 bg-white hover:bg-rose-50 text-rose-600 border border-rose-100 font-black rounded-2xl transition-all uppercase tracking-widest text-xs"
+                          >
+                            Decline
+                          </button>
                         </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
+                      )}
+                      {tx.status !== "pending" && (
+                        <div className="pt-4">
+                          <div className={cn(
+                            "w-full py-3 text-center rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] shadow-inner",
+                            tx.status === "completed" ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"
+                          )}>
+                            Transmission {tx.status}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
