@@ -17,6 +17,7 @@ import {
   increment 
 } from "firebase/firestore";
 import { 
+  TrendingUp,
   TrendingDown,
   Trophy,
   ArrowDownCircle,
@@ -203,6 +204,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
   const [isTrading, setIsTrading] = useState(false);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [selectedDuration, setSelectedDuration] = useState<number>(30);
+  const [tradeSide, setTradeSide] = useState<"BUY" | "SELL">("BUY");
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [withdrawType, setWithdrawType] = useState("USDT (ERC20)");
   const [showVerificationForm, setShowVerificationForm] = useState(false);
@@ -419,7 +421,19 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
   const [showTradeConfirm, setShowTradeConfirm] = useState(false);
   const [showOptionModal, setShowOptionModal] = useState(false);
   const [showTradeSuccess, setShowTradeSuccess] = useState(false);
-  const [tradeResult, setTradeResult] = useState<{ isWin: boolean; amount: number; profit: number } | null>(null);
+  const [tradeResult, setTradeResult] = useState<{
+    isWin: boolean;
+    amount: number;
+    profit: number;
+    side: "BUY" | "SELL";
+    entryPrice: number;
+    exitPrice: number;
+    duration: number;
+    percentage: number;
+    assetShort: string;
+    assetName: string;
+    timestamp: string;
+  } | null>(null);
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [selectedDepositCoin, setSelectedDepositCoin] = useState<keyof PlatformSettings>("btc_address");
   const [showChat, setShowChat] = useState(false);
@@ -442,11 +456,19 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
   }, [isTrading, timeLeft]);
 
   // Store trade details for finalization
-  const tradeDetailsRef = React.useRef<{ amount: number; seconds: number; symbol: string } | null>(null);
+  const tradeDetailsRef = React.useRef<{
+    amount: number;
+    seconds: number;
+    symbol: string;
+    side: "BUY" | "SELL";
+    entryPrice: number;
+    assetShort: string;
+    assetName: string;
+  } | null>(null);
 
   const finalizeTrade = async () => {
     if (!tradeDetailsRef.current || !user) return;
-    const { amount, seconds, symbol } = tradeDetailsRef.current;
+    const { amount, seconds, symbol, side, entryPrice, assetShort, assetName } = tradeDetailsRef.current;
     
     // Determine win state based on admin control. Fetch freshest settings directly to bypass any lag
     let isWin = Math.random() > 0.5;
@@ -500,11 +522,29 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
         balance: increment(finalAmount)
       });
 
+      const livePriceNum = parseFloat((marketData[symbol]?.price || "0").replace(/,/g, "")) || entryPrice;
+      const basePrice = entryPrice > 0 ? entryPrice : livePriceNum;
+      const moveFactor = 0.002 + Math.random() * 0.0025;
+      const favorableUp = (side === "BUY" && isWin) || (side === "SELL" && !isWin);
+      const computedExitPrice = basePrice > 0
+        ? (favorableUp ? basePrice * (1 + moveFactor) : basePrice * (1 - moveFactor))
+        : 0;
+      const now = new Date();
+      const formattedTimestamp = `${String(now.getMonth() + 1).padStart(2, "0")}/${String(now.getDate()).padStart(2, "0")}/${now.getFullYear()}, ${now.toTimeString().slice(0, 8)}`;
+
       toast.dismiss("trade");
       setTradeResult({ 
         isWin, 
         amount, 
-        profit: isWin ? (amount * returnPercent) : (amount * lossPercent)
+        profit: isWin ? (amount * returnPercent) : (amount * lossPercent),
+        side,
+        entryPrice: basePrice,
+        exitPrice: computedExitPrice,
+        duration: seconds,
+        percentage: (isWin ? returnPercent : lossPercent) * 100,
+        assetShort,
+        assetName,
+        timestamp: formattedTimestamp,
       });
       setShowTradeSuccess(true);
       
@@ -613,7 +653,16 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
     setShowTradeConfirm(false);
     setIsTrading(true);
     setTimeLeft(selectedDuration);
-    tradeDetailsRef.current = { amount, seconds: selectedDuration, symbol: selectedAsset.symbol };
+    const currentMarketPrice = parseFloat((marketData[selectedAsset.symbol]?.price || "0").replace(/,/g, "")) || 0;
+    tradeDetailsRef.current = {
+      amount,
+      seconds: selectedDuration,
+      symbol: selectedAsset.symbol,
+      side: tradeSide,
+      entryPrice: currentMarketPrice,
+      assetShort: selectedAsset.short,
+      assetName: selectedAsset.name,
+    };
   };
 
   const handleSendMessage = async (e: React.FormEvent) => {
@@ -1987,13 +2036,13 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
 
                 <div className="grid grid-cols-2 gap-4 pb-20">
                   <button 
-                    onClick={() => { setShowOptionModal(false); setShowTradeConfirm(true); }}
+                    onClick={() => { setTradeSide("BUY"); setShowOptionModal(false); setShowTradeConfirm(true); }}
                     className="py-4 bg-[#22C58B] hover:brightness-110 text-[#0B101D] font-extrabold rounded-2xl shadow-lg active:scale-95 transition-all text-sm uppercase tracking-wider"
                   >
                     Buy / Long
                   </button>
                   <button 
-                    onClick={() => { setShowOptionModal(false); setShowTradeConfirm(true); }}
+                    onClick={() => { setTradeSide("SELL"); setShowOptionModal(false); setShowTradeConfirm(true); }}
                     className="py-4 bg-[#F43F5E] hover:brightness-110 text-white font-extrabold rounded-2xl shadow-lg active:scale-95 transition-all text-sm uppercase tracking-wider"
                   >
                     Sell / Short
@@ -2050,7 +2099,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
         )}
       </AnimatePresence>
 
-      {/* Trade Result Modal — Directly modeled on the reference Trade Details card */}
+      {/* Trade Result Modal — Modeled on the reference Trade Details popup */}
       <AnimatePresence>
         {showTradeSuccess && tradeResult && (
           <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
@@ -2060,82 +2109,95 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
               className="absolute inset-0 bg-[#0B101D]/85 backdrop-blur-md"
             />
             <motion.div 
-              initial={{ scale: 0.9, opacity: 0, y: 40 }} 
+              initial={{ scale: 0.92, opacity: 0, y: 30 }} 
               animate={{ scale: 1, opacity: 1, y: 0 }} 
-              exit={{ scale: 0.9, opacity: 0, y: 40 }}
-              className="relative w-full max-w-sm bg-[#131B2E] border border-white/[0.1] rounded-3xl overflow-hidden shadow-2xl p-6"
+              exit={{ scale: 0.92, opacity: 0, y: 30 }}
+              className="relative w-full max-w-[360px] max-h-[90vh] overflow-y-auto bg-[#131B2E] border border-white/[0.08] rounded-3xl shadow-2xl p-5"
             >
-              {/* Top Asset & Status Banner */}
-              <div className="flex items-center gap-3 mb-4">
+              {/* Top Asset & Timestamp Row */}
+              <div className="flex items-center gap-3.5 mb-5">
                 <div className={cn(
-                  "w-11 h-11 rounded-2xl flex items-center justify-center border",
-                  tradeResult.isWin ? "bg-[#0D2524] border-[#22C58B]/30 text-[#22C58B]" : "bg-[#26131C] border-[#F43F5E]/30 text-[#FB7185]"
+                  "w-12 h-12 rounded-2xl flex items-center justify-center border shrink-0",
+                  tradeResult.isWin
+                    ? "bg-[#0D2524] border-[#22C58B]/20 text-[#22C58B]"
+                    : "bg-[#26131C] border-[#F43F5E]/20 text-[#FB7185]"
                 )}>
-                  {tradeResult.isWin ? <Trophy className="w-5 h-5" /> : <TrendingDown className="w-5 h-5" />}
+                  {tradeResult.isWin ? <TrendingUp className="w-5 h-5" /> : <TrendingDown className="w-5 h-5" />}
                 </div>
                 <div className="min-w-0">
-                  <div className="text-sm font-bold text-white uppercase tracking-tight">
-                    {selectedAsset.short}/USDT · {tradeResult.isWin ? "WIN" : "LOSS"}
+                  <div className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+                    {tradeResult.assetShort}USDT • {tradeResult.side}
                   </div>
-                  <div className="text-xs text-slate-400 font-mono">{new Date().toLocaleString()}</div>
+                  <div className="text-sm font-medium text-white tabular-nums mt-0.5">
+                    {tradeResult.timestamp}
+                  </div>
                 </div>
               </div>
 
-              {/* Inner Profit/Loss Highlight Box (mirrors +11476.75 USDT / +25.00%) */}
+              {/* Inner Profit / Loss Summary Pill Card */}
               <div className={cn(
-                "rounded-2xl py-4 px-5 mb-5 text-center border tabular-nums",
-                tradeResult.isWin ? "bg-[#0D2524] border-[#22C58B]/20" : "bg-[#26131C] border-[#F43F5E]/20"
+                "rounded-2xl py-4 px-5 mb-5 text-center tabular-nums border",
+                tradeResult.isWin ? "bg-[#0D2524] border-[#22C58B]/15" : "bg-[#26131C] border-[#F43F5E]/15"
               )}>
-                <div className={cn("text-xl font-mono font-bold", tradeResult.isWin ? "text-[#22C58B]" : "text-[#FB7185]")}>
-                  {tradeResult.isWin ? "+" : "-"}{(tradeResult.profit || tradeResult.amount).toFixed(2)} USDT
+                <div className="text-xl font-bold tracking-tight">
+                  <span className={tradeResult.isWin ? "text-[#22C58B]" : "text-[#FB7185]"}>
+                    {tradeResult.isWin ? "+" : "-"}{tradeResult.profit.toFixed(2)}
+                  </span>{" "}
+                  <span className="text-white">USDT</span>
                 </div>
-                <div className={cn("text-sm font-mono font-semibold mt-1", tradeResult.isWin ? "text-[#22C58B]" : "text-[#FB7185]")}>
-                  {tradeResult.isWin ? "+" : "-"}{(((tradeResult.profit || 0) / (tradeResult.amount || 1)) * 100).toFixed(2)}%
+                <div className={cn("text-sm font-bold mt-1", tradeResult.isWin ? "text-[#22C58B]" : "text-[#FB7185]")}>
+                  {tradeResult.isWin ? "+" : "-"}{tradeResult.percentage.toFixed(2)}%
                 </div>
               </div>
 
-              {/* Structured Trade Details List */}
+              {/* Structured Trade Details Card */}
               <div className="bg-[#161F34] border border-white/[0.06] rounded-2xl p-5 mb-5 space-y-3.5 tabular-nums">
                 <div className="text-xs font-bold text-white uppercase tracking-wider mb-1">
-                  {selectedAsset.name.toUpperCase()} TRADE DETAILS
+                  {tradeResult.assetName.toUpperCase()} TRADE DETAILS
                 </div>
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-slate-400">Trade Amount</span>
-                  <span className="text-white font-mono font-semibold">{formatCurrency(tradeResult.amount)}</span>
+                  <span className="text-white font-semibold">${tradeResult.amount.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-slate-400">Market Profit</span>
-                  <span className={cn("font-mono font-semibold", tradeResult.isWin ? "text-[#22C58B]" : "text-[#FB7185]")}>
-                    {tradeResult.isWin ? "+" : "-"}{formatCurrency(tradeResult.profit || tradeResult.amount)}
+                  <span className="text-slate-400">{tradeResult.isWin ? "Profit" : "Loss"}</span>
+                  <span className={cn("font-semibold", tradeResult.isWin ? "text-[#22C58B]" : "text-[#FB7185]")}>
+                    {tradeResult.isWin ? "+$" : "-$"}{tradeResult.profit.toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-slate-400">Entry Price</span>
+                  <span className="text-white font-semibold">
+                    ${tradeResult.entryPrice < 1 && tradeResult.entryPrice > 0 ? tradeResult.entryPrice.toFixed(6) : tradeResult.entryPrice.toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-slate-400">Exit Price</span>
+                  <span className="text-white font-semibold">
+                    ${tradeResult.exitPrice < 1 && tradeResult.exitPrice > 0 ? tradeResult.exitPrice.toFixed(6) : tradeResult.exitPrice.toFixed(2)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-slate-400">Duration</span>
-                  <span className="text-[#F5B400] font-mono font-semibold">{selectedDuration}s</span>
+                  <span className="text-[#F5B400] font-semibold">{tradeResult.duration}s</span>
                 </div>
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-slate-400">Status</span>
-                  <span className={cn("font-semibold text-xs uppercase tracking-wider", tradeResult.isWin ? "text-[#22C58B]" : "text-[#FB7185]")}>
-                    Settled
-                  </span>
-                </div>
-                <div className="pt-3 border-t border-white/[0.08] flex justify-between items-center">
+                <div className="pt-3.5 border-t border-white/[0.08] flex justify-between items-center">
                   <span className="text-white font-bold text-sm">Total Return</span>
-                  <span className={cn("font-mono font-bold text-base", tradeResult.isWin ? "text-[#22C58B]" : "text-[#FB7185]")}>
-                    {formatCurrency(
+                  <span className={cn("font-bold text-base", tradeResult.isWin ? "text-[#22C58B]" : "text-[#FB7185]")}>
+                    ${(
                       tradeResult.isWin
-                        ? tradeResult.amount + (tradeResult.profit || 0)
-                        : Math.max(0, tradeResult.amount - (tradeResult.profit || 0))
-                    )}
+                        ? tradeResult.amount + tradeResult.profit
+                        : Math.max(0, tradeResult.amount - tradeResult.profit)
+                    ).toFixed(2)}
                   </span>
                 </div>
               </div>
 
               <button 
                 onClick={() => setShowTradeSuccess(false)}
-                className="w-full py-4 bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] hover:brightness-110 text-[#0B101D] font-extrabold rounded-2xl shadow-[0_6px_20px_rgba(245,158,11,0.3)] active:scale-95 transition-all text-sm uppercase tracking-wider"
+                className="w-full py-3.5 bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] hover:brightness-110 text-[#0B101D] font-extrabold rounded-2xl shadow-[0_6px_20px_rgba(245,158,11,0.3)] active:scale-95 transition-all text-sm uppercase tracking-wider"
               >
-                Close Receipt
+                Done
               </button>
             </motion.div>
           </div>
