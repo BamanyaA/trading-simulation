@@ -33,25 +33,25 @@ export default function Login() {
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md bg-white border border-slate-100 rounded-[2.5rem] p-10 shadow-2xl shadow-indigo-100/50"
+        className="w-full max-w-md bg-[#131B2E] border border-white/[0.08] rounded-[2rem] p-10 shadow-2xl"
       >
-        <div className="flex flex-col items-center mb-12">
-          <div className="p-4 bg-indigo-600 rounded-[1.5rem] mb-6 shadow-xl shadow-indigo-200">
-            <TrendingUp className="w-8 h-8 text-white" />
+        <div className="flex flex-col items-center mb-10">
+          <div className="p-4 bg-[#0D2524] border border-[#22C58B]/30 rounded-2xl mb-6">
+            <TrendingUp className="w-8 h-8 text-[#22C58B]" />
           </div>
-          <h2 className="text-4xl font-black text-slate-900 tracking-tight">Welcome Back</h2>
-          <p className="text-slate-400 mt-3 font-medium">Continue your trading journey</p>
+          <h2 className="text-3xl font-display font-black text-white tracking-tight">Welcome Back</h2>
+          <p className="text-slate-400 mt-2 font-medium">Continue your trading journey</p>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-8">
+        <form onSubmit={handleLogin} className="space-y-6">
           <div className="space-y-2">
-            <label className="block text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Email Address</label>
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider ml-1">Email Address</label>
             <div className="relative group">
-              <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 group-focus-within:text-indigo-500 transition-colors" />
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-[#22C58B] transition-colors" />
               <input 
                 type="email"
                 required
-                className="w-full bg-slate-100 border border-slate-200 rounded-2xl py-4 pl-14 pr-6 text-slate-900 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100/50 transition-all outline-none font-medium"
+                className="w-full bg-[#0B101D] border border-white/10 rounded-2xl py-4 pl-12 pr-5 text-white focus:border-[#22C58B] focus:ring-2 focus:ring-[#22C58B]/20 transition-all outline-none font-medium placeholder:text-slate-600"
                 placeholder="user@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -60,13 +60,13 @@ export default function Login() {
           </div>
 
           <div className="space-y-2">
-            <label className="block text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Password</label>
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider ml-1">Password</label>
             <div className="relative group">
-              <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 group-focus-within:text-indigo-500 transition-colors" />
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-[#22C58B] transition-colors" />
               <input 
                 type="password"
                 required
-                className="w-full bg-slate-100 border border-slate-200 rounded-2xl py-4 pl-14 pr-6 text-slate-900 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100/50 transition-all outline-none font-medium"
+                className="w-full bg-[#0B101D] border border-white/10 rounded-2xl py-4 pl-12 pr-5 text-white focus:border-[#22C58B] focus:ring-2 focus:ring-[#22C58B]/20 transition-all outline-none font-medium placeholder:text-slate-600"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -77,16 +77,16 @@ export default function Login() {
           <button 
             type="submit"
             disabled={loading}
-            className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-black py-5 rounded-2xl transition-all flex items-center justify-center gap-3 group shadow-2xl shadow-indigo-100 active:scale-95 text-sm uppercase tracking-widest"
+            className="w-full bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] hover:brightness-110 disabled:opacity-50 text-[#0B101D] font-extrabold py-4 rounded-2xl transition-all flex items-center justify-center gap-3 group shadow-[0_6px_20px_rgba(245,158,11,0.28)] active:scale-95 text-sm uppercase tracking-wider"
           >
             {loading ? "Authorizing..." : "Log In"}
             {!loading && <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />}
           </button>
         </form>
 
-        <p className="mt-10 text-center text-slate-400 font-medium">
+        <p className="mt-8 text-center text-slate-400 font-medium text-sm">
           New to the platform?{" "}
-          <Link to="/register" className="text-indigo-600 hover:text-indigo-500 font-black">Register</Link>
+          <Link to="/register" className="text-[#22C58B] hover:text-emerald-300 font-bold">Register</Link>
         </p>
       </motion.div>
     </div>

@@ -510,17 +510,17 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
       
       if (isWin) {
         toast.success(
-          <span className="text-gray-800">Congratulations! 🚀💰🎉 <span className="font-bold text-green-600">WIN</span></span>, 
+          <span className="text-slate-100">Congratulations! 🚀💰🎉 <span className="font-bold text-[#22C58B]">WIN</span></span>, 
           { 
-            icon: <Trophy className="w-5 h-5 text-yellow-500" />,
+            icon: <Trophy className="w-5 h-5 text-[#F5B400]" />,
             duration: 6000 
           }
         );
       } else {
         toast.error(
-          <span className="text-gray-800">Sorry 📉😟⚠️ <span className="font-bold text-red-600">Loss</span></span>, 
+          <span className="text-slate-100">Sorry 📉😟⚠️ <span className="font-bold text-[#FB7185]">Loss</span></span>, 
           { 
-            icon: <TrendingDown className="w-5 h-5 text-red-500" />,
+            icon: <TrendingDown className="w-5 h-5 text-[#FB7185]" />,
             duration: 6000 
           }
         );
@@ -863,9 +863,9 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
 
   const renderHome = () => (
     <div className="space-y-8 pb-32 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="px-6 py-4 flex gap-4">
-        <div className="flex-1 glass-card rounded-2xl flex items-center px-5 focus-within:ring-2 focus-within:ring-indigo-500/50 transition-all">
-          <Search className="w-5 h-5 text-slate-500 mr-3" />
+      <div className="px-2 sm:px-6 py-2 flex gap-4">
+        <div className="flex-1 bg-[#131B2E] border border-white/[0.08] rounded-2xl flex items-center px-5 focus-within:ring-2 focus-within:ring-[#22C58B]/40 focus-within:border-[#22C58B]/60 transition-all shadow-lg">
+          <Search className="w-5 h-5 text-slate-400 mr-3" />
           <input 
             type="text" 
             placeholder="Search all assets..." 
@@ -876,42 +876,41 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
         </div>
       </div>
 
-      {/* Premium Hero Slider-style Banner */}
-      <div className="mx-6 group relative">
-        <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-[2.5rem] blur opacity-20 group-hover:opacity-40 transition duration-1000" />
-        <div className="relative glass-card rounded-[2.5rem] p-10 overflow-hidden min-h-[400px] flex flex-col justify-center">
+      {/* Hero Banner */}
+      <div className="mx-2 sm:mx-6 group relative">
+        <div className="absolute -inset-1 bg-gradient-to-r from-[#22C58B]/20 via-indigo-500/10 to-[#F59E0B]/20 rounded-[2rem] blur opacity-35 group-hover:opacity-55 transition duration-1000" />
+        <div className="relative bg-[#131B2E] border border-white/[0.08] rounded-[2rem] p-8 sm:p-10 overflow-hidden min-h-[340px] flex flex-col justify-center shadow-2xl">
           <div className="absolute top-0 right-0 p-10 opacity-10 pointer-events-none">
-             <BarChart2 className="w-64 h-64 text-indigo-500" />
+             <BarChart2 className="w-60 h-60 text-[#22C58B]" />
           </div>
           
           <div className="relative z-10 max-w-lg">
-             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[10px] font-black uppercase tracking-widest mb-6">
-                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
+             <div className="inline-flex items-center gap-2 text-[#22C58B] text-xs font-bold uppercase tracking-widest mb-4">
                 Live Market Analysis
              </div>
-             <h2 className="text-5xl font-display font-black text-slate-900 mb-6 leading-tight tracking-tight">
+             <h2 className="text-4xl sm:text-5xl font-display font-black text-white mb-5 leading-tight tracking-tight">
                 Global Financial <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500 italic">Ecosystem</span>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#22C58B] to-[#FBBF24] italic">Ecosystem</span>
              </h2>
-             <p className="text-slate-400 font-medium mb-10 leading-relaxed">
+             <p className="text-slate-400 font-medium mb-8 leading-relaxed">
                 Connect to institutional liquidity pools with real-time analytics and lightning-fast execution on over 200+ instruments.
              </p>
              <button 
                 onClick={() => setActiveTab("trading")}
-                className="flex items-center gap-3 px-8 py-4 bg-white text-slate-900 font-black rounded-2xl hover:bg-slate-100 transition-all active:scale-95 shadow-2xl"
+                className="flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] text-[#0B101D] font-extrabold rounded-2xl hover:brightness-110 transition-all active:scale-95 shadow-[0_6px_22px_rgba(245,158,11,0.3)]"
              >
                 Launch Terminal <ChevronRight className="w-5 h-5" />
              </button>
           </div>
 
           <div className="absolute right-10 bottom-10 hidden lg:block">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               {[1, 2, 3, 4, 5].map((i) => (
                 <motion.div 
                   key={i}
-                  animate={{ height: [20, Math.random() * 60 + 40, 20] }}
+                  animate={{ height: [20, Math.random() * 55 + 35, 20] }}
                   transition={{ duration: 2, repeat: Infinity, delay: i * 0.2 }}
-                  className="w-1.5 bg-indigo-500/20 rounded-full"
+                  className="w-1.5 bg-[#22C58B]/30 rounded-full"
                 />
               ))}
             </div>
@@ -919,20 +918,20 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
         </div>
       </div>
 
-      <div className="mx-6 space-y-6">
+      <div className="mx-2 sm:mx-6 space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-           <h3 className="text-xl font-display font-bold flex items-center gap-3">
-              <TrendingDown className="w-6 h-6 text-indigo-500" />
+           <h3 className="text-xl font-display font-bold text-white flex items-center gap-3">
+              <TrendingDown className="w-6 h-6 text-[#22C58B]" />
               Market Overview
            </h3>
-           <div className="flex p-1 glass-card rounded-xl gap-1">
+           <div className="flex p-1 bg-[#131B2E] border border-white/[0.08] rounded-xl gap-1">
               {["crypto", "forex", "gold", "stock"].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveMarketTab(tab as any)}
                   className={cn(
-                    "px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all",
-                    activeMarketTab === tab ? "bg-indigo-600 text-white shadow-lg" : "text-slate-500 hover:text-slate-700"
+                    "px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all",
+                    activeMarketTab === tab ? "bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] text-[#0B101D] shadow-lg" : "text-slate-400 hover:text-white"
                   )}
                 >
                   {tab}
@@ -941,12 +940,12 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
            </div>
         </div>
 
-        <div className="glass-card rounded-[2rem] overflow-hidden">
+        <div className="bg-[#131B2E] border border-white/[0.08] rounded-[1.75rem] overflow-hidden shadow-2xl">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-slate-100">
-                <th className="text-left py-6 px-8 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Instrument</th>
-                <th className="text-right py-6 px-8 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Price / 24h Change</th>
+              <tr className="border-b border-white/[0.08] bg-[#161F34]">
+                <th className="text-left py-4 px-6 sm:px-8 text-xs font-semibold text-slate-400 uppercase tracking-wider">Instrument</th>
+                <th className="text-right py-4 px-6 sm:px-8 text-xs font-semibold text-slate-400 uppercase tracking-wider">Price / 24h Change</th>
               </tr>
             </thead>
             <tbody>
@@ -957,11 +956,11 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                     setSelectedAsset(asset);
                     setActiveTab("trading");
                   }}
-                  className="border-b border-slate-200 last:border-0 hover:bg-slate-100 cursor-pointer transition-colors group"
+                  className="border-b border-white/[0.06] last:border-0 hover:bg-[#1A233A] cursor-pointer transition-colors group"
                 >
-                  <td className="py-5 px-8">
+                  <td className="py-4 px-6 sm:px-8">
                     <div className="flex items-center gap-4">
-                      <div className={cn("w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-white shrink-0 overflow-hidden relative shadow-lg group-hover:scale-110 transition-transform", asset.color)}>
+                      <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center font-bold text-white shrink-0 overflow-hidden relative shadow-lg group-hover:scale-105 transition-transform", asset.color)}>
                         <span className="absolute inset-0 flex items-center justify-center text-sm">{asset.icon}</span>
                         {(asset as any).imageUrl && (
                           <img 
@@ -975,19 +974,19 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                         )}
                       </div>
                       <div>
-                        <div className="font-bold text-slate-900 text-base tracking-tight">{asset.name}</div>
-                        <div className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{asset.short}</div>
+                        <div className="font-bold text-white text-base tracking-tight">{asset.name}</div>
+                        <div className="text-xs text-slate-400 font-semibold uppercase tracking-wider">{asset.short}</div>
                       </div>
                     </div>
                   </td>
-                  <td className="py-5 px-8 text-right">
-                    <div className="flex flex-col items-end">
-                      <div className="text-base font-mono font-bold text-slate-900 tracking-tighter">
+                  <td className="py-4 px-6 sm:px-8 text-right">
+                    <div className="flex flex-col items-end tabular-nums">
+                      <div className="text-base font-mono font-bold text-white tracking-tight">
                         {marketData[asset.symbol]?.price || "0.00"}
                       </div>
                       <div className={cn(
-                        "text-[10px] font-bold flex items-center gap-1",
-                        marketData[asset.symbol]?.isUp ? "text-emerald-600" : "text-rose-600"
+                        "text-xs font-mono font-bold flex items-center gap-1 mt-0.5",
+                        marketData[asset.symbol]?.isUp ? "text-[#22C58B]" : "text-[#FB7185]"
                       )}>
                         {marketData[asset.symbol]?.isUp ? "+" : ""}{marketData[asset.symbol]?.change || "0.00"}%
                       </div>
@@ -997,10 +996,10 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
               ))}
             </tbody>
           </table>
-          <div className="p-4 border-t border-white/5 bg-white/[0.01]">
+          <div className="p-3 border-t border-white/[0.06] bg-[#101727]">
              <button 
                 onClick={() => setActiveMarketTab("crypto")}
-                className="w-full py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] hover:text-white transition-colors"
+                className="w-full py-3 text-xs font-bold text-slate-400 uppercase tracking-widest hover:text-[#F5B400] transition-colors"
              >
                 Explore Full Market Directory
              </button>
@@ -1012,44 +1011,44 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
 
   const renderTrading = () => (
     <div className="space-y-6 pb-64 animate-in fade-in duration-500">
-      <div className="flex flex-col lg:flex-row gap-8">
+      <div className="flex flex-col lg:flex-row gap-6">
         <div className="flex-1 space-y-6">
-          <div className="glass-card rounded-[2.5rem] p-8 relative overflow-hidden group">
-            <div className="absolute -top-12 -right-12 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl opacity-60" />
-            <div className="relative z-10 flex justify-between items-center mb-8">
+          <div className="bg-[#131B2E] border border-white/[0.08] rounded-[1.75rem] p-6 sm:p-8 relative overflow-hidden shadow-2xl">
+            <div className="absolute -top-12 -right-12 w-40 h-40 bg-[#22C58B]/10 rounded-full blur-3xl opacity-60 pointer-events-none" />
+            <div className="relative z-10 flex justify-between items-center mb-6">
               <div className="space-y-1">
-                <div className="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em]">Trading Balance</div>
-                <div className="text-4xl font-display font-black text-white tracking-tighter">{formatCurrency(profile?.balance || 0)}</div>
+                <div className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Trading Balance</div>
+                <div className="text-3xl sm:text-4xl font-display font-black text-white tracking-tight tabular-nums">{formatCurrency(profile?.balance || 0)}</div>
               </div>
               <div className="text-right space-y-1">
-                <div className="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em]">Account Status</div>
-                <div className="text-sm font-black text-emerald-400 bg-emerald-500/10 px-4 py-1.5 rounded-full border border-emerald-500/20">Active</div>
+                <div className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Account Status</div>
+                <div className="text-xs font-bold text-[#22C58B] bg-[#0D2524] px-3.5 py-1.5 rounded-xl border border-[#22C58B]/30 inline-block">Active</div>
               </div>
             </div>
             <div className="flex gap-4">
               <button 
                 onClick={() => setActiveTab("personal")}
-                className="flex-1 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-2xl shadow-xl shadow-indigo-500/20 active:scale-95 transition-all uppercase tracking-[0.2em] text-[10px]"
+                className="flex-1 py-3.5 bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] hover:brightness-110 text-[#0B101D] font-extrabold rounded-xl shadow-[0_6px_18px_rgba(245,158,11,0.28)] active:scale-95 transition-all uppercase tracking-wider text-xs"
               >
                 Top Up Funds
               </button>
               <button 
                 onClick={() => setActiveTradeSubTab(activeTradeSubTab === "positions" ? "history" : "positions")}
-                className="px-6 py-4 glass-card-light rounded-2xl text-white font-black transition-all active:scale-95 text-[10px] uppercase tracking-widest"
+                className="px-6 py-3.5 bg-[#1A233A] hover:bg-[#222E4A] border border-white/10 rounded-xl text-white font-bold transition-all active:scale-95 text-xs uppercase tracking-wider"
               >
                 {activeTradeSubTab === "positions" ? "View History" : "Back to Terminal"}
               </button>
             </div>
           </div>
 
-          <div className="glass-card rounded-[2.5rem] overflow-hidden">
+          <div className="bg-[#131B2E] border border-white/[0.08] rounded-[1.75rem] overflow-hidden shadow-2xl">
             <div className="min-h-[500px]">
               {activeTradeSubTab === "positions" ? (
-                <div className="p-8">
-                  <div className="flex justify-between items-center mb-8">
+                <div className="p-6 sm:p-8">
+                  <div className="flex justify-between items-center mb-6">
                     <div className="flex items-center gap-4">
-                      <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center text-white font-bold shadow-xl overflow-hidden relative", selectedAsset.color)}>
-                        <span className="absolute inset-0 flex items-center justify-center text-xl">{(selectedAsset as any).icon}</span>
+                      <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold shadow-lg overflow-hidden relative", selectedAsset.color)}>
+                        <span className="absolute inset-0 flex items-center justify-center text-lg">{(selectedAsset as any).icon}</span>
                         {(selectedAsset as any).imageUrl && (
                           <img 
                             src={(selectedAsset as any).imageUrl} 
@@ -1062,75 +1061,75 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                         )}
                       </div>
                       <div>
-                        <div className="font-display font-black text-slate-900 text-xl tracking-tight uppercase">{selectedAsset.short}/USDT</div>
-                        <div className="text-[10px] text-emerald-600 font-black animate-pulse uppercase tracking-[0.2em] flex items-center gap-1.5">
-                          <div className="w-1.5 h-1.5 bg-emerald-600 rounded-full" />
+                        <div className="font-display font-black text-white text-xl tracking-tight uppercase">{selectedAsset.short}/USDT</div>
+                        <div className="text-xs text-[#22C58B] font-bold uppercase tracking-wider flex items-center gap-1.5">
+                          <div className="w-1.5 h-1.5 bg-[#22C58B] rounded-full animate-pulse" />
                           Live Stream
                         </div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="text-3xl font-mono font-black text-slate-900 tracking-tighter">
+                    <div className="text-right tabular-nums">
+                      <div className="text-2xl sm:text-3xl font-mono font-black text-white tracking-tight">
                         {marketData[selectedAsset.symbol]?.price || "0.00"}
                       </div>
                       <div className={cn(
-                        "text-xs font-black uppercase mt-1",
-                        marketData[selectedAsset.symbol]?.isUp ? "text-emerald-600" : "text-rose-600"
+                        "text-xs font-mono font-bold uppercase mt-1",
+                        marketData[selectedAsset.symbol]?.isUp ? "text-[#22C58B]" : "text-[#FB7185]"
                       )}>
                         {marketData[selectedAsset.symbol]?.isUp ? "▲ +" : "▼ "}{marketData[selectedAsset.symbol]?.change || "0.00"}%
                       </div>
                     </div>
                   </div>
-                  <div className="h-[400px] mb-8 rounded-[2rem] border border-slate-200 overflow-hidden shadow-inner bg-slate-100 group">
+                  <div className="h-[400px] mb-6 rounded-2xl border border-white/[0.08] overflow-hidden bg-[#0B101D]">
                     <TradingViewWidget symbol={selectedAsset.symbol} />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <button 
                       onClick={() => setShowOptionModal(true)}
-                      className="py-5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 font-black rounded-2xl shadow-xl active:scale-95 transition-all uppercase tracking-[0.3em] text-[10px]"
+                      className="py-4 bg-[#0D2524] hover:bg-[#123331] border border-[#22C58B]/40 text-[#22C58B] font-extrabold rounded-2xl shadow-lg active:scale-95 transition-all uppercase tracking-wider text-xs"
                     >
                       Instant Buy
                     </button>
                     <button 
                       onClick={() => setShowOptionModal(true)}
-                      className="py-5 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 font-black rounded-2xl shadow-xl active:scale-95 transition-all uppercase tracking-[0.3em] text-[10px]"
+                      className="py-4 bg-[#26131C] hover:bg-[#331926] border border-[#F43F5E]/40 text-[#FB7185] font-extrabold rounded-2xl shadow-lg active:scale-95 transition-all uppercase tracking-wider text-xs"
                     >
                       Instant Sell
                     </button>
                   </div>
                 </div>
               ) : (
-                <div className="p-4 space-y-3">
+                <div className="p-6 space-y-3">
                   {transactions.filter(t => t.type === "trade").length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-32 text-slate-400">
-                      <FileText className="w-16 h-16 mb-6 opacity-20" />
-                      <span className="text-[10px] font-black uppercase tracking-[0.3em] italic">No Protocol Execution Data</span>
+                    <div className="flex flex-col items-center justify-center py-28 text-slate-400">
+                      <FileText className="w-14 h-14 mb-4 opacity-30" />
+                      <span className="text-xs font-bold uppercase tracking-widest">No Trade History Yet</span>
                     </div>
                   ) : (
                     transactions.filter(t => t.type === "trade").map((tx) => (
-                      <div key={tx.id} className="bg-slate-100 p-6 rounded-[2rem] border border-slate-200 flex items-center justify-between group hover:bg-slate-200 transition-colors">
+                      <div key={tx.id} className="bg-[#1A233A]/80 p-5 rounded-2xl border border-white/[0.07] flex items-center justify-between group hover:bg-[#1E2942] transition-colors">
                         <div className="flex items-center gap-4">
                           <div className={cn(
-                            "w-12 h-12 rounded-2xl flex items-center justify-center font-bold shadow-lg",
-                            tx.details?.includes("WIN") ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"
+                            "w-11 h-11 rounded-xl flex items-center justify-center font-bold border",
+                            tx.details?.includes("WIN") ? "bg-[#0D2524] border-[#22C58B]/25 text-[#22C58B]" : "bg-[#26131C] border-[#F43F5E]/25 text-[#FB7185]"
                           )}>
-                            {tx.details?.includes("WIN") ? <ArrowUpCircle /> : <ArrowDownCircle />}
+                            {tx.details?.includes("WIN") ? <ArrowUpCircle className="w-5 h-5" /> : <ArrowDownCircle className="w-5 h-5" />}
                           </div>
                           <div>
-                            <div className="font-display font-black text-slate-900 text-base">{tx.symbol?.split(":").pop() || "Trade"}</div>
-                            <div className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">
+                            <div className="font-display font-bold text-white text-base">{tx.symbol?.split(":").pop() || "Trade"}</div>
+                            <div className="text-xs text-slate-400 font-mono mt-0.5">
                               {tx.createdAt?.toDate?.()?.toLocaleString() || "Pending..." }
                             </div>
                           </div>
                         </div>
-                        <div className="text-right">
+                        <div className="text-right tabular-nums">
                           <div className={cn(
-                            "font-mono font-black text-base",
-                            tx.details?.includes("WIN") ? "text-emerald-700" : "text-rose-700"
+                            "font-mono font-bold text-base",
+                            tx.details?.includes("WIN") ? "text-[#22C58B]" : "text-[#FB7185]"
                           )}>
                             {tx.details?.includes("WIN") ? "+" : "-"}{formatCurrency(tx.amount)}
                           </div>
-                          <div className="text-[8px] font-black uppercase tracking-[0.2em] text-slate-400 mt-1">
+                          <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mt-0.5">
                             {tx.status}
                           </div>
                         </div>
@@ -1144,16 +1143,16 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
         </div>
 
         <div className="lg:w-96 space-y-6">
-          <div className="glass-card rounded-[2.5rem] p-6 h-full">
-            <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-6">Live Assets</h3>
-            <div className="space-y-4 max-h-[600px] overflow-y-auto no-scrollbar">
+          <div className="bg-[#131B2E] border border-white/[0.08] rounded-[1.75rem] p-6 h-full shadow-2xl">
+            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-5">Live Assets</h3>
+            <div className="space-y-3 max-h-[600px] overflow-y-auto no-scrollbar">
                {getMarketAssets().map(asset => (
                  <div 
                   key={asset.symbol}
                   onClick={() => setSelectedAsset(asset)}
                   className={cn(
-                    "p-4 rounded-2xl border border-slate-100 cursor-pointer transition-all flex items-center justify-between group",
-                    selectedAsset.symbol === asset.symbol ? "bg-indigo-50 border-indigo-200" : "bg-white hover:bg-slate-100"
+                    "p-3.5 rounded-2xl border cursor-pointer transition-all flex items-center justify-between group",
+                    selectedAsset.symbol === asset.symbol ? "bg-[#1A233A] border-[#F5B400]/50 shadow-md" : "bg-[#0F1629] border-white/[0.05] hover:bg-[#1A233A]"
                   )}
                  >
                     <div className="flex items-center gap-3">
@@ -1161,13 +1160,13 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                           <span className="absolute inset-0 flex items-center justify-center font-bold text-white text-xs">{asset.icon}</span>
                        </div>
                        <div>
-                          <div className="text-sm font-black text-slate-900">{asset.short}</div>
-                          <div className="text-[10px] text-slate-400">{asset.name}</div>
+                          <div className="text-sm font-bold text-white">{asset.short}</div>
+                          <div className="text-xs text-slate-400">{asset.name}</div>
                        </div>
                     </div>
-                    <div className="text-right">
-                       <div className="text-sm font-mono font-bold text-slate-900">{marketData[asset.symbol]?.price || "0.00"}</div>
-                       <div className={cn("text-[10px] font-bold", marketData[asset.symbol]?.isUp ? "text-emerald-600" : "text-rose-600")}>
+                    <div className="text-right tabular-nums">
+                       <div className="text-sm font-mono font-bold text-white">{marketData[asset.symbol]?.price || "0.00"}</div>
+                       <div className={cn("text-xs font-mono font-semibold", marketData[asset.symbol]?.isUp ? "text-[#22C58B]" : "text-[#FB7185]")}>
                           {marketData[asset.symbol]?.change || "0.00"}%
                        </div>
                     </div>
@@ -1182,26 +1181,29 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
 
   const renderNews = () => (
     <div className="space-y-8 pb-64 animate-in fade-in duration-500">
-       <div className="mx-4">
-          <div className="bg-indigo-50 border border-indigo-100 p-5 rounded-2xl text-indigo-700 font-display font-black uppercase tracking-[0.3em] text-[10px] text-center mb-10">Financial Intelligence Hub</div>
+       <div className="mx-2 sm:mx-4">
+          <div className="bg-[#131B2E] border border-[#22C58B]/20 p-4 rounded-2xl text-[#22C58B] font-display font-bold uppercase tracking-[0.25em] text-xs text-center mb-8">
+            Financial Intelligence Hub
+          </div>
           
-          <div className="space-y-10">
+          <div className="space-y-8">
             {news.length > 0 && (
-              <div className="relative aspect-[21/9] rounded-[3rem] overflow-hidden group shadow-2xl">
+              <div className="relative aspect-[21/9] rounded-[2rem] overflow-hidden group shadow-2xl border border-white/[0.08] bg-[#131B2E]">
                 <img 
                   src={news[0].imageUrl || "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&q=70&w=800"} 
                   referrerPolicy="no-referrer"
                   className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[3s]" 
                   alt="Main News"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-80" />
-                <div className="absolute bottom-0 left-0 right-0 p-10">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="px-4 py-1 bg-indigo-600 text-[10px] font-black uppercase tracking-widest text-white rounded-full">Top Analysis</div>
-                    <div className="text-slate-300 text-[10px] font-bold uppercase tracking-widest">{news[0].createdAt?.toDate?.()?.toLocaleDateString()}</div>
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0B101D] via-[#0B101D]/50 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-8 sm:p-10">
+                  <div className="flex items-center gap-3 mb-3 text-xs font-semibold">
+                    <span className="text-[#F5B400] uppercase tracking-wider">Top Analysis</span>
+                    <span className="text-slate-500">·</span>
+                    <span className="text-slate-300 font-mono">{news[0].createdAt?.toDate?.()?.toLocaleDateString()}</span>
                   </div>
-                  <h2 className="text-4xl font-display font-black text-white leading-tight mb-4 line-clamp-2">{news[0].title}</h2>
-                  <p className="text-slate-100 font-medium line-clamp-2 max-w-2xl">{news[0].summary}</p>
+                  <h2 className="text-2xl sm:text-4xl font-display font-black text-white leading-tight mb-3 line-clamp-2">{news[0].title}</h2>
+                  <p className="text-slate-300 font-medium line-clamp-2 max-w-2xl">{news[0].summary}</p>
                 </div>
               </div>
             )}
@@ -1209,27 +1211,27 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {news.length === 0 ? (
                 [1, 2, 3].map((i) => (
-                  <div key={i} className="glass-card p-6 rounded-[2.5rem] flex gap-4 animate-pulse">
-                    <div className="w-20 h-20 bg-slate-200 rounded-2xl shrink-0" />
+                  <div key={i} className="bg-[#131B2E] border border-white/[0.08] p-6 rounded-3xl flex gap-4 animate-pulse">
+                    <div className="w-20 h-20 bg-[#1A233A] rounded-2xl shrink-0" />
                     <div className="flex-1 space-y-3">
-                      <div className="h-4 bg-slate-200 rounded w-3/4" />
-                      <div className="h-3 bg-slate-200 rounded w-full" />
+                      <div className="h-4 bg-[#1A233A] rounded w-3/4" />
+                      <div className="h-3 bg-[#1A233A] rounded w-full" />
                     </div>
                   </div>
                 ))
               ) : (
                 news.slice(1).map((item) => (
-                  <div key={item.id} className="glass-card p-6 rounded-[2.5rem] flex gap-4 group hover:bg-white transition-all border-slate-100 overflow-hidden">
+                  <div key={item.id} className="bg-[#131B2E] border border-white/[0.08] p-6 rounded-3xl flex gap-4 group hover:bg-[#1A233A] transition-all overflow-hidden">
                     {item.imageUrl && (
-                      <div className="w-20 h-20 bg-slate-100 rounded-2xl shrink-0 overflow-hidden relative">
-                        <img src={item.imageUrl} referrerPolicy="no-referrer" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                      <div className="w-20 h-20 bg-[#0B101D] rounded-2xl shrink-0 overflow-hidden relative">
+                        <img src={item.imageUrl} referrerPolicy="no-referrer" alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                       </div>
                     )}
                     <div className="flex-1 flex flex-col justify-center min-w-0">
-                      <h3 className="font-display font-black text-slate-900 line-clamp-2 leading-tight uppercase tracking-tight text-[11px] group-hover:text-indigo-600 transition-colors">{item.title}</h3>
-                      <div className="flex justify-between items-center mt-3 pt-3 border-t border-slate-100 text-slate-400 font-black uppercase tracking-widest text-[8px]">
+                      <h3 className="font-display font-bold text-white line-clamp-2 leading-snug text-sm group-hover:text-[#22C58B] transition-colors">{item.title}</h3>
+                      <div className="flex justify-between items-center mt-3 pt-3 border-t border-white/[0.06] text-slate-400 font-mono text-xs">
                         <span>{item.createdAt?.toDate?.()?.toLocaleDateString()}</span>
-                        <ChevronRight className="w-3 h-3 group-hover:text-indigo-600 group-hover:translate-x-1 transition-all" />
+                        <ChevronRight className="w-4 h-4 group-hover:text-[#22C58B] group-hover:translate-x-1 transition-all" />
                       </div>
                     </div>
                   </div>
@@ -1243,70 +1245,69 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
 
   const renderPersonal = () => (
     <div className="space-y-8 pb-64 animate-in fade-in duration-500">
-      <div className="relative glass-card rounded-[3rem] overflow-hidden p-12 mx-4">
-        <div className="absolute top-0 right-0 p-20 opacity-10 blur-3xl rounded-full bg-indigo-500 -mr-20 -mt-20" />
+      <div className="relative bg-[#131B2E] border border-white/[0.08] rounded-[2rem] overflow-hidden p-8 sm:p-10 mx-2 sm:mx-4 shadow-2xl">
+        <div className="absolute top-0 right-0 p-20 opacity-10 blur-3xl rounded-full bg-[#22C58B] -mr-20 -mt-20 pointer-events-none" />
         
-        <div className="flex flex-col md:flex-row items-center gap-10 relative z-10">
-          <div className="w-32 h-32 rounded-[2.5rem] bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-[2px] shadow-2xl">
-            <div className="w-full h-full rounded-[2.5rem] bg-white flex items-center justify-center font-display font-black text-4xl text-slate-900">
+        <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
+          <div className="w-24 h-24 rounded-full border-2 border-[#22C58B] p-1 bg-[#1A233A] shadow-[0_0_24px_rgba(34,197,139,0.2)]">
+            <div className="w-full h-full rounded-full bg-[#0F1629] flex items-center justify-center font-display font-black text-3xl text-white">
               {profile?.fullName?.slice(0, 1).toUpperCase() || user.email?.slice(0, 1).toUpperCase()}
             </div>
           </div>
           
           <div className="flex-1 text-center md:text-left">
-            <h2 className="text-4xl font-display font-black text-slate-900 mb-2 tracking-tight">{profile?.fullName || "Quantum Trader"}</h2>
-            <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
-               <div className="px-4 py-1.5 rounded-full bg-slate-100 border border-slate-200 text-[10px] font-black uppercase tracking-widest text-slate-400">
-                  Node ID: {user?.uid.slice(0, 12)}
-               </div>
-               <div className={cn(
-                  "px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border",
-                  profile?.verificationStatus === "verified" ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
-                  profile?.verificationStatus === "pending" ? "bg-amber-50 text-amber-600 border-amber-100" :
-                  "bg-slate-100 text-slate-400 border-slate-200"
+            <h2 className="text-3xl sm:text-4xl font-display font-black text-white mb-2 tracking-tight">{profile?.fullName || "Gammix Trader"}</h2>
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 text-xs font-semibold">
+               <span className="text-slate-400 font-mono">Node ID: {user?.uid.slice(0, 12)}</span>
+               <span className="text-slate-600">·</span>
+               <span className={cn(
+                  "uppercase tracking-wider",
+                  profile?.verificationStatus === "verified" ? "text-[#22C58B]" :
+                  profile?.verificationStatus === "pending" ? "text-[#F5B400]" :
+                  "text-slate-400"
                )}>
                   {profile?.verificationStatus || "Unverified"}
-               </div>
+               </span>
             </div>
           </div>
 
           <div className="text-center md:text-right">
-             <div className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2 font-mono">Portfolio Value</div>
-             <div className="text-5xl font-display font-black text-slate-900 tracking-tighter">{formatCurrency(profile?.balance || 0)}</div>
+             <div className="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-1 font-mono">Portfolio Value</div>
+             <div className="text-4xl sm:text-5xl font-display font-black text-[#22C58B] tracking-tight tabular-nums">{formatCurrency(profile?.balance || 0)}</div>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 mt-12 pt-12 border-t border-slate-100 relative z-10">
+        <div className="grid grid-cols-2 gap-4 mt-10 pt-8 border-t border-white/[0.08] relative z-10">
           <button 
             onClick={() => setShowWithdrawModal(true)}
-            className="flex items-center justify-center gap-3 py-5 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-900 font-black uppercase tracking-[0.2em] text-[10px] rounded-2xl transition-all active:scale-95"
+            className="flex items-center justify-center gap-3 py-4 bg-[#1A233A] hover:bg-[#222E4A] border border-white/10 text-white font-bold uppercase tracking-wider text-xs rounded-2xl transition-all active:scale-95"
           >
-            <ArrowUpCircle className="w-5 h-5" /> Withdraw Capital
+            <ArrowUpCircle className="w-5 h-5 text-[#FB7185]" /> Withdraw Capital
           </button>
           <button 
             onClick={() => setShowDepositModal(true)}
-            className="flex items-center justify-center gap-3 py-5 bg-indigo-600 hover:bg-indigo-700 text-white font-black uppercase tracking-[0.2em] text-[10px] rounded-2xl shadow-xl shadow-indigo-500/30 active:scale-95 transition-all"
+            className="flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] hover:brightness-110 text-[#0B101D] font-extrabold uppercase tracking-wider text-xs rounded-2xl shadow-[0_6px_20px_rgba(245,158,11,0.28)] active:scale-95 transition-all"
           >
             <ArrowDownCircle className="w-5 h-5" /> Deposit Funds
           </button>
         </div>
       </div>
 
-      <div className="mx-4 space-y-6">
+      <div className="mx-2 sm:mx-4 space-y-6">
         {profile?.verificationStatus === "pending" && (
-          <div className="p-6 glass-card border-amber-500/20 bg-amber-500/5">
-            <div className="flex items-center gap-3 text-amber-400">
+          <div className="p-6 rounded-2xl border border-[#F5B400]/30 bg-[#272010]/60">
+            <div className="flex items-center gap-3 text-[#F5B400]">
               <Clock className="w-5 h-5" />
-              <p className="text-xs font-black uppercase tracking-widest">Protocol Verification Pending</p>
+              <p className="text-xs font-bold uppercase tracking-wider">Verification Pending</p>
             </div>
-            <p className="text-[10px] text-slate-400 mt-2 font-medium">Your credentials have been submitted for review. This typically takes 24-48 business hours.</p>
+            <p className="text-xs text-slate-300 mt-2 font-medium">Your credentials have been submitted for review. This typically takes 24-48 business hours.</p>
           </div>
         )}
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="glass-card rounded-[2.5rem] p-8">
-             <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-6">Security & Identity</h3>
-             <div className="space-y-4">
+          <div className="bg-[#131B2E] border border-white/[0.08] rounded-[1.75rem] p-6 sm:p-8 shadow-xl">
+             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-5">Security & Identity</h3>
+             <div className="space-y-3">
                 {(!profile?.verificationStatus || profile?.verificationStatus === "rejected" || profile?.verificationStatus === "unsubmitted") && (
                   <button 
                     onClick={() => {
@@ -1316,15 +1317,15 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                       setVerificationDoc(profile?.verificationDoc || null);
                       setShowVerificationForm(true);
                     }}
-                    className="w-full p-6 bg-slate-100 rounded-2xl flex items-center justify-between group hover:bg-slate-200 transition-all text-left border border-slate-200"
+                    className="w-full p-5 bg-[#1A233A] rounded-2xl flex items-center justify-between group hover:bg-[#222E4A] transition-all text-left border border-white/[0.06]"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600">
-                         <ShieldCheck className="w-6 h-6" />
+                      <div className="w-11 h-11 rounded-xl bg-[#272010] border border-[#F5B400]/25 flex items-center justify-center text-[#F5B400]">
+                         <ShieldCheck className="w-5 h-5" />
                       </div>
                       <div>
-                         <div className="font-bold text-slate-900 text-sm">Verify Identity</div>
-                         <div className="text-[10px] text-slate-400 font-medium">Unlock full platform capabilities</div>
+                         <div className="font-bold text-white text-sm">Verify Identity</div>
+                         <div className="text-xs text-slate-400 font-medium">Unlock full platform capabilities</div>
                       </div>
                     </div>
                     <ChevronRight className="w-5 h-5 text-slate-400 group-hover:translate-x-1 transition-transform" />
@@ -1333,15 +1334,15 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                 
                 <button 
                   onClick={() => setShowChangePasswordModal(true)}
-                  className="w-full p-6 bg-slate-100 rounded-2xl flex items-center justify-between group hover:bg-slate-200 transition-all text-left border border-slate-200"
+                  className="w-full p-5 bg-[#1A233A] rounded-2xl flex items-center justify-between group hover:bg-[#222E4A] transition-all text-left border border-white/[0.06]"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
-                       <Lock className="w-6 h-6" />
+                    <div className="w-11 h-11 rounded-xl bg-[#0D2524] border border-[#22C58B]/25 flex items-center justify-center text-[#22C58B]">
+                       <Lock className="w-5 h-5" />
                     </div>
                     <div>
-                       <div className="font-bold text-slate-900 text-sm">Change Password</div>
-                       <div className="text-[10px] text-slate-400 font-medium">Update account security credentials</div>
+                       <div className="font-bold text-white text-sm">Change Password</div>
+                       <div className="text-xs text-slate-400 font-medium">Update account security credentials</div>
                     </div>
                   </div>
                   <ChevronRight className="w-5 h-5 text-slate-400 group-hover:translate-x-1 transition-transform" />
@@ -1349,20 +1350,20 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
              </div>
           </div>
 
-          <div className="glass-card rounded-[2.5rem] p-8">
-             <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-6">Account Terminal</h3>
-             <div className="space-y-4">
+          <div className="bg-[#131B2E] border border-white/[0.08] rounded-[1.75rem] p-6 sm:p-8 shadow-xl">
+             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-5">Account Terminal</h3>
+             <div className="space-y-3">
                 <button 
                   onClick={() => { setActiveTab("trading"); setActiveTradeSubTab("history"); }}
-                  className="w-full p-6 bg-slate-100 rounded-2xl flex items-center justify-between group hover:bg-slate-200 transition-all text-left border border-slate-200"
+                  className="w-full p-5 bg-[#1A233A] rounded-2xl flex items-center justify-between group hover:bg-[#222E4A] transition-all text-left border border-white/[0.06]"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
-                       <Clock className="w-6 h-6" />
+                    <div className="w-11 h-11 rounded-xl bg-[#1E2942] border border-white/10 flex items-center justify-center text-[#F5B400]">
+                       <Clock className="w-5 h-5" />
                     </div>
                     <div>
-                       <div className="font-bold text-slate-900 text-sm">Execution Logs</div>
-                       <div className="text-[10px] text-slate-400 font-medium">Review your historical data</div>
+                       <div className="font-bold text-white text-sm">Execution Logs</div>
+                       <div className="text-xs text-slate-400 font-medium">Review your historical data</div>
                     </div>
                   </div>
                   <ChevronRight className="w-5 h-5 text-slate-400 group-hover:translate-x-1 transition-transform" />
@@ -1370,15 +1371,15 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
 
                 <button 
                   onClick={() => setShowChat(true)}
-                  className="w-full p-6 bg-slate-100 rounded-2xl flex items-center justify-between group hover:bg-slate-200 transition-all text-left border border-slate-200"
+                  className="w-full p-5 bg-[#1A233A] rounded-2xl flex items-center justify-between group hover:bg-[#222E4A] transition-all text-left border border-white/[0.06]"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
-                       <MessageSquare className="w-6 h-6" />
+                    <div className="w-11 h-11 rounded-xl bg-[#0D2524] border border-[#22C58B]/25 flex items-center justify-center text-[#22C58B]">
+                       <MessageSquare className="w-5 h-5" />
                     </div>
                     <div>
-                       <div className="font-bold text-slate-900 text-sm">Direct Protocol Support</div>
-                       <div className="text-[10px] text-slate-400 font-medium">Instant 24/7 priority pipeline</div>
+                       <div className="font-bold text-white text-sm">Direct Protocol Support</div>
+                       <div className="text-xs text-slate-400 font-medium">Instant 24/7 priority pipeline</div>
                     </div>
                   </div>
                   <ChevronRight className="w-5 h-5 text-slate-400 group-hover:translate-x-1 transition-transform" />
@@ -1386,10 +1387,10 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
 
                 <button 
                   onClick={() => auth.signOut()}
-                  className="w-full p-6 bg-rose-50 rounded-2xl flex items-center justify-center gap-2 group hover:bg-rose-100 transition-all border border-rose-100 mt-4"
+                  className="w-full p-4 bg-[#26131C] rounded-2xl flex items-center justify-center gap-2 group hover:bg-[#331926] transition-all border border-[#F43F5E]/25 mt-2"
                 >
-                  <LogOut className="w-5 h-5 text-rose-600" />
-                  <span className="text-[10px] font-black text-rose-600 uppercase tracking-widest">Terminate Control Session</span>
+                  <LogOut className="w-5 h-5 text-[#FB7185]" />
+                  <span className="text-xs font-bold text-[#FB7185] uppercase tracking-wider">Sign Out</span>
                 </button>
              </div>
           </div>
@@ -1399,9 +1400,9 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
   );
 
   return (
-    <div className="min-h-screen bg-slate-100 font-sans selection:bg-indigo-500/30 overflow-x-hidden relative">
-      <div className="flex-1 flex flex-col pb-64">
-        <main className="max-w-[1400px] mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <div className="min-h-screen bg-[#0B101D] text-slate-100 font-sans selection:bg-[#22C58B]/30 overflow-x-hidden relative">
+      <div className="flex-1 flex flex-col pb-40">
+        <main className="max-w-[1400px] mx-auto w-full px-3 sm:px-6 lg:px-8 py-6 sm:py-10">
           {activeTab === "home" && renderHome()}
           {activeTab === "trading" && renderTrading()}
           {activeTab === "news" && renderNews()}
@@ -1409,33 +1410,37 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
         </main>
       </div>
 
-      {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-2xl border-t border-slate-200 z-[40] pb-safe">
-        <div className="max-w-md mx-auto flex items-center justify-between px-6 py-4">
+      {/* Bottom Navigation (Reference-matched Midnight Dock with Coral-Purple Active Glow) */}
+      <div className="fixed bottom-0 left-0 right-0 bg-[#0F1629]/95 backdrop-blur-2xl border-t border-white/[0.08] z-[40] pb-safe">
+        <div className="max-w-md mx-auto flex items-center justify-between px-4 py-2.5">
           {[
             { id: "home", icon: Home, label: "Home" },
             { id: "trading", icon: BarChart2, label: "Market" },
             { id: "news", icon: Bell, label: "News" },
             { id: "personal", icon: UserIcon, label: "You" },
-          ].map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id as any)}
-              className={cn(
-                "relative flex flex-col items-center gap-1.5 py-1 px-3 transition-all duration-300 active:scale-75",
-                activeTab === item.id ? "text-indigo-600" : "text-slate-400 hover:text-slate-600"
-              )}
-            >
-              <item.icon className={cn("w-6 h-6 transition-transform duration-300", activeTab === item.id ? "scale-110" : "")} />
-              <span className="text-[9px] font-black uppercase tracking-widest">{item.label}</span>
-              {activeTab === item.id && (
-                <motion.div 
-                  layoutId="activeTabUnderline"
-                  className="absolute -bottom-2 left-0 right-0 h-1 bg-indigo-600 rounded-full shadow-[0_0_10px_rgba(79,70,229,0.2)]"
-                />
-              )}
-            </button>
-          ))}
+          ].map((item) => {
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id as any)}
+                className={cn(
+                  "relative flex flex-col items-center gap-1 py-1 px-3 transition-all duration-200 active:scale-90 min-w-[60px]",
+                  isActive ? "text-[#FB7185]" : "text-slate-400 hover:text-slate-200"
+                )}
+              >
+                <div className={cn(
+                  "w-11 h-10 rounded-2xl flex items-center justify-center transition-all duration-200",
+                  isActive ? "nav-active-gradient text-white" : "bg-[#182238]/75 text-slate-400"
+                )}>
+                  <item.icon className="w-5 h-5" />
+                </div>
+                <span className={cn("text-[11px] font-semibold tracking-tight", isActive ? "text-[#FB7185]" : "text-slate-400")}>
+                  {item.label}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -1447,63 +1452,63 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
               animate={{ opacity: 1 }} 
               exit={{ opacity: 0 }}
               onClick={() => setShowChangePasswordModal(false)}
-              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/75 backdrop-blur-sm"
             />
             <motion.div 
-              initial={{ scale: 0.9, opacity: 0, y: 20 }} 
+              initial={{ scale: 0.92, opacity: 0, y: 20 }} 
               animate={{ scale: 1, opacity: 1, y: 0 }} 
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative w-full max-w-sm bg-white rounded-[2rem] overflow-hidden shadow-2xl p-8"
+              exit={{ scale: 0.92, opacity: 0, y: 20 }}
+              className="relative w-full max-w-sm bg-[#131B2E] border border-white/[0.1] rounded-3xl overflow-hidden shadow-2xl p-8"
             >
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-black text-gray-900 tracking-tight">Change Password</h3>
-                <button onClick={() => setShowChangePasswordModal(false)} className="p-1 hover:bg-gray-100 rounded-full transition-colors">
-                  <X className="w-5 h-5 text-gray-400" />
+                <h3 className="text-xl font-display font-bold text-white tracking-tight">Change Password</h3>
+                <button onClick={() => setShowChangePasswordModal(false)} className="p-1.5 hover:bg-[#1A233A] rounded-full transition-colors">
+                  <X className="w-5 h-5 text-slate-400" />
                 </button>
               </div>
 
               <form onSubmit={handleChangePassword} className="space-y-5">
                 <div>
-                  <label className="text-xs font-black text-slate-500 uppercase tracking-[0.15em] block mb-2 ml-1">Current Password</label>
+                  <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2 ml-1">Current Password</label>
                   <input 
                     type="password"
                     required
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full bg-white border border-slate-200 rounded-xl px-5 py-4 text-sm focus:bg-white focus:ring-4 focus:ring-slate-50 focus:border-slate-900 outline-none transition-all placeholder:text-slate-300 font-medium"
+                    className="w-full bg-[#0B101D] border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white focus:ring-2 focus:ring-[#22C58B]/30 focus:border-[#22C58B] outline-none transition-all placeholder:text-slate-600 font-medium"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-black text-slate-500 uppercase tracking-[0.15em] block mb-2 ml-1">New Password</label>
+                  <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2 ml-1">New Password</label>
                   <input 
                     type="password"
                     required
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     placeholder="At least 8 characters"
-                    className="w-full bg-slate-50/50 border border-slate-100 rounded-xl px-5 py-4 text-sm focus:bg-white focus:ring-4 focus:ring-slate-50 focus:border-slate-900 outline-none transition-all placeholder:text-slate-300 font-medium"
+                    className="w-full bg-[#0B101D] border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white focus:ring-2 focus:ring-[#22C58B]/30 focus:border-[#22C58B] outline-none transition-all placeholder:text-slate-600 font-medium"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-black text-slate-500 uppercase tracking-[0.15em] block mb-2 ml-1">Confirm New Password</label>
+                  <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2 ml-1">Confirm New Password</label>
                   <input 
                     type="password"
                     required
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Repeat new password"
-                    className="w-full bg-slate-50/50 border border-slate-100 rounded-xl px-5 py-4 text-sm focus:bg-white focus:ring-4 focus:ring-slate-50 focus:border-slate-900 outline-none transition-all placeholder:text-slate-300 font-medium"
+                    className="w-full bg-[#0B101D] border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white focus:ring-2 focus:ring-[#22C58B]/30 focus:border-[#22C58B] outline-none transition-all placeholder:text-slate-600 font-medium"
                   />
                 </div>
 
-                <div className="flex justify-end pt-4">
+                <div className="flex justify-end pt-3">
                   <button 
                     type="submit"
                     disabled={isChangingPassword}
-                    className="px-8 py-4 bg-[#1a1a1a] hover:bg-black disabled:opacity-50 text-white font-black rounded-xl shadow-xl active:scale-95 transition-all text-xs uppercase tracking-widest"
+                    className="w-full py-3.5 bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] hover:brightness-110 disabled:opacity-50 text-[#0B101D] font-extrabold rounded-xl shadow-lg active:scale-95 transition-all text-xs uppercase tracking-wider"
                   >
                     {isChangingPassword ? "Processing..." : "Change Password"}
                   </button>
@@ -1519,7 +1524,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
             <motion.div 
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-slate-900/90 backdrop-blur-md"
+              className="absolute inset-0 bg-[#0B101D]/92 backdrop-blur-md"
             />
             <motion.div 
               initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.5, opacity: 0 }}
@@ -1540,15 +1545,15 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                     strokeDasharray="553"
                     initial={{ strokeDashoffset: 0 }}
                     animate={{ strokeDashoffset: 553 - (553 * (timeLeft / (tradeDetailsRef.current?.seconds || 1))) }}
-                    className="text-indigo-600"
+                    className="text-[#F5B400]"
                   />
                 </svg>
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-6xl font-black text-white">{timeLeft}</span>
+                  <span className="text-6xl font-mono font-black text-white tabular-nums">{timeLeft}</span>
                 </div>
               </div>
-              <h2 className="text-2xl font-black text-white uppercase tracking-[0.2em] mb-2">Trade in Progress</h2>
-              <p className="text-white/60 font-bold uppercase tracking-widest text-xs">Waiting for market result...</p>
+              <h2 className="text-2xl font-display font-black text-white uppercase tracking-[0.2em] mb-2">Trade in Progress</h2>
+              <p className="text-slate-400 font-semibold uppercase tracking-widest text-xs">Waiting for market result...</p>
             </motion.div>
           </div>
         )}
@@ -1562,25 +1567,25 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
               animate={{ opacity: 1 }} 
               exit={{ opacity: 0 }}
               onClick={() => setShowDepositModal(false)}
-              className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
+              className="absolute inset-0 bg-black/70 backdrop-blur-sm"
             />
             <motion.div 
               initial={{ y: "100%", opacity: 0 }} 
               animate={{ y: 0, opacity: 1 }} 
               exit={{ y: "100%", opacity: 0 }}
-              className="relative w-full max-w-lg bg-white rounded-t-[24px] sm:rounded-xl overflow-hidden shadow-2xl flex flex-col"
+              className="relative w-full max-w-lg bg-[#131B2E] border border-white/[0.1] rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl flex flex-col"
             >
               <div className="p-6 overflow-y-auto max-h-[85vh]">
                 <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-lg font-medium text-gray-900">Deposit</h3>
-                  <button onClick={() => setShowDepositModal(false)} className="p-1 hover:bg-gray-100 rounded-full transition-colors">
-                    <X className="w-5 h-5 text-gray-400" />
+                  <h3 className="text-lg font-display font-bold text-white">Deposit</h3>
+                  <button onClick={() => setShowDepositModal(false)} className="p-1.5 hover:bg-[#1A233A] rounded-full transition-colors">
+                    <X className="w-5 h-5 text-slate-400" />
                   </button>
                 </div>
 
                 <div className="space-y-6">
                   <div>
-                    <label className="text-sm font-medium text-gray-700 block mb-3">Choice of Token</label>
+                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-3">Choice of Token</label>
                     <div className="grid grid-cols-3 gap-2 mb-4">
                       {([
                         { id: "btc_address", name: "BTC" },
@@ -1594,10 +1599,10 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                           key={coin.id}
                           onClick={() => setSelectedDepositCoin(coin.id)}
                           className={cn(
-                            "py-2 px-1 rounded-lg text-xs font-bold transition-all border",
+                            "py-2.5 px-2 rounded-xl text-xs font-bold transition-all border",
                             selectedDepositCoin === coin.id 
-                              ? "bg-indigo-50 border-indigo-200 text-indigo-600 shadow-sm" 
-                              : "bg-white border-gray-100 text-gray-400 hover:bg-gray-50"
+                              ? "bg-[#0D2524] border-[#22C58B] text-[#22C58B] shadow-sm" 
+                              : "bg-[#1A233A] border-white/[0.06] text-slate-400 hover:text-white"
                           )}
                         >
                           {coin.name}
@@ -1605,22 +1610,22 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                       ))}
                     </div>
 
-                    <label className="text-sm font-medium text-gray-700 block mb-2">Deposit Address</label>
-                    <div className="bg-[#f9fafb] border border-gray-200 rounded-lg p-4">
+                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-2">Deposit Address</label>
+                    <div className="bg-[#0B101D] border border-white/10 rounded-2xl p-4">
                       <div className="flex justify-between items-center mb-3">
-                        <span className="text-sm font-black text-gray-900 uppercase">
+                        <span className="text-sm font-bold text-white uppercase">
                           {selectedDepositCoin.replace("_address", "").toUpperCase()} Address
                         </span>
-                        <div className="flex items-center gap-1 text-gray-400">
+                        <div className="flex items-center gap-1 text-slate-400">
                           <ChevronDown className="w-4 h-4" />
                         </div>
                       </div>
-                      <div className="text-[12px] text-gray-600 break-all leading-relaxed font-mono bg-white p-3 rounded-lg border border-gray-100 mb-3 select-all">
+                      <div className="text-xs text-slate-200 break-all leading-relaxed font-mono bg-[#131B2E] p-3 rounded-xl border border-white/[0.06] mb-3 select-all">
                         {settings?.[selectedDepositCoin] || `No ${selectedDepositCoin.replace("_address", "").toUpperCase()} address set`}
                       </div>
                       <button 
                         onClick={() => copyToClipboard(settings?.[selectedDepositCoin] || "")}
-                        className="w-full py-2.5 bg-indigo-50 text-indigo-600 font-bold text-xs rounded-lg hover:bg-indigo-100 transition-colors flex items-center justify-center gap-2"
+                        className="w-full py-2.5 bg-[#0D2524] border border-[#22C58B]/30 text-[#22C58B] font-bold text-xs rounded-xl hover:bg-[#123331] transition-colors flex items-center justify-center gap-2"
                       >
                         <Copy className="w-3.5 h-3.5" />
                         Copy Address
@@ -1629,18 +1634,18 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium text-gray-700 block mb-2">Quantity</label>
+                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-2">Quantity</label>
                     <input 
                       type="number"
                       value={depositAmount}
                       onChange={(e) => setDepositAmount(e.target.value)}
                       placeholder="0"
-                      className="w-full bg-white border border-indigo-100 rounded-lg px-4 py-3 text-base focus:ring-4 focus:ring-indigo-50 focus:border-indigo-400 outline-none transition-all placeholder:text-gray-300 font-bold"
+                      className="w-full bg-[#0B101D] border border-white/10 rounded-xl px-4 py-3 text-base text-white focus:ring-2 focus:ring-[#22C58B]/30 focus:border-[#22C58B] outline-none transition-all placeholder:text-slate-600 font-mono font-bold"
                     />
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium text-gray-700 block mb-2">Deposit Receipt Upload</label>
+                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-2">Deposit Receipt Upload</label>
                     <div className="relative">
                       <input 
                         type="file"
@@ -1649,18 +1654,18 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                         className="absolute inset-0 opacity-0 cursor-pointer z-10"
                       />
                       <div className={cn(
-                        "w-full border border-dashed rounded-lg p-8 flex flex-col items-center justify-center transition-all min-h-[160px]",
-                        receiptFile ? "border-green-300 bg-green-50" : "border-gray-300 bg-white hover:border-gray-400"
+                        "w-full border border-dashed rounded-2xl p-8 flex flex-col items-center justify-center transition-all min-h-[150px]",
+                        receiptFile ? "border-[#22C58B]/50 bg-[#0D2524]" : "border-white/15 bg-[#0B101D] hover:border-white/30"
                       )}>
                         {receiptFile ? (
                           <img src={receiptFile} referrerPolicy="no-referrer" className="max-h-24 rounded object-contain" alt="Preview" />
                         ) : (
                           <>
-                            <Upload className="w-10 h-10 text-gray-300 mb-4" />
-                            <div className="text-sm font-bold text-gray-900 mb-1">
-                              Upload a file <span className="font-normal text-gray-500">or drag and drop</span>
+                            <Upload className="w-9 h-9 text-slate-500 mb-3" />
+                            <div className="text-sm font-bold text-white mb-1">
+                              Upload a file <span className="font-normal text-slate-400">or drag and drop</span>
                             </div>
-                            <span className="text-xs text-gray-500">PNG, JPG, PDF up to 15MB</span>
+                            <span className="text-xs text-slate-500">PNG, JPG, PDF up to 15MB</span>
                           </>
                         )}
                       </div>
@@ -1671,7 +1676,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
 
               <button 
                 onClick={handleSubmitDeposit}
-                className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-base active:opacity-90 transition-opacity uppercase tracking-widest"
+                className="w-full py-4 bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] hover:brightness-110 text-[#0B101D] font-extrabold text-sm active:opacity-90 transition-all uppercase tracking-wider"
               >
                 {isSubmittingDeposit ? "Synchronizing..." : "Submit Deposit"}
               </button>
@@ -1688,58 +1693,63 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
               animate={{ opacity: 1 }} 
               exit={{ opacity: 0 }}
               onClick={() => setShowVerificationForm(false)}
-              className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
+              className="absolute inset-0 bg-black/70 backdrop-blur-sm"
             />
             <motion.div 
               initial={{ y: "100%", opacity: 0 }} 
               animate={{ y: 0, opacity: 1 }} 
               exit={{ y: "100%", opacity: 0 }}
-              className="relative w-full max-w-lg bg-white rounded-t-[24px] sm:rounded-xl overflow-hidden shadow-2xl flex flex-col"
+              className="relative w-full max-w-lg bg-[#131B2E] border border-white/[0.1] rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl flex flex-col"
             >
               <div className="p-8 pb-10 overflow-y-auto max-h-[85vh]">
-                <div className="flex items-center gap-4 mb-10">
-                  <div className="w-10 h-10 bg-[#f44336] rounded-lg flex items-center justify-center text-white">
-                    <UserIcon className="w-6 h-6" />
+                <div className="flex items-center justify-between mb-8">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 bg-[#272010] border border-[#F5B400]/30 rounded-xl flex items-center justify-center text-[#F5B400]">
+                      <UserIcon className="w-5 h-5" />
+                    </div>
+                    <h3 className="text-xl font-display font-bold text-white">Personal Information</h3>
                   </div>
-                  <h3 className="text-2xl font-medium text-gray-900">Personal Information</h3>
+                  <button onClick={() => setShowVerificationForm(false)} className="p-1.5 hover:bg-[#1A233A] rounded-full transition-colors">
+                    <X className="w-5 h-5 text-slate-400" />
+                  </button>
                 </div>
 
-                <div className="space-y-8">
+                <div className="space-y-6">
                   <div>
-                    <label className="text-sm font-medium text-gray-800 block mb-3">Full Name</label>
+                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-2">Full Name</label>
                     <input 
                       type="text"
                       value={full_name}
                       onChange={(e) => setFullName(e.target.value)}
                       placeholder="Enter your full name"
-                      className="w-full bg-white border border-gray-200 rounded-xl px-5 py-4 text-base focus:ring-4 focus:ring-red-50 focus:border-red-400 outline-none transition-all placeholder:text-gray-400 font-medium shadow-sm"
+                      className="w-full bg-[#0B101D] border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white focus:ring-2 focus:ring-[#22C58B]/30 focus:border-[#22C58B] outline-none transition-all placeholder:text-slate-600 font-medium"
                     />
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium text-gray-800 block mb-3">Phone Number</label>
+                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-2">Phone Number</label>
                     <input 
                       type="tel"
                       value={phone_number}
                       onChange={(e) => setPhoneNumber(e.target.value)}
                       placeholder="Enter your phone number"
-                      className="w-full bg-white border border-gray-200 rounded-xl px-5 py-4 text-base focus:ring-4 focus:ring-red-50 focus:border-red-400 outline-none transition-all placeholder:text-gray-400 font-medium shadow-sm"
+                      className="w-full bg-[#0B101D] border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white focus:ring-2 focus:ring-[#22C58B]/30 focus:border-[#22C58B] outline-none transition-all placeholder:text-slate-600 font-medium"
                     />
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium text-gray-800 block mb-3">Residential Address</label>
+                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-2">Residential Address</label>
                     <textarea 
                       value={address_val}
                       onChange={(e) => setAddressVal(e.target.value)}
                       placeholder="Enter your full address"
                       rows={2}
-                      className="w-full bg-white border border-gray-200 rounded-xl px-5 py-4 text-base focus:ring-4 focus:ring-red-50 focus:border-red-400 outline-none transition-all placeholder:text-gray-400 font-medium shadow-sm resize-none"
+                      className="w-full bg-[#0B101D] border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white focus:ring-2 focus:ring-[#22C58B]/30 focus:border-[#22C58B] outline-none transition-all placeholder:text-slate-600 font-medium resize-none"
                     />
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium text-gray-800 block mb-3">ID / Passport / Driving License</label>
+                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-2">ID / Passport / Driving License</label>
                     <div className="relative group">
                       <input 
                         type="file"
@@ -1753,21 +1763,21 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                         className={cn(
                           "flex flex-col items-center justify-center gap-3 w-full border-2 border-dashed rounded-2xl py-8 px-4 transition-all cursor-pointer",
                           verificationDoc 
-                            ? "bg-emerald-50 border-emerald-200 text-emerald-600" 
-                            : "bg-gray-50 border-gray-200 text-gray-400 hover:border-red-300 hover:bg-red-50/50"
+                            ? "bg-[#0D2524] border-[#22C58B]/50 text-[#22C58B]" 
+                            : "bg-[#0B101D] border-white/15 text-slate-400 hover:border-white/30"
                         )}
                       >
                         {verificationDoc ? (
                           <div className="flex flex-col items-center gap-2">
-                            <ShieldCheck className="w-8 h-8 text-emerald-500" />
+                            <ShieldCheck className="w-8 h-8 text-[#22C58B]" />
                             <span className="text-sm font-bold">Document Selected</span>
-                            <span className="text-[10px] uppercase font-black tracking-widest opacity-60">Click to change</span>
+                            <span className="text-[11px] uppercase font-semibold tracking-wider opacity-75">Click to change</span>
                           </div>
                         ) : (
                           <div className="flex flex-col items-center gap-2">
-                            <Upload className="w-8 h-8 text-gray-300" />
-                            <span className="text-sm font-bold">Upload Document</span>
-                            <span className="text-[10px] uppercase font-black tracking-widest opacity-60">JPG, PNG or PDF (Max 15MB)</span>
+                            <Upload className="w-8 h-8 text-slate-500" />
+                            <span className="text-sm font-bold text-white">Upload Document</span>
+                            <span className="text-[11px] uppercase font-semibold tracking-wider text-slate-500">JPG, PNG or PDF (Max 15MB)</span>
                           </div>
                         )}
                       </label>
@@ -1777,7 +1787,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                   <button 
                     onClick={handleSubmitVerification}
                     disabled={isSubmittingVerification}
-                    className="w-full py-5 bg-[#f44336] hover:bg-[#d32f2f] disabled:opacity-50 text-white font-bold text-lg rounded-xl shadow-xl shadow-red-100 active:scale-[0.98] transition-all mt-4"
+                    className="w-full py-4 bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] hover:brightness-110 disabled:opacity-50 text-[#0B101D] font-extrabold text-sm uppercase tracking-wider rounded-xl shadow-lg active:scale-[0.98] transition-all mt-2"
                   >
                     {isSubmittingVerification ? "Submitting..." : "Submit for Verification"}
                   </button>
@@ -1796,74 +1806,81 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
               animate={{ opacity: 1 }} 
               exit={{ opacity: 0 }}
               onClick={() => setShowWithdrawModal(false)}
-              className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
+              className="absolute inset-0 bg-black/70 backdrop-blur-sm"
             />
             <motion.div 
               initial={{ y: "100%", opacity: 0 }} 
               animate={{ y: 0, opacity: 1 }} 
               exit={{ y: "100%", opacity: 0 }}
-              className="relative w-full max-w-lg bg-white rounded-t-[24px] sm:rounded-xl overflow-hidden shadow-2xl flex flex-col"
+              className="relative w-full max-w-lg bg-[#131B2E] border border-white/[0.1] rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl flex flex-col"
             >
               <div className="p-8 pb-10 overflow-y-auto max-h-[85vh]">
-                <div className="flex items-center gap-4 mb-10">
-                  <div className="w-10 h-10 bg-[#f44336] rounded-lg"></div>
-                  <h3 className="text-2xl font-medium text-gray-900">Withdraw Funds</h3>
+                <div className="flex items-center justify-between mb-8">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-[#26131C] border border-[#F43F5E]/30 rounded-xl flex items-center justify-center text-[#FB7185]">
+                      <ArrowUpCircle className="w-5 h-5" />
+                    </div>
+                    <h3 className="text-xl font-display font-bold text-white">Withdraw Funds</h3>
+                  </div>
+                  <button onClick={() => setShowWithdrawModal(false)} className="p-1.5 hover:bg-[#1A233A] rounded-full transition-colors">
+                    <X className="w-5 h-5 text-slate-400" />
+                  </button>
                 </div>
 
-                <div className="space-y-8">
+                <div className="space-y-6">
                   <div>
-                    <label className="text-sm font-medium text-gray-800 block mb-3">Full Name</label>
+                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-2">Full Name</label>
                     <input 
                       type="text"
                       value={withdrawName}
                       onChange={(e) => setWithdrawName(e.target.value)}
                       placeholder="Enter your full name"
-                      className="w-full bg-white border border-gray-200 rounded-xl px-5 py-4 text-base focus:ring-4 focus:ring-red-50 focus:border-red-400 outline-none transition-all placeholder:text-gray-400 font-medium shadow-sm"
+                      className="w-full bg-[#0B101D] border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white focus:ring-2 focus:ring-[#22C58B]/30 focus:border-[#22C58B] outline-none transition-all placeholder:text-slate-600 font-medium"
                     />
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium text-gray-800 block mb-3">Withdraw Type</label>
+                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-2">Withdraw Type</label>
                     <div className="relative">
                       <select
                         value={withdrawType}
                         onChange={(e) => setWithdrawType(e.target.value)}
-                        className="w-full bg-white border border-gray-200 rounded-xl px-5 py-4 text-base focus:ring-4 focus:ring-red-50 focus:border-red-400 outline-none appearance-none transition-all font-medium text-gray-700 pr-12 shadow-sm"
+                        className="w-full bg-[#0B101D] border border-white/10 rounded-xl px-4 py-3.5 text-sm focus:ring-2 focus:ring-[#22C58B]/30 focus:border-[#22C58B] outline-none appearance-none transition-all font-medium text-white pr-12"
                       >
                         <option value="USDT (ERC20)">USDT (ERC20)</option>
                         <option value="USDT (TRC20)">USDT (TRC20)</option>
                         <option value="Bitcoin (BTC)">Bitcoin (BTC)</option>
                         <option value="Ethereum (ETH)">Ethereum (ETH)</option>
                       </select>
-                      <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+                      <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
                     </div>
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium text-gray-800 block mb-3">Withdrawal Address</label>
+                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-2">Withdrawal Address</label>
                     <input 
                       type="text"
                       value={withdrawAddress}
                       onChange={(e) => setWithdrawAddress(e.target.value)}
                       placeholder="Enter your wallet address"
-                      className="w-full bg-white border border-gray-200 rounded-xl px-5 py-4 text-base focus:ring-4 focus:ring-red-50 focus:border-red-400 outline-none transition-all placeholder:text-gray-400 font-medium shadow-sm"
+                      className="w-full bg-[#0B101D] border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white font-mono focus:ring-2 focus:ring-[#22C58B]/30 focus:border-[#22C58B] outline-none transition-all placeholder:text-slate-600"
                     />
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium text-gray-800 block mb-3">Amount</label>
+                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-2">Amount</label>
                     <input 
                       type="number"
                       value={withdrawAmount}
                       onChange={(e) => setWithdrawAmount(e.target.value)}
                       placeholder="0"
-                      className="w-full bg-white border border-gray-200 rounded-xl px-5 py-4 text-base focus:ring-4 focus:ring-red-50 focus:border-red-400 outline-none transition-all placeholder:text-gray-400 font-medium shadow-sm"
+                      className="w-full bg-[#0B101D] border border-white/10 rounded-xl px-4 py-3.5 text-base text-white font-mono font-bold focus:ring-2 focus:ring-[#22C58B]/30 focus:border-[#22C58B] outline-none transition-all placeholder:text-slate-600"
                     />
                   </div>
 
                   <button 
                     onClick={handleWithdraw}
-                    className="w-full py-5 bg-[#f44336] hover:bg-[#d32f2f] text-white font-bold text-lg rounded-xl shadow-xl shadow-red-100 active:scale-[0.98] transition-all mt-4"
+                    className="w-full py-4 bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] hover:brightness-110 text-[#0B101D] font-extrabold text-sm uppercase tracking-wider rounded-xl shadow-lg active:scale-[0.98] transition-all mt-2"
                   >
                     Withdraw
                   </button>
@@ -1880,32 +1897,32 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
             <motion.div 
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setShowOptionModal(false)}
-              className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
+              className="absolute inset-0 bg-black/70 backdrop-blur-sm"
             />
             <motion.div 
               initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="relative w-full max-w-lg bg-white rounded-t-[32px] overflow-hidden shadow-2xl p-6"
+              className="relative w-full max-w-lg bg-[#131B2E] border-t border-x border-white/[0.1] rounded-t-3xl overflow-hidden shadow-2xl p-6"
             >
               <div className="flex justify-between items-start mb-6">
-                <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold", selectedAsset.color)}>
+                <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold", selectedAsset.color)}>
                   {selectedAsset.icon}
                 </div>
-                <button onClick={() => setShowOptionModal(false)} className="p-1 hover:bg-gray-100 rounded-full transition-colors">
-                  <X className="w-6 h-6 text-gray-400" />
+                <button onClick={() => setShowOptionModal(false)} className="p-1.5 hover:bg-[#1A233A] rounded-full transition-colors">
+                  <X className="w-5 h-5 text-slate-400" />
                 </button>
               </div>
 
-              <div className="mb-6 text-center">
+              <div className="mb-6 text-center tabular-nums">
                 <div className={cn(
-                  "text-4xl font-black flex items-baseline justify-center gap-1",
-                  marketData[selectedAsset.symbol]?.isUp ? "text-green-500" : "text-red-500"
+                  "text-4xl font-mono font-black flex items-baseline justify-center gap-1",
+                  marketData[selectedAsset.symbol]?.isUp ? "text-[#22C58B]" : "text-[#FB7185]"
                 )}>
                    {marketData[selectedAsset.symbol]?.price?.split(".")[0] || "0"}
                    <span className="text-xl font-medium">
                      {marketData[selectedAsset.symbol]?.price?.includes(".") ? "." + marketData[selectedAsset.symbol].price.split(".")[1] : ""}
                    </span>
-                   <span className="text-sm font-bold text-gray-400 ml-1">
+                   <span className="text-sm font-bold text-slate-400 ml-1">
                      {Math.floor(Math.random() * 9)}
                    </span>
                 </div>
@@ -1913,21 +1930,21 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
 
               <div className="space-y-6">
                 <div>
-                  <label className="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-3">Time</label>
-                  <div className="grid grid-cols-3 gap-2">
+                  <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-3">Time</label>
+                  <div className="grid grid-cols-3 gap-2.5">
                     {ASSET_DURATIONS.map((dur) => (
                       <button
                         key={dur.s}
                         onClick={() => setSelectedDuration(dur.s)}
                         className={cn(
-                          "py-3 rounded-xl border-2 transition-all text-center",
+                          "py-3 rounded-xl border transition-all text-center",
                           selectedDuration === dur.s 
-                            ? "bg-indigo-600 border-indigo-600 text-white shadow-md scale-[1.02]" 
-                            : "bg-white border-gray-100 text-gray-900 hover:border-gray-200"
+                            ? "bg-[#272010] border-[#F5B400] text-[#F5B400] shadow-md scale-[1.02]" 
+                            : "bg-[#1A233A] border-white/[0.06] text-white hover:border-white/20"
                         )}
                       >
-                        <div className="text-sm font-black">{dur.s}s</div>
-                        <div className={cn("text-[10px] font-bold opacity-80", selectedDuration === dur.s ? "text-white" : "text-gray-400")}>
+                        <div className="text-sm font-mono font-black">{dur.s}s</div>
+                        <div className={cn("text-[11px] font-semibold", selectedDuration === dur.s ? "text-[#F5B400]/90" : "text-slate-400")}>
                           Return {dur.r}%
                         </div>
                       </button>
@@ -1938,11 +1955,11 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                 <div>
                   <div className="flex justify-between items-end mb-2">
                     <div className="flex items-center gap-2">
-                      <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Trade Value (USDT)</label>
-                      <span className="text-[10px] font-black text-indigo-400 tracking-tighter">LIMIT: 100 - 100K</span>
+                      <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Trade Value (USDT)</label>
+                      <span className="text-[11px] font-bold text-[#F5B400]">LIMIT: 100 - 100K</span>
                     </div>
-                    <span className="text-xs font-black text-gray-400">
-                      Expected Profit: <span className="text-green-600">
+                    <span className="text-xs font-bold text-slate-400 tabular-nums">
+                      Expected Profit: <span className="text-[#22C58B] font-mono">
                         +{(
                           (parseFloat(tradeAmount) || 0) * 
                           ((ASSET_DURATIONS.find(d => d.s === selectedDuration)?.r || 3) / 100)
@@ -1956,28 +1973,28 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                       value={tradeAmount}
                       onChange={(e) => setTradeAmount(e.target.value)}
                       placeholder="0.00"
-                      className="w-full bg-gray-50 border-2 border-slate-50 rounded-xl px-5 py-4 font-black text-lg focus:ring-4 focus:ring-indigo-50 focus:border-indigo-400 transition-all font-mono"
+                      className="w-full bg-[#0B101D] border border-white/10 rounded-xl px-5 py-4 text-white font-black text-lg focus:ring-2 focus:ring-[#22C58B]/30 focus:border-[#22C58B] outline-none transition-all font-mono placeholder:text-slate-600"
                     />
                   </div>
                 </div>
 
-                <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider text-gray-400">
+                <div className="flex justify-between items-center text-xs font-bold uppercase tracking-wider text-slate-400 tabular-nums">
                   <div className="flex items-center gap-2">
-                    <span className="text-indigo-600 font-black">$</span>
+                    <span className="text-[#22C58B] font-black">$</span>
                     Portfolio: {formatCurrency(profile?.balance || 0)} 
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 pb-24">
+                <div className="grid grid-cols-2 gap-4 pb-20">
                   <button 
                     onClick={() => { setShowOptionModal(false); setShowTradeConfirm(true); }}
-                    className="py-5 bg-green-500 text-white font-black rounded-2xl shadow-xl active:scale-95 transition-all text-sm uppercase tracking-[0.1em]"
+                    className="py-4 bg-[#22C58B] hover:brightness-110 text-[#0B101D] font-extrabold rounded-2xl shadow-lg active:scale-95 transition-all text-sm uppercase tracking-wider"
                   >
                     Buy / Long
                   </button>
                   <button 
                     onClick={() => { setShowOptionModal(false); setShowTradeConfirm(true); }}
-                    className="py-5 bg-red-500 text-white font-black rounded-2xl shadow-xl active:scale-95 transition-all text-sm uppercase tracking-[0.1em]"
+                    className="py-4 bg-[#F43F5E] hover:brightness-110 text-white font-extrabold rounded-2xl shadow-lg active:scale-95 transition-all text-sm uppercase tracking-wider"
                   >
                     Sell / Short
                   </button>
@@ -1994,36 +2011,36 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
             <motion.div 
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setShowTradeConfirm(false)}
-              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/75 backdrop-blur-sm"
             />
             <motion.div 
-              initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative w-full max-w-sm bg-white rounded-[32px] overflow-hidden shadow-2xl p-8"
+              initial={{ scale: 0.92, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.92, opacity: 0, y: 20 }}
+              className="relative w-full max-w-sm bg-[#131B2E] border border-white/[0.1] rounded-3xl overflow-hidden shadow-2xl p-8"
             >
-              <h3 className="text-2xl font-black text-gray-900 mb-2">Confirm Order</h3>
-              <p className="text-gray-500 mb-8 font-medium">Are you sure you want to execute this trade on {selectedAsset.short}?</p>
+              <h3 className="text-2xl font-display font-bold text-white mb-2">Confirm Order</h3>
+              <p className="text-slate-400 mb-6 font-medium text-sm">Are you sure you want to execute this trade on {selectedAsset.short}?</p>
               
-              <div className="space-y-4 mb-8 bg-gray-50 p-6 rounded-2xl">
-                 <div className="flex justify-between font-bold">
-                    <span className="text-gray-400">Amount</span>
-                    <span className="text-gray-900">{formatCurrency(parseFloat(tradeAmount) || 0)}</span>
+              <div className="space-y-3 mb-8 bg-[#0B101D] border border-white/[0.06] p-5 rounded-2xl tabular-nums">
+                 <div className="flex justify-between font-bold text-sm">
+                    <span className="text-slate-400">Amount</span>
+                    <span className="text-white font-mono">{formatCurrency(parseFloat(tradeAmount) || 0)}</span>
                  </div>
-                 <div className="flex justify-between font-bold">
-                    <span className="text-gray-400">Duration</span>
-                    <span className="text-gray-900">{selectedDuration}s</span>
+                 <div className="flex justify-between font-bold text-sm">
+                    <span className="text-slate-400">Duration</span>
+                    <span className="text-[#F5B400] font-mono">{selectedDuration}s</span>
                  </div>
               </div>
 
               <div className="flex gap-3">
                 <button 
                   onClick={() => setShowTradeConfirm(false)}
-                  className="flex-1 py-4 bg-gray-100 text-gray-600 font-bold rounded-2xl"
+                  className="flex-1 py-3.5 bg-[#1A233A] hover:bg-[#222E4A] text-slate-200 font-bold rounded-xl"
                 >
                   Cancel
                 </button>
                 <button 
                   onClick={handlePlaceTrade}
-                  className="flex-1 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-2xl shadow-xl active:scale-95 transition-all text-sm uppercase tracking-widest"
+                  className="flex-1 py-3.5 bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] hover:brightness-110 text-[#0B101D] font-extrabold rounded-xl shadow-lg active:scale-95 transition-all text-xs uppercase tracking-wider"
                 >
                   Execute Order
                 </button>
@@ -2033,69 +2050,90 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
         )}
       </AnimatePresence>
 
+      {/* Trade Result Modal — Directly modeled on the reference Trade Details card */}
       <AnimatePresence>
         {showTradeSuccess && tradeResult && (
           <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
             <motion.div 
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setShowTradeSuccess(false)}
-              className="absolute inset-0 bg-black/80 backdrop-blur-md"
+              className="absolute inset-0 bg-[#0B101D]/85 backdrop-blur-md"
             />
             <motion.div 
-              initial={{ scale: 0.5, opacity: 0, y: 100 }} 
+              initial={{ scale: 0.9, opacity: 0, y: 40 }} 
               animate={{ scale: 1, opacity: 1, y: 0 }} 
-              exit={{ scale: 0.5, opacity: 0, y: 100 }}
-              className="relative w-full max-w-sm bg-white rounded-[40px] overflow-hidden shadow-2xl p-10 text-center"
+              exit={{ scale: 0.9, opacity: 0, y: 40 }}
+              className="relative w-full max-w-sm bg-[#131B2E] border border-white/[0.1] rounded-3xl overflow-hidden shadow-2xl p-6"
             >
-              <div className={cn(
-                "w-24 h-24 mx-auto mb-8 rounded-[32px] flex items-center justify-center shadow-2xl transform -rotate-6",
-                tradeResult.isWin ? "bg-green-500 shadow-green-200" : "bg-red-500 shadow-red-200"
-              )}>
-                {tradeResult.isWin ? (
-                  <Trophy className="w-12 h-12 text-white" />
-                ) : (
-                  <TrendingDown className="w-12 h-12 text-white" />
-                )}
+              {/* Top Asset & Status Banner */}
+              <div className="flex items-center gap-3 mb-4">
+                <div className={cn(
+                  "w-11 h-11 rounded-2xl flex items-center justify-center border",
+                  tradeResult.isWin ? "bg-[#0D2524] border-[#22C58B]/30 text-[#22C58B]" : "bg-[#26131C] border-[#F43F5E]/30 text-[#FB7185]"
+                )}>
+                  {tradeResult.isWin ? <Trophy className="w-5 h-5" /> : <TrendingDown className="w-5 h-5" />}
+                </div>
+                <div className="min-w-0">
+                  <div className="text-sm font-bold text-white uppercase tracking-tight">
+                    {selectedAsset.short}/USDT · {tradeResult.isWin ? "WIN" : "LOSS"}
+                  </div>
+                  <div className="text-xs text-slate-400 font-mono">{new Date().toLocaleString()}</div>
+                </div>
               </div>
 
-              <h3 className={cn(
-                "text-3xl font-black mb-2 tracking-tighter",
-                tradeResult.isWin ? "text-green-600" : "text-red-600"
+              {/* Inner Profit/Loss Highlight Box (mirrors +11476.75 USDT / +25.00%) */}
+              <div className={cn(
+                "rounded-2xl py-4 px-5 mb-5 text-center border tabular-nums",
+                tradeResult.isWin ? "bg-[#0D2524] border-[#22C58B]/20" : "bg-[#26131C] border-[#F43F5E]/20"
               )}>
-                {tradeResult.isWin ? "Congratulations 🚀💰🎉" : "Sorry 📉😟⚠️"}
-              </h3>
-              <p className="text-gray-500 font-bold text-lg mb-8 uppercase tracking-wide">
-                {tradeResult.isWin ? "You win and more for win." : "you lose be careful with your capital"}
-              </p>
-
-              <div className="bg-gray-50 rounded-3xl p-6 mb-8 space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Investment</span>
-                  <span className="text-gray-900 font-black font-mono">{formatCurrency(tradeResult.amount)}</span>
+                <div className={cn("text-xl font-mono font-bold", tradeResult.isWin ? "text-[#22C58B]" : "text-[#FB7185]")}>
+                  {tradeResult.isWin ? "+" : "-"}{(tradeResult.profit || tradeResult.amount).toFixed(2)} USDT
                 </div>
-                <div className="flex justify-between items-center py-3 border-y border-gray-100">
-                  <span className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Market Profit</span>
-                  <span className={cn("font-black font-mono text-xl", tradeResult.isWin ? "text-green-500" : "text-red-500")}>
+                <div className={cn("text-sm font-mono font-semibold mt-1", tradeResult.isWin ? "text-[#22C58B]" : "text-[#FB7185]")}>
+                  {tradeResult.isWin ? "+" : "-"}{(((tradeResult.profit || 0) / (tradeResult.amount || 1)) * 100).toFixed(2)}%
+                </div>
+              </div>
+
+              {/* Structured Trade Details List */}
+              <div className="bg-[#161F34] border border-white/[0.06] rounded-2xl p-5 mb-5 space-y-3.5 tabular-nums">
+                <div className="text-xs font-bold text-white uppercase tracking-wider mb-1">
+                  {selectedAsset.name.toUpperCase()} TRADE DETAILS
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-slate-400">Trade Amount</span>
+                  <span className="text-white font-mono font-semibold">{formatCurrency(tradeResult.amount)}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-slate-400">Market Profit</span>
+                  <span className={cn("font-mono font-semibold", tradeResult.isWin ? "text-[#22C58B]" : "text-[#FB7185]")}>
                     {tradeResult.isWin ? "+" : "-"}{formatCurrency(tradeResult.profit || tradeResult.amount)}
                   </span>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Status</span>
-                  <span className={cn(
-                    "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter",
-                    tradeResult.isWin ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"
-                  )}>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-slate-400">Duration</span>
+                  <span className="text-[#F5B400] font-mono font-semibold">{selectedDuration}s</span>
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-slate-400">Status</span>
+                  <span className={cn("font-semibold text-xs uppercase tracking-wider", tradeResult.isWin ? "text-[#22C58B]" : "text-[#FB7185]")}>
                     Settled
+                  </span>
+                </div>
+                <div className="pt-3 border-t border-white/[0.08] flex justify-between items-center">
+                  <span className="text-white font-bold text-sm">Total Return</span>
+                  <span className={cn("font-mono font-bold text-base", tradeResult.isWin ? "text-[#22C58B]" : "text-[#FB7185]")}>
+                    {formatCurrency(
+                      tradeResult.isWin
+                        ? tradeResult.amount + (tradeResult.profit || 0)
+                        : Math.max(0, tradeResult.amount - (tradeResult.profit || 0))
+                    )}
                   </span>
                 </div>
               </div>
 
               <button 
                 onClick={() => setShowTradeSuccess(false)}
-                className={cn(
-                  "w-full py-5 text-white font-black rounded-2xl shadow-xl active:scale-95 transition-all text-sm uppercase tracking-widest",
-                  tradeResult.isWin ? "bg-green-600 hover:bg-green-700 shadow-green-100" : "bg-red-600 hover:bg-red-700 shadow-red-100"
-                )}
+                className="w-full py-4 bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] hover:brightness-110 text-[#0B101D] font-extrabold rounded-2xl shadow-[0_6px_20px_rgba(245,158,11,0.3)] active:scale-95 transition-all text-sm uppercase tracking-wider"
               >
                 Close Receipt
               </button>
@@ -2106,47 +2144,47 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
 
       <AnimatePresence>
         {showChat && (
-          <div className="fixed inset-0 z-[60] flex flex-col bg-white">
-            <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+          <div className="fixed inset-0 z-[60] flex flex-col bg-[#0B101D]">
+            <div className="p-5 border-b border-white/[0.08] bg-[#0F1629] flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center">
-                  <MessageSquare className="w-6 h-6 text-indigo-600" />
+                <div className="w-11 h-11 bg-[#0D2524] border border-[#22C58B]/30 rounded-2xl flex items-center justify-center">
+                  <MessageSquare className="w-5 h-5 text-[#22C58B]" />
                 </div>
                 <div>
-                  <h3 className="font-black text-gray-900 tracking-tight">VIP Portal</h3>
+                  <h3 className="font-display font-bold text-white tracking-tight">VIP Portal</h3>
                   <div className="flex items-center gap-1.5 mt-0.5">
-                    <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-                    <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest">Quantum Agent Online</span>
+                    <div className="w-2 h-2 bg-[#22C58B] rounded-full animate-pulse" />
+                    <span className="text-[11px] text-slate-400 font-semibold uppercase tracking-wider">Gammix Agent Online</span>
                   </div>
                 </div>
               </div>
-              <button onClick={() => setShowChat(false)} className="p-2 text-gray-400 hover:bg-gray-50 rounded-full transition-all"><X className="w-6 h-6" /></button>
+              <button onClick={() => setShowChat(false)} className="p-2 text-slate-400 hover:text-white hover:bg-[#1A233A] rounded-full transition-all"><X className="w-5 h-5" /></button>
             </div>
             
-            <div className="flex-1 overflow-y-auto p-8 space-y-6 bg-slate-100/50">
+            <div className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-5 bg-[#0B101D]">
               {messages.map((msg) => (
                 <div key={msg.id} className={cn("flex flex-col max-w-[85%]", msg.senderId === user.uid ? "ml-auto items-end" : "mr-auto items-start")}>
-                  <div className={cn("p-5 rounded-3xl text-sm font-medium shadow-sm transition-all hover:shadow-md", msg.senderId === user.uid ? "bg-indigo-600 text-white rounded-br-none" : "bg-white text-gray-900 border border-slate-100 rounded-bl-none")}>
+                  <div className={cn("p-4 rounded-2xl text-sm font-medium shadow-sm", msg.senderId === user.uid ? "bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] text-[#0B101D] font-semibold rounded-br-none" : "bg-[#131B2E] text-white border border-white/[0.08] rounded-bl-none")}>
                     {msg.text}
                   </div>
                 </div>
               ))}
             </div>
 
-            <div className="p-6 border-t border-gray-100 bg-white">
+            <div className="p-5 border-t border-white/[0.08] bg-[#0F1629]">
               <form onSubmit={handleSendMessage} className="flex gap-3">
                 <input 
                   type="text" 
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                   placeholder="Message support..." 
-                  className="flex-1 bg-gray-50 border border-slate-100 rounded-2xl px-5 py-4 text-sm font-medium focus:bg-white focus:ring-4 focus:ring-indigo-50 focus:border-indigo-400 outline-none transition-all placeholder:text-gray-300" 
+                  className="flex-1 bg-[#0B101D] border border-white/10 rounded-2xl px-5 py-4 text-sm text-white font-medium focus:ring-2 focus:ring-[#22C58B]/30 focus:border-[#22C58B] outline-none transition-all placeholder:text-slate-600" 
                 />
                 <button 
                   type="button"
                   onClick={handleSendMessage}
                   disabled={isSending || !newMessage.trim()}
-                  className="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white p-4 rounded-2xl transform active:scale-95 transition-all shadow-lg shadow-indigo-100"
+                  className="bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] hover:brightness-110 disabled:opacity-50 text-[#0B101D] p-4 rounded-2xl transform active:scale-95 transition-all shadow-lg"
                 >
                   <Send className="w-5 h-5" />
                 </button>

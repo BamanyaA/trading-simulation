@@ -1,19 +1,31 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Outfit", sans-serif;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", "Plus Jakarta Sans", sans-serif;
   --font-mono: "JetBrains Mono", monospace;
 }
 
 @layer base {
   body {
-    @apply bg-slate-100 text-slate-900 antialiased font-sans transition-colors duration-300;
+    @apply bg-[#0B101D] text-slate-100 antialiased font-sans transition-colors duration-300;
   }
 }
 
 @layer utilities {
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
   .custom-scrollbar::-webkit-scrollbar {
     width: 6px;
   }
@@ -21,30 +33,35 @@
     background: transparent;
   }
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-slate-300 rounded-full;
+    @apply bg-slate-700 rounded-full;
   }
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    @apply bg-slate-400;
+    @apply bg-slate-600;
   }
   
   .glass-card {
-    @apply bg-white/80 backdrop-blur-xl border border-slate-200/60 shadow-xl;
+    @apply bg-[#131B2E] border border-white/[0.08] shadow-[0_12px_40px_rgba(0,0,0,0.45)];
   }
 
   .glass-card-light {
-    @apply bg-white/50 backdrop-blur-lg border border-slate-200/60;
+    @apply bg-[#1A233A] border border-white/[0.08];
   }
   
   .primary-gradient {
-    @apply bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500;
+    @apply bg-gradient-to-r from-[#F59E0B] to-[#FBBF24];
+  }
+
+  .nav-active-gradient {
+    background: linear-gradient(135deg, #FF6B6B 0%, #EC4899 52%, #8B5CF6 100%);
+    box-shadow: 0 4px 18px rgba(236, 72, 153, 0.42);
   }
 
   .trading-glow {
-    @apply shadow-[0_0_20px_rgba(79,70,229,0.3)];
+    @apply shadow-[0_0_24px_rgba(34,197,139,0.22)];
   }
 
   .text-glow {
-    text-shadow: 0 0 15px rgba(255,255,255,0.4);
+    text-shadow: 0 0 15px rgba(255,255,255,0.25);
   }
 }
 

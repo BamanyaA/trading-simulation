@@ -641,28 +641,30 @@ export default function AdminDashboard() {
   const filteredUsers = users.filter(u => (u.email || "").toLowerCase().includes(search.toLowerCase()));
 
   return (
-    <div className="container mx-auto px-4 py-12 max-w-7xl">
+    <div className="container mx-auto px-4 py-12 max-w-7xl text-slate-100">
       <div className="flex flex-col md:flex-row gap-6 items-center justify-between mb-12">
         <div className="flex items-center gap-6">
-          <div className="p-4 bg-indigo-600 rounded-[1.5rem] shadow-xl shadow-indigo-200">
-            <ShieldCheck className="w-8 h-8 text-white" />
+          <div className="p-4 bg-[#0D2524] border border-[#22C58B]/30 rounded-[1.5rem] shadow-xl">
+            <ShieldCheck className="w-8 h-8 text-[#22C58B]" />
           </div>
           <div>
-            <h1 className="text-4xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-              Quantum <span className="text-indigo-600">Admin</span>
+            <h1 className="text-4xl font-black text-white tracking-tight flex items-center gap-3">
+              Gammix <span className="text-[#22C58B]">Admin</span>
             </h1>
-            <p className="text-slate-500 font-medium">Platform control and synchronization hub.</p>
+            <p className="text-slate-400 font-medium">Platform control and synchronization hub.</p>
           </div>
         </div>
         
-        <div className="flex bg-slate-200 p-1.5 rounded-2xl shadow-inner">
+        <div className="flex flex-wrap bg-[#131B2E] border border-white/[0.08] p-1.5 rounded-2xl shadow-inner">
           {(["users", "transactions", "support", "news", "settings"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={cn(
-                "px-8 py-3 rounded-[1.25rem] text-sm font-black capitalize transition-all",
-                activeTab === tab ? "bg-white text-indigo-600 shadow-xl" : "text-slate-500 hover:text-slate-700"
+                "px-6 sm:px-8 py-3 rounded-[1.15rem] text-sm font-black capitalize transition-all",
+                activeTab === tab
+                  ? "bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] text-[#0B101D] shadow-lg"
+                  : "text-slate-400 hover:text-white"
               )}
             >
               {tab}
@@ -677,11 +679,11 @@ export default function AdminDashboard() {
           <div className="space-y-8">
             <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between">
               <div className="relative max-w-md w-full group">
-                <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 group-focus-within:text-indigo-500 transition-colors" />
+                <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-[#22C58B] transition-colors" />
                 <input 
                   type="text"
                   placeholder="Search operators by email..."
-                  className="w-full bg-white border border-slate-100 rounded-2xl py-4 pl-14 pr-6 text-slate-900 focus:ring-4 focus:ring-indigo-50 focus:border-indigo-500 transition-all outline-none font-medium shadow-sm"
+                  className="w-full bg-[#131B2E] border border-white/[0.08] rounded-2xl py-4 pl-14 pr-6 text-white placeholder:text-slate-500 focus:ring-2 focus:ring-[#22C58B]/20 focus:border-[#22C58B] transition-all outline-none font-medium"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
@@ -691,7 +693,7 @@ export default function AdminDashboard() {
                 <button
                   onClick={() => reconcileAuthUsers(true)}
                   disabled={isSyncingUsers}
-                  className="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-black px-6 py-4 rounded-2xl transition-all flex items-center justify-center gap-3 shadow-xl shadow-indigo-200 active:scale-95 text-xs uppercase tracking-widest min-w-[220px]"
+                  className="bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] hover:brightness-105 disabled:opacity-50 text-[#0B101D] font-black px-6 py-4 rounded-2xl transition-all flex items-center justify-center gap-3 shadow-lg active:scale-95 text-xs uppercase tracking-widest min-w-[220px]"
                 >
                   <RefreshCw className={cn("w-4 h-4", isSyncingUsers && "animate-spin")} />
                   {isSyncingUsers ? "Syncing Registry..." : "Reconcile Auth Users"}
@@ -699,10 +701,10 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            <div className="bg-white border border-slate-50 rounded-[2.5rem] overflow-hidden shadow-2xl shadow-slate-200/50">
+            <div className="bg-[#131B2E] border border-white/[0.08] rounded-[2.5rem] overflow-hidden shadow-2xl">
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
-                  <thead className="bg-slate-100/50 border-b border-slate-200">
+                  <thead className="bg-[#0F1629] border-b border-white/[0.08]">
                     <tr>
                       <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">User Profile</th>
                       <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Verification</th>
@@ -713,38 +715,38 @@ export default function AdminDashboard() {
                       <th className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Action</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-50">
+                    <tbody className="divide-y divide-white/[0.06]">
                       {filteredUsers.map((u) => (
-                        <tr key={u.id} className="hover:bg-indigo-50/30 transition-colors group">
+                        <tr key={u.id} className="hover:bg-[#1A233A]/50 transition-colors group">
                           <td className="px-8 py-6">
                             <div className="flex items-center gap-4">
-                              <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 transition-transform group-hover:scale-110">
+                              <div className="w-12 h-12 rounded-2xl bg-[#1A233A] border border-white/[0.08] flex items-center justify-center text-[#22C58B] transition-transform group-hover:scale-110">
                                 <Users className="w-6 h-6" />
                               </div>
                               <div>
-                                <div className="font-black text-slate-900">{u.email}</div>
-                                <div className="text-[10px] text-slate-400 font-mono tracking-tighter">UID: {u.id}</div>
+                                <div className="font-black text-white">{u.email}</div>
+                                <div className="text-[10px] text-slate-500 font-mono tracking-tighter">UID: {u.id}</div>
                               </div>
                             </div>
                           </td>
                           <td className="px-8 py-6">
                             <span className={cn(
-                              "text-[10px] px-3 py-1.5 rounded-full font-black uppercase tracking-widest",
-                              u.verificationStatus === "verified" ? "bg-emerald-100 text-emerald-700" :
-                              u.verificationStatus === "pending" ? "bg-amber-100 text-amber-700 animate-pulse" :
-                              u.verificationStatus === "rejected" ? "bg-rose-100 text-rose-700" :
-                              "bg-slate-100 text-slate-500"
+                              "text-[10px] px-3 py-1.5 rounded-full font-black uppercase tracking-widest border",
+                              u.verificationStatus === "verified" ? "bg-[#0D2524] text-[#22C58B] border-[#22C58B]/30" :
+                              u.verificationStatus === "pending" ? "bg-amber-500/10 text-[#F5B400] border-[#F5B400]/30 animate-pulse" :
+                              u.verificationStatus === "rejected" ? "bg-[#26131C] text-[#FB7185] border-[#F43F5E]/30" :
+                              "bg-[#1A233A] text-slate-400 border-white/[0.08]"
                             )}>
                               {u.verificationStatus || "unsubmitted"}
                             </span>
                           </td>
                           <td className="px-8 py-6">
-                            <div className="text-xl font-black text-slate-900 tracking-tighter font-mono">{formatCurrency(u.balance)}</div>
+                            <div className="text-xl font-black text-white tracking-tighter font-mono tabular-nums">{formatCurrency(u.balance)}</div>
                           </td>
                           <td className="px-8 py-6">
                             <span className={cn(
-                              "text-[10px] px-3 py-1.5 rounded-full font-black uppercase tracking-widest",
-                              u.role === "admin" ? "bg-amber-100 text-amber-700 shadow-sm" : "bg-slate-100 text-slate-500"
+                              "text-[10px] px-3 py-1.5 rounded-full font-black uppercase tracking-widest border",
+                              u.role === "admin" ? "bg-amber-500/15 text-[#F5B400] border-[#F5B400]/30" : "bg-[#1A233A] text-slate-400 border-white/[0.08]"
                             )}>
                               {u.role}
                             </span>
@@ -753,20 +755,20 @@ export default function AdminDashboard() {
                             <input 
                               type="number"
                               placeholder="0.00"
-                              className="w-28 bg-slate-100 border border-slate-200 rounded-xl py-2 px-3 text-slate-900 focus:bg-white focus:border-indigo-500 outline-none text-sm font-bold shadow-inner transition-all"
+                              className="w-28 bg-[#0B101D] border border-white/[0.1] rounded-xl py-2 px-3 text-white placeholder:text-slate-600 focus:border-[#22C58B] outline-none text-sm font-bold tabular-nums transition-all"
                               value={customAmounts[u.id] || ""}
                               onChange={(e) => setCustomAmounts({ ...customAmounts, [u.id]: e.target.value })}
                             />
                           </td>
                           <td className="px-8 py-6">
-                            <div className="flex gap-3">
+                            <div className="flex gap-2.5">
                               <button 
                                 onClick={() => {
                                   const amt = parseFloat(customAmounts[u.id] || "0");
                                   if (amt >= 0) handleUpdateBalance(u.id, amt);
                                   else toast.error("Enter valid positive amount");
                                 }}
-                                className="p-3 bg-emerald-50 hover:bg-emerald-600 text-emerald-600 hover:text-white rounded-xl transition-all shadow-sm hover:shadow-emerald-200"
+                                className="p-3 bg-[#0D2524] hover:bg-[#22C58B] text-[#22C58B] hover:text-[#0B101D] border border-[#22C58B]/20 rounded-xl transition-all"
                                 title="Add Amount"
                               >
                                 <ArrowDownLeft className="w-4 h-4" />
@@ -777,7 +779,7 @@ export default function AdminDashboard() {
                                   if (amt > 0) handleUpdateBalance(u.id, -amt);
                                   else toast.error("Enter valid positive amount");
                                 }}
-                                className="p-3 bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white rounded-xl transition-all shadow-sm hover:shadow-rose-200"
+                                className="p-3 bg-[#26131C] hover:bg-[#FB7185] text-[#FB7185] hover:text-[#0B101D] border border-[#F43F5E]/20 rounded-xl transition-all"
                                 title="Subtract Amount"
                               >
                                 <ArrowUpRight className="w-4 h-4" />
@@ -790,31 +792,31 @@ export default function AdminDashboard() {
                                     toast.error("Enter an amount to set");
                                   }
                                 }}
-                                className="p-3 bg-indigo-50 hover:bg-indigo-600 text-indigo-600 hover:text-white rounded-xl transition-all shadow-sm hover:shadow-indigo-200"
+                                className="p-3 bg-[#1A233A] hover:bg-[#F5B400] text-[#F5B400] hover:text-[#0B101D] border border-white/[0.08] rounded-xl transition-all"
                                 title="Set Exact Balance"
                               >
                                 <CheckCircle2 className="w-4 h-4" />
                               </button>
-                              <button
+                              <button 
                                 onClick={() => handleToggleRole(u)}
-                                className="p-3 bg-slate-100 hover:bg-slate-800 text-slate-400 hover:text-white rounded-xl transition-all"
+                                className="p-3 bg-[#1A233A] hover:bg-white/10 text-slate-300 hover:text-white border border-white/[0.08] rounded-xl transition-all"
                                 title="Toggle Admin"
                               >
                                 <ShieldCheck className="w-4 h-4" />
                               </button>
-                              <button
+                              <button 
                                 onClick={() => setSelectedUserKYC(u)}
-                                className="p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100"
+                                className="p-3 bg-[#F5B400] text-[#0B101D] rounded-xl hover:brightness-110 transition-all shadow-md"
                                 title="View User Info"
                               >
                                 <FileText className="w-4 h-4" />
                               </button>
-                              <button
+                              <button 
                                 onClick={() => {
                                   setSelectedUserChat(u.id);
                                   setActiveTab("support");
                                 }}
-                                className="p-3 bg-indigo-50 hover:bg-indigo-600 text-indigo-600 hover:text-white rounded-xl transition-all shadow-sm"
+                                className="p-3 bg-[#1A233A] hover:bg-[#22C58B] text-[#22C58B] hover:text-[#0B101D] border border-white/[0.08] rounded-xl transition-all"
                                 title="Contact User"
                               >
                                 <MessageSquare className="w-4 h-4" />
@@ -828,7 +830,7 @@ export default function AdminDashboard() {
                                   onClick={() => handleToggleTradeAction(u)}
                                   className={cn(
                                     "relative inline-flex h-6 w-11 items-center rounded-full transition-all focus:outline-none shadow-inner",
-                                    (u.tradeAction ?? true) ? "bg-emerald-500 shadow-emerald-200" : "bg-rose-500 shadow-rose-200"
+                                    (u.tradeAction ?? true) ? "bg-[#22C58B]" : "bg-[#FB7185]"
                                   )}
                                 >
                                   <span
@@ -840,14 +842,14 @@ export default function AdminDashboard() {
                                 </button>
                                 <span className={cn(
                                   "text-[8px] font-black uppercase tracking-[0.2em]",
-                                  (u.tradeAction ?? true) ? "text-emerald-600" : "text-rose-600"
+                                  (u.tradeAction ?? true) ? "text-[#22C58B]" : "text-[#FB7185]"
                                 )}>
                                   {(u.tradeAction ?? true) ? "On" : "Off"}
                                 </span>
                               </div>
-                              <button
+                              <button 
                                 onClick={() => handleDeleteUser(u)}
-                                className="p-3 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white rounded-xl transition-all shadow-sm hover:shadow-rose-200"
+                                className="p-3 bg-[#26131C] text-[#FB7185] hover:bg-[#FB7185] hover:text-[#0B101D] border border-[#F43F5E]/20 rounded-xl transition-all"
                                 title="Delete User"
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -864,23 +866,25 @@ export default function AdminDashboard() {
         )}
 
         {activeTab === "transactions" && (
-          <div className="bg-white border border-slate-100 rounded-[2.5rem] p-10 shadow-2xl shadow-slate-200/50">
+          <div className="bg-[#131B2E] border border-white/[0.08] rounded-[2.5rem] p-6 sm:p-10 shadow-2xl">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-12 gap-6">
               <div className="flex items-center gap-4">
-                <div className="p-3 bg-indigo-50 rounded-2xl">
-                  <TrendingUp className="w-8 h-8 text-indigo-600" />
+                <div className="p-3 bg-[#0D2524] border border-[#22C58B]/20 rounded-2xl">
+                  <TrendingUp className="w-8 h-8 text-[#22C58B]" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-black text-slate-900 tracking-tight">Audit Log</h3>
-                  <p className="text-slate-500 font-medium text-sm">Monitor and verify all system movements.</p>
+                  <h3 className="text-2xl font-black text-white tracking-tight">Audit Log</h3>
+                  <p className="text-slate-400 font-medium text-sm">Monitor and verify all system movements.</p>
                 </div>
               </div>
-              <div className="flex bg-slate-200 p-1.5 rounded-2xl shadow-inner">
+              <div className="flex bg-[#0B101D] border border-white/[0.08] p-1.5 rounded-2xl shadow-inner">
                 <button 
                   onClick={() => setTxFilter("pending")}
                   className={cn(
                     "px-6 py-2.5 rounded-[1.15rem] text-xs font-black uppercase tracking-widest transition-all",
-                    txFilter === "pending" ? "bg-white text-indigo-600 shadow-xl" : "text-slate-500 hover:text-slate-700"
+                    txFilter === "pending"
+                      ? "bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] text-[#0B101D] shadow-lg"
+                      : "text-slate-400 hover:text-white"
                   )}
                 >
                   Pending Action
@@ -889,7 +893,9 @@ export default function AdminDashboard() {
                   onClick={() => setTxFilter("all")}
                   className={cn(
                     "px-6 py-2.5 rounded-[1.15rem] text-xs font-black uppercase tracking-widest transition-all",
-                    txFilter === "all" ? "bg-white text-indigo-600 shadow-xl" : "text-slate-400 hover:text-slate-600"
+                    txFilter === "all"
+                      ? "bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] text-[#0B101D] shadow-lg"
+                      : "text-slate-400 hover:text-white"
                   )}
                 >
                   Full History
@@ -897,7 +903,7 @@ export default function AdminDashboard() {
               </div>
             </div>
             {pendingTxs.length === 0 ? (
-              <div className="text-center py-24 text-slate-400 italic font-medium">No system entries found in this vector.</div>
+              <div className="text-center py-24 text-slate-500 italic font-medium">No system entries found in this vector.</div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {pendingTxs.map((tx) => {
@@ -907,46 +913,46 @@ export default function AdminDashboard() {
                   const txName = tx.userName || txUser?.fullName || (tx.details?.match(/Name:\s*([^|]+)/i)?.[1]?.trim()) || "User";
 
                   return (
-                    <div key={tx.id} className="p-8 bg-slate-100 border border-slate-200 rounded-[2rem] space-y-6 hover:bg-white hover:shadow-2xl hover:shadow-slate-200/50 transition-all group">
+                    <div key={tx.id} className="p-8 bg-[#1A233A] border border-white/[0.08] rounded-[2rem] space-y-6 hover:border-white/[0.15] transition-all group">
                       <div className="flex justify-between items-start gap-4">
                         <div className="space-y-3">
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className={cn(
-                              "text-[10px] px-3 py-1.5 rounded-full inline-block uppercase font-black tracking-[0.2em] shadow-sm",
-                              tx.type === "deposit" && "bg-emerald-100 text-emerald-700",
-                              tx.type === "withdraw" && "bg-rose-100 text-rose-700",
-                              tx.type === "trade" && "bg-indigo-100 text-indigo-700"
+                              "text-[10px] px-3 py-1.5 rounded-full inline-block uppercase font-black tracking-[0.2em] border",
+                              tx.type === "deposit" && "bg-[#0D2524] text-[#22C58B] border-[#22C58B]/30",
+                              tx.type === "withdraw" && "bg-[#26131C] text-[#FB7185] border-[#F43F5E]/30",
+                              tx.type === "trade" && "bg-amber-500/10 text-[#F5B400] border-[#F5B400]/30"
                             )}>
                               {tx.type} Instance
                             </span>
                             {/* User name beside requested amount */}
-                            <span className="text-[10px] font-black uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2.5 py-1.5 rounded-full border border-indigo-100 shadow-sm shrink-0">
+                            <span className="text-[10px] font-black uppercase tracking-wider text-[#22C58B] bg-[#0D2524] px-2.5 py-1.5 rounded-full border border-[#22C58B]/30 shrink-0">
                               {txName}
                             </span>
                           </div>
                           <div className="flex flex-col">
-                            <span className="text-3xl font-black text-slate-900 tracking-tighter font-mono">{formatCurrency(tx.amount)}</span>
-                            <span className="text-xs font-semibold text-slate-500 mt-1">
-                              Requester: <span className="text-slate-800 font-bold">{txName}</span>
+                            <span className="text-3xl font-black text-white tracking-tighter font-mono tabular-nums">{formatCurrency(tx.amount)}</span>
+                            <span className="text-xs font-semibold text-slate-400 mt-1">
+                              Requester: <span className="text-white font-bold">{txName}</span>
                             </span>
                           </div>
                         </div>
                         <div className="text-right shrink-0">
                           <div className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">{tx.createdAt?.toDate?.()?.toLocaleDateString()}</div>
-                          <div className="text-[10px] text-slate-300 font-mono break-all max-w-[120px]">REF: {tx.id.toUpperCase()}</div>
+                          <div className="text-[10px] text-slate-500 font-mono break-all max-w-[120px]">REF: {tx.id.toUpperCase()}</div>
                         </div>
                       </div>
                       
                       {/* Operator Information Section */}
-                      <div className="bg-white/60 p-4 rounded-2xl border border-slate-200/50 space-y-2">
+                      <div className="bg-[#0B101D]/80 p-4 rounded-2xl border border-white/[0.08] space-y-2">
                         <div className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Operator Details</div>
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                           <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse shrink-0" />
-                            <span className="text-xs font-black text-slate-800 break-all">{txUser?.email || tx.userEmail || "Unknown Email"}</span>
+                            <div className="w-2 h-2 bg-[#22C58B] rounded-full animate-pulse shrink-0" />
+                            <span className="text-xs font-black text-white break-all">{txUser?.email || tx.userEmail || "Unknown Email"}</span>
                           </div>
                           {txName && (
-                            <span className="text-[10px] font-bold text-slate-500 bg-slate-200/60 px-2 py-0.5 rounded-md shrink-0">
+                            <span className="text-[10px] font-bold text-slate-300 bg-[#1A233A] px-2 py-0.5 rounded-md border border-white/[0.08] shrink-0">
                               {txName}
                             </span>
                           )}
@@ -955,36 +961,36 @@ export default function AdminDashboard() {
 
                       {/* Withdrawal Destination Section */}
                       {tx.type === "withdraw" && (
-                        <div className="bg-rose-50/50 p-4 rounded-2xl border border-rose-100 space-y-2">
-                          <div className="text-[10px] font-black text-rose-500 uppercase tracking-wider flex items-center gap-1.5">
+                        <div className="bg-[#26131C]/70 p-4 rounded-2xl border border-[#F43F5E]/25 space-y-2">
+                          <div className="text-[10px] font-black text-[#FB7185] uppercase tracking-wider flex items-center gap-1.5">
                             <ArrowUpRight className="w-3.5 h-3.5" />
                             Withdrawal Destination Address
                           </div>
-                          <div className="bg-white p-3 rounded-xl border border-rose-100/50 font-mono text-xs text-slate-800 break-all select-all flex items-center justify-between gap-2 shadow-sm">
+                          <div className="bg-[#0B101D] p-3 rounded-xl border border-white/[0.08] font-mono text-xs text-slate-200 break-all select-all flex items-center justify-between gap-2">
                             <div className="flex flex-col gap-1 w-full">
-                              <span className="font-semibold break-all selection:bg-rose-100">{withdrawAddress || "N/A"}</span>
-                              <span className="text-[10px] text-slate-500 font-sans font-bold">Payee: <span className="text-indigo-600 uppercase font-black">{txName}</span></span>
+                              <span className="font-semibold break-all selection:bg-[#FB7185]/30">{withdrawAddress || "N/A"}</span>
+                              <span className="text-[10px] text-slate-400 font-sans font-bold">Payee: <span className="text-[#F5B400] uppercase font-black">{txName}</span></span>
                             </div>
                             <button
                               onClick={() => {
                                 navigator.clipboard.writeText(withdrawAddress || "");
                                 toast.success("Withdrawal address copied!");
                               }}
-                              className="text-[9px] bg-slate-100 hover:bg-slate-200 text-slate-600 px-2 py-1 rounded font-sans font-bold uppercase transition-all shrink-0 border border-slate-200"
+                              className="text-[9px] bg-[#1A233A] hover:bg-[#22C58B] text-slate-200 hover:text-[#0B101D] px-2.5 py-1.5 rounded font-sans font-bold uppercase transition-all shrink-0 border border-white/[0.1]"
                             >
                               Copy
                             </button>
                           </div>
                           {withdrawNetwork && (
-                            <div className="text-[10px] text-slate-500 font-bold">
-                              Network: <span className="text-rose-600 uppercase font-black">{withdrawNetwork}</span>
+                            <div className="text-[10px] text-slate-400 font-bold">
+                              Network: <span className="text-[#FB7185] uppercase font-black">{withdrawNetwork}</span>
                             </div>
                           )}
                         </div>
                       )}
                       
                       {tx.details && tx.type !== "withdraw" && (
-                        <div className="text-sm text-slate-500 font-medium bg-white/50 p-4 rounded-2xl border border-slate-100">{tx.details}</div>
+                        <div className="text-sm text-slate-300 font-medium bg-[#0B101D]/60 p-4 rounded-2xl border border-white/[0.08]">{tx.details}</div>
                       )}
 
                       {tx.receipt && (
@@ -995,12 +1001,12 @@ export default function AdminDashboard() {
                           </div>
                           <div 
                             onClick={() => setSelectedReceipt(tx.receipt!)}
-                            className="rounded-[1.5rem] overflow-hidden border border-slate-200 bg-white group cursor-pointer relative h-32 shadow-sm"
+                            className="rounded-[1.5rem] overflow-hidden border border-white/[0.1] bg-[#0B101D] group cursor-pointer relative h-32"
                           >
                             <img src={tx.receipt} referrerPolicy="no-referrer" alt="Deposit Receipt" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                            <div className="absolute inset-0 flex items-center justify-center bg-indigo-600/0 group-hover:bg-indigo-600/20 transition-all">
-                              <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-xl opacity-0 scale-50 group-hover:opacity-100 group-hover:scale-100 transition-all">
-                                <Search className="w-5 h-5 text-indigo-600" />
+                            <div className="absolute inset-0 flex items-center justify-center bg-[#0B101D]/0 group-hover:bg-[#0B101D]/40 transition-all">
+                              <div className="w-10 h-10 bg-[#131B2E] border border-white/[0.15] rounded-full flex items-center justify-center shadow-xl opacity-0 scale-50 group-hover:opacity-100 group-hover:scale-100 transition-all">
+                                <Search className="w-5 h-5 text-[#22C58B]" />
                               </div>
                             </div>
                           </div>
@@ -1011,13 +1017,13 @@ export default function AdminDashboard() {
                         <div className="flex gap-4 pt-4">
                           <button 
                             onClick={() => handleProcessTransaction(tx, "completed")}
-                            className="flex-1 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-2xl transition-all shadow-xl shadow-emerald-100 uppercase tracking-widest text-xs"
+                            className="flex-1 py-4 bg-[#22C58B] hover:brightness-110 text-[#0B101D] font-black rounded-2xl transition-all shadow-lg uppercase tracking-widest text-xs"
                           >
                             Authorize
                           </button>
                           <button 
                             onClick={() => handleProcessTransaction(tx, "failed")}
-                            className="flex-1 py-4 bg-white hover:bg-rose-50 text-rose-600 border border-rose-100 font-black rounded-2xl transition-all uppercase tracking-widest text-xs"
+                            className="flex-1 py-4 bg-[#26131C] hover:bg-[#FB7185] text-[#FB7185] hover:text-[#0B101D] border border-[#F43F5E]/30 font-black rounded-2xl transition-all uppercase tracking-widest text-xs"
                           >
                             Decline
                           </button>
@@ -1026,8 +1032,10 @@ export default function AdminDashboard() {
                       {tx.status !== "pending" && (
                         <div className="pt-4">
                           <div className={cn(
-                            "w-full py-3 text-center rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] shadow-inner",
-                            tx.status === "completed" ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"
+                            "w-full py-3 text-center rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] border",
+                            tx.status === "completed"
+                              ? "bg-[#0D2524] text-[#22C58B] border-[#22C58B]/25"
+                              : "bg-[#26131C] text-[#FB7185] border-[#F43F5E]/25"
                           )}>
                             Transmission {tx.status}
                           </div>
@@ -1044,10 +1052,10 @@ export default function AdminDashboard() {
         {activeTab === "support" && (
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 min-h-[700px]">
             {/* User List */}
-            <div className="lg:col-span-1 bg-white border border-slate-100 rounded-[2.5rem] overflow-hidden flex flex-col shadow-2xl shadow-slate-200/50">
-              <div className="p-8 border-b border-slate-100 bg-slate-100/30 space-y-4">
-                <h3 className="font-black text-slate-900 tracking-tight flex items-center gap-3">
-                  <MessageSquare className="w-6 h-6 text-indigo-600" />
+            <div className="lg:col-span-1 bg-[#131B2E] border border-white/[0.08] rounded-[2.5rem] overflow-hidden flex flex-col shadow-2xl">
+              <div className="p-8 border-b border-white/[0.08] bg-[#0F1629] space-y-4">
+                <h3 className="font-black text-white tracking-tight flex items-center gap-3">
+                  <MessageSquare className="w-6 h-6 text-[#22C58B]" />
                   Terminal Chats
                 </h3>
                 <div className="space-y-1.5">
@@ -1059,11 +1067,11 @@ export default function AdminDashboard() {
                         setSelectedUserChat(e.target.value);
                       }
                     }}
-                    className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-sm"
+                    className="w-full bg-[#0B101D] border border-white/[0.1] rounded-xl px-3 py-2 text-xs font-bold text-white focus:outline-none focus:border-[#22C58B]"
                   >
-                    <option value="">-- Choose User --</option>
+                    <option value="" className="bg-[#131B2E] text-white">-- Choose User --</option>
                     {users.filter(u => u.email !== "habeshatilaye@gmail.com").map(u => (
-                      <option key={u.id} value={u.id}>
+                      <option key={u.id} value={u.id} className="bg-[#131B2E] text-white">
                         {u.email} {u.fullName ? `(${u.fullName})` : ""}
                       </option>
                     ))}
@@ -1079,7 +1087,7 @@ export default function AdminDashboard() {
 
                   if (chatUserIds.length === 0) {
                     return (
-                      <div className="p-12 text-center text-slate-400 italic">
+                      <div className="p-12 text-center text-slate-500 italic">
                         No active support chats. Select a user above to begin.
                       </div>
                     );
@@ -1093,16 +1101,16 @@ export default function AdminDashboard() {
                         key={uId}
                         onClick={() => setSelectedUserChat(uId)}
                         className={cn(
-                          "w-full p-6 flex items-center gap-4 hover:bg-slate-100 transition-all text-left",
-                          selectedUserChat === uId ? "bg-indigo-50/50 border-r-4 border-indigo-600" : "border-b border-slate-100"
+                          "w-full p-6 flex items-center gap-4 hover:bg-[#1A233A]/60 transition-all text-left",
+                          selectedUserChat === uId ? "bg-[#1A233A] border-r-4 border-[#22C58B]" : "border-b border-white/[0.06]"
                         )}
                       >
-                        <div className="w-12 h-12 rounded-2xl bg-white shadow-sm border border-slate-100 flex items-center justify-center text-indigo-600">
+                        <div className="w-12 h-12 rounded-2xl bg-[#0B101D] border border-white/[0.08] flex items-center justify-center text-[#22C58B]">
                           <User className="w-6 h-6" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="text-sm font-black text-slate-900 truncate">{userProfile?.email || uId}</div>
-                          <div className="text-[10px] text-slate-500 truncate font-medium">{lastMsg?.text || "No transmissions yet"}</div>
+                          <div className="text-sm font-black text-white truncate">{userProfile?.email || uId}</div>
+                          <div className="text-[10px] text-slate-400 truncate font-medium">{lastMsg?.text || "No transmissions yet"}</div>
                         </div>
                       </button>
                     );
@@ -1112,53 +1120,53 @@ export default function AdminDashboard() {
             </div>
 
             {/* Chat Window */}
-            <div className="lg:col-span-3 bg-white border border-slate-100 rounded-[2.5rem] overflow-hidden flex flex-col shadow-2xl shadow-slate-200/50">
+            <div className="lg:col-span-3 bg-[#131B2E] border border-white/[0.08] rounded-[2.5rem] overflow-hidden flex flex-col shadow-2xl">
               {selectedUserChat ? (
                 <>
-                  <div className="p-8 border-b border-slate-50 flex items-center justify-between">
+                  <div className="p-8 border-b border-white/[0.08] bg-[#0F1629] flex items-center justify-between">
                     <div>
-                      <h3 className="font-black text-slate-900 tracking-tight text-xl">{users.find(u => u.id === selectedUserChat)?.email}</h3>
+                      <h3 className="font-black text-white tracking-tight text-xl">{users.find(u => u.id === selectedUserChat)?.email}</h3>
                       <div className="flex items-center gap-2 mt-1">
-                        <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                        <div className="w-2 h-2 bg-[#22C58B] rounded-full animate-pulse" />
                         <span className="text-[10px] text-slate-400 font-black uppercase tracking-widest leading-none">Established Uplink</span>
                       </div>
                     </div>
                   </div>
                   
-                  <div className="flex-1 overflow-y-auto p-10 space-y-8 bg-slate-100/30">
+                  <div className="flex-1 overflow-y-auto p-10 space-y-8 bg-[#0B101D]/60">
                     {allMessages.filter(m => m.userId === selectedUserChat).map((msg) => (
                       <div key={msg.id} className={cn(
                         "flex flex-col max-w-[75%]",
                         msg.isAdmin ? "ml-auto items-end" : "mr-auto"
                       )}>
                         <div className={cn(
-                          "p-5 rounded-3xl text-sm font-medium shadow-sm transition-all hover:shadow-md",
+                          "p-5 rounded-3xl text-sm font-medium shadow-sm transition-all",
                           msg.isAdmin 
-                            ? "bg-indigo-600 text-white rounded-br-none" 
-                            : "bg-white text-slate-900 border border-slate-100 rounded-bl-none"
+                            ? "bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] text-[#0B101D] font-semibold rounded-br-none" 
+                            : "bg-[#1A233A] text-slate-100 border border-white/[0.08] rounded-bl-none"
                         )}>
                           {msg.text}
                         </div>
-                        <span className="text-[10px] font-black uppercase text-slate-300 mt-3 mx-2 tracking-widest font-mono">
+                        <span className="text-[10px] font-black uppercase text-slate-500 mt-3 mx-2 tracking-widest font-mono">
                           {msg.createdAt?.toDate?.()?.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
                     ))}
                   </div>
 
-                  <div className="p-10 bg-white border-t border-slate-50">
+                  <div className="p-8 sm:p-10 bg-[#0F1629] border-t border-white/[0.08]">
                     <form onSubmit={handleSendMessage} className="flex gap-4">
                       <input 
                         type="text"
                         placeholder="Transmit response..."
-                        className="flex-1 bg-slate-100 border border-slate-200 rounded-2xl px-6 py-5 text-slate-900 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-50 focus:border-indigo-400 transition-all font-medium shadow-inner"
+                        className="flex-1 bg-[#0B101D] border border-white/[0.1] rounded-2xl px-6 py-5 text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-[#22C58B]/20 focus:border-[#22C58B] transition-all font-medium"
                         value={replyText}
                         onChange={(e) => setReplyText(e.target.value)}
                       />
                       <button 
                         type="submit"
                         disabled={isSending || !replyText.trim()}
-                        className="px-10 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-black rounded-2xl transition-all shadow-xl shadow-indigo-100 flex items-center gap-3 uppercase tracking-widest text-xs"
+                        className="px-10 bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] hover:brightness-105 disabled:opacity-50 text-[#0B101D] font-black rounded-2xl transition-all shadow-lg flex items-center gap-3 uppercase tracking-widest text-xs"
                       >
                         <Send className="w-5 h-5" />
                         Transmit
@@ -1167,13 +1175,13 @@ export default function AdminDashboard() {
                   </div>
                 </>
               ) : (
-                <div className="flex-1 flex flex-col items-center justify-center text-center p-24 space-y-8 opacity-50">
-                  <div className="w-24 h-24 bg-slate-100 rounded-[2rem] flex items-center justify-center shadow-inner">
-                    <MessageSquare className="w-12 h-12 text-slate-300" />
+                <div className="flex-1 flex flex-col items-center justify-center text-center p-24 space-y-8 opacity-60">
+                  <div className="w-24 h-24 bg-[#1A233A] border border-white/[0.08] rounded-[2rem] flex items-center justify-center">
+                    <MessageSquare className="w-12 h-12 text-slate-400" />
                   </div>
                   <div>
-                    <h3 className="text-3xl font-black text-slate-900 tracking-tight">Access Terminal</h3>
-                    <p className="text-slate-500 font-medium max-w-sm mx-auto mt-4 leading-relaxed">Select specialized vector to initiate secure direct communication protocols.</p>
+                    <h3 className="text-3xl font-black text-white tracking-tight">Access Terminal</h3>
+                    <p className="text-slate-400 font-medium max-w-sm mx-auto mt-4 leading-relaxed">Select specialized vector to initiate secure direct communication protocols.</p>
                   </div>
                 </div>
               )}
@@ -1183,8 +1191,8 @@ export default function AdminDashboard() {
 
         {activeTab === "news" && (
           <div className="space-y-8">
-            <div className="bg-white border border-slate-100 rounded-[2.5rem] p-10 shadow-2xl shadow-slate-200/50">
-              <h3 className="text-2xl font-black text-slate-900 tracking-tight mb-8">Post Global News</h3>
+            <div className="bg-[#131B2E] border border-white/[0.08] rounded-[2.5rem] p-8 sm:p-10 shadow-2xl">
+              <h3 className="text-2xl font-black text-white tracking-tight mb-8">Post Global News</h3>
               <form onSubmit={handlePostNews} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
@@ -1192,7 +1200,7 @@ export default function AdminDashboard() {
                     <input 
                       type="text"
                       required
-                      className="w-full bg-slate-100 border border-slate-200 rounded-xl py-3 px-4 text-sm text-slate-900 focus:bg-white focus:border-indigo-500 outline-none font-medium"
+                      className="w-full bg-[#0B101D] border border-white/[0.1] rounded-xl py-3 px-4 text-sm text-white placeholder:text-slate-600 focus:border-[#22C58B] outline-none font-medium"
                       placeholder="e.g. Bitcoin Hits New All-Time High"
                       value={newsTitle}
                       onChange={(e) => setNewsTitle(e.target.value)}
@@ -1202,7 +1210,7 @@ export default function AdminDashboard() {
                     <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Summary (Short)</label>
                     <input 
                       type="text"
-                      className="w-full bg-slate-100 border border-slate-200 rounded-xl py-3 px-4 text-sm text-slate-900 focus:bg-white focus:border-indigo-500 outline-none font-medium"
+                      className="w-full bg-[#0B101D] border border-white/[0.1] rounded-xl py-3 px-4 text-sm text-white placeholder:text-slate-600 focus:border-[#22C58B] outline-none font-medium"
                       placeholder="Brief overview of the news"
                       value={newsSummary}
                       onChange={(e) => setNewsSummary(e.target.value)}
@@ -1215,7 +1223,7 @@ export default function AdminDashboard() {
                   <textarea 
                     required
                     rows={4}
-                    className="w-full bg-slate-100 border border-slate-200 rounded-xl py-3 px-4 text-sm text-slate-900 focus:bg-white focus:border-indigo-500 outline-none font-medium resize-none"
+                    className="w-full bg-[#0B101D] border border-white/[0.1] rounded-xl py-3 px-4 text-sm text-white placeholder:text-slate-600 focus:border-[#22C58B] outline-none font-medium resize-none"
                     placeholder="Full news content..."
                     value={newsContent}
                     onChange={(e) => setNewsContent(e.target.value)}
@@ -1234,10 +1242,10 @@ export default function AdminDashboard() {
                     />
                     <label 
                       htmlFor="news-img-upload"
-                      className="flex items-center justify-center gap-3 bg-slate-100 border-2 border-dashed border-slate-200 rounded-xl py-4 px-6 text-slate-400 hover:border-indigo-300 hover:bg-indigo-50/50 transition-all cursor-pointer flex-1"
+                      className="flex items-center justify-center gap-3 bg-[#0B101D] border-2 border-dashed border-white/[0.12] rounded-xl py-4 px-6 text-slate-400 hover:border-[#22C58B]/50 hover:bg-[#1A233A] transition-all cursor-pointer flex-1"
                     >
                       {newsImageUrl ? (
-                        <div className="flex items-center gap-3 text-indigo-600">
+                        <div className="flex items-center gap-3 text-[#22C58B]">
                           <CheckCircle2 className="w-5 h-5" />
                           <span className="text-xs font-bold uppercase">Image Loaded</span>
                         </div>
@@ -1249,7 +1257,7 @@ export default function AdminDashboard() {
                       )}
                     </label>
                     {newsImageUrl && (
-                      <div className="w-20 h-20 rounded-xl overflow-hidden border border-slate-100">
+                      <div className="w-20 h-20 rounded-xl overflow-hidden border border-white/[0.1]">
                         <img src={newsImageUrl} referrerPolicy="no-referrer" className="w-full h-full object-cover" />
                       </div>
                     )}
@@ -1259,7 +1267,7 @@ export default function AdminDashboard() {
                 <button 
                   type="submit"
                   disabled={isPostingNews}
-                  className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-black py-4 rounded-xl transition-all shadow-xl shadow-indigo-100 active:scale-95 uppercase tracking-widest text-xs"
+                  className="w-full bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] hover:brightness-105 disabled:opacity-50 text-[#0B101D] font-black py-4 rounded-xl transition-all shadow-lg active:scale-95 uppercase tracking-widest text-xs"
                 >
                   {isPostingNews ? "Propagating News..." : "Release Article"}
                 </button>
@@ -1268,20 +1276,20 @@ export default function AdminDashboard() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {newsList.map((news) => (
-                <div key={news.id} className="bg-white border border-slate-100 rounded-[2rem] overflow-hidden shadow-sm hover:shadow-xl transition-all group">
+                <div key={news.id} className="bg-[#131B2E] border border-white/[0.08] rounded-[2rem] overflow-hidden shadow-lg hover:border-white/[0.15] transition-all group">
                   {news.imageUrl && (
                     <div className="h-48 overflow-hidden">
                       <img src={news.imageUrl} referrerPolicy="no-referrer" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                     </div>
                   )}
                   <div className="p-6">
-                    <h4 className="font-black text-slate-900 leading-tight mb-2 line-clamp-2">{news.title}</h4>
-                    <p className="text-xs text-slate-500 font-medium line-clamp-3 mb-4">{news.summary}</p>
-                    <div className="flex justify-between items-center pt-4 border-t border-slate-50">
-                      <span className="text-[10px] font-bold text-slate-300 uppercase">{news.createdAt?.toDate?.()?.toLocaleDateString()}</span>
+                    <h4 className="font-black text-white leading-tight mb-2 line-clamp-2">{news.title}</h4>
+                    <p className="text-xs text-slate-400 font-medium line-clamp-3 mb-4">{news.summary}</p>
+                    <div className="flex justify-between items-center pt-4 border-t border-white/[0.06]">
+                      <span className="text-[10px] font-bold text-slate-500 uppercase">{news.createdAt?.toDate?.()?.toLocaleDateString()}</span>
                       <button 
                         onClick={() => handleDeleteNews(news.id, news.title)}
-                        className="text-rose-500 hover:text-rose-700 p-2"
+                        className="text-[#FB7185] hover:text-rose-400 p-2"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -1296,14 +1304,14 @@ export default function AdminDashboard() {
         {activeTab === "settings" && (
           <div className="space-y-10 max-w-4xl">
             {/* Protocol Gateways Card */}
-            <div className="bg-white border border-slate-100 rounded-[2.5rem] p-12 shadow-2xl shadow-slate-200/50">
+            <div className="bg-[#131B2E] border border-white/[0.08] rounded-[2.5rem] p-8 sm:p-12 shadow-2xl">
               <div className="flex items-center gap-6 mb-12">
-                <div className="p-4 bg-amber-50 rounded-[1.5rem]">
-                  <Bitcoin className="w-8 h-8 text-amber-500" />
+                <div className="p-4 bg-amber-500/10 border border-[#F5B400]/25 rounded-[1.5rem]">
+                  <Bitcoin className="w-8 h-8 text-[#F5B400]" />
                 </div>
                 <div>
-                  <h3 className="text-3xl font-black text-slate-900 tracking-tight">Protocol Gateways</h3>
-                  <p className="text-slate-500 font-medium">Update institutional receiving handles.</p>
+                  <h3 className="text-3xl font-black text-white tracking-tight">Protocol Gateways</h3>
+                  <p className="text-slate-400 font-medium">Update institutional receiving handles.</p>
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
@@ -1312,17 +1320,17 @@ export default function AdminDashboard() {
                     <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">{coin} Secure Handle</label>
                     <input 
                       type="text"
-                      className="w-full bg-slate-100 border border-slate-200 rounded-2xl py-5 px-6 text-slate-900 focus:bg-white focus:ring-4 focus:ring-indigo-50 focus:border-indigo-400 outline-none font-mono text-sm shadow-inner transition-all"
+                      className="w-full bg-[#0B101D] border border-white/[0.1] rounded-2xl py-5 px-6 text-white focus:ring-2 focus:ring-[#22C58B]/20 focus:border-[#22C58B] outline-none font-mono text-sm transition-all"
                       value={(settings as any)[`${coin}_address`] || ""}
                       onChange={(e) => setSettings({ ...settings, [`${coin}_address`]: e.target.value })}
                     />
                   </div>
                 ))}
               </div>
-              <div className="mt-12 pt-12 border-t border-slate-100">
+              <div className="mt-12 pt-12 border-t border-white/[0.08]">
                 <button 
                   onClick={handleUpdateSettings}
-                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-6 rounded-2xl transition-all flex items-center justify-center gap-4 shadow-2xl shadow-indigo-200 active:scale-95 uppercase tracking-widest"
+                  className="w-full bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] hover:brightness-105 text-[#0B101D] font-black py-6 rounded-2xl transition-all flex items-center justify-center gap-4 shadow-lg active:scale-95 uppercase tracking-widest"
                 >
                   <Save className="w-6 h-6" /> Commit Protocol Changes
                 </button>
@@ -1330,27 +1338,27 @@ export default function AdminDashboard() {
             </div>
 
             {/* Database Integrity & Privacy Sync Card */}
-            <div className="bg-white border border-slate-100 rounded-[2.5rem] p-12 shadow-2xl shadow-slate-200/50">
+            <div className="bg-[#131B2E] border border-white/[0.08] rounded-[2.5rem] p-8 sm:p-12 shadow-2xl">
               <div className="flex items-center gap-6 mb-12">
-                <div className="p-4 bg-rose-50 rounded-[1.5rem]">
-                  <ShieldCheck className="w-8 h-8 text-rose-500" />
+                <div className="p-4 bg-[#26131C] border border-[#F43F5E]/30 rounded-[1.5rem]">
+                  <ShieldCheck className="w-8 h-8 text-[#FB7185]" />
                 </div>
                 <div>
-                  <h3 className="text-3xl font-black text-slate-900 tracking-tight">Data Integrity & Privacy</h3>
-                  <p className="text-slate-500 font-medium">Synchronize database collections to enforce compliance and complete erasure requests.</p>
+                  <h3 className="text-3xl font-black text-white tracking-tight">Data Integrity & Privacy</h3>
+                  <p className="text-slate-400 font-medium">Synchronize database collections to enforce compliance and complete erasure requests.</p>
                 </div>
               </div>
 
-              <div className="bg-slate-50 rounded-3xl p-8 space-y-6">
-                <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 pb-6 border-b border-slate-200/60">
+              <div className="bg-[#0B101D] border border-white/[0.08] rounded-3xl p-8 space-y-6">
+                <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 pb-6 border-b border-white/[0.08]">
                   <div>
-                    <h4 className="font-black text-sm text-slate-900 uppercase tracking-widest">Leftover Support Chats</h4>
-                    <p className="text-xs text-slate-500 font-medium mt-1">Chat documents containing deleted user emails or messages.</p>
+                    <h4 className="font-black text-sm text-white uppercase tracking-widest">Leftover Support Chats</h4>
+                    <p className="text-xs text-slate-400 font-medium mt-1">Chat documents containing deleted user emails or messages.</p>
                   </div>
-                  <div className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider ${
+                  <div className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider border ${
                     allMessages.filter(m => m.userId && !new Set(users.map(u => u.id)).has(m.userId)).length > 0
-                      ? "bg-amber-100 text-amber-800 animate-pulse" 
-                      : "bg-emerald-100 text-emerald-800"
+                      ? "bg-amber-500/10 text-[#F5B400] border-[#F5B400]/30 animate-pulse" 
+                      : "bg-[#0D2524] text-[#22C58B] border-[#22C58B]/30"
                   }`}>
                     {allMessages.filter(m => m.userId && !new Set(users.map(u => u.id)).has(m.userId)).length} Orphaned Messages
                   </div>
@@ -1358,20 +1366,20 @@ export default function AdminDashboard() {
 
                 <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                   <div>
-                    <h4 className="font-black text-sm text-slate-900 uppercase tracking-widest">Orphaned Transactions</h4>
-                    <p className="text-xs text-slate-500 font-medium mt-1">Transaction entries with credentials from deleted operator accounts.</p>
+                    <h4 className="font-black text-sm text-white uppercase tracking-widest">Orphaned Transactions</h4>
+                    <p className="text-xs text-slate-400 font-medium mt-1">Transaction entries with credentials from deleted operator accounts.</p>
                   </div>
-                  <div className="text-slate-400 text-xs font-black uppercase tracking-wider italic">
+                  <div className="text-slate-500 text-xs font-black uppercase tracking-wider italic">
                     Requires Deep Scan
                   </div>
                 </div>
               </div>
 
-              <div className="mt-12 pt-12 border-t border-slate-100 flex flex-col md:flex-row gap-6">
+              <div className="mt-12 pt-12 border-t border-white/[0.08] flex flex-col md:flex-row gap-6">
                 <button 
                   onClick={purgeOrphanedData}
                   disabled={isCleaning}
-                  className="flex-1 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white font-black py-6 rounded-2xl transition-all flex items-center justify-center gap-4 shadow-2xl shadow-rose-200 active:scale-95 uppercase tracking-widest text-xs"
+                  className="flex-1 bg-[#26131C] hover:bg-[#FB7185] text-[#FB7185] hover:text-[#0B101D] border border-[#F43F5E]/30 disabled:opacity-50 font-black py-6 rounded-2xl transition-all flex items-center justify-center gap-4 active:scale-95 uppercase tracking-widest text-xs"
                 >
                   <Trash2 className="w-5 h-5" /> 
                   {isCleaning ? "Deep Sweeping..." : "Purge Orphaned Chats & Trades"}
@@ -1379,7 +1387,7 @@ export default function AdminDashboard() {
                 <button 
                   onClick={() => reconcileAuthUsers(true)}
                   disabled={isSyncingUsers}
-                  className="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-black py-6 rounded-2xl transition-all flex items-center justify-center gap-4 shadow-2xl shadow-indigo-100 active:scale-95 uppercase tracking-widest text-xs"
+                  className="flex-1 bg-[#1A233A] hover:bg-[#22C58B] text-[#22C58B] hover:text-[#0B101D] border border-[#22C58B]/30 disabled:opacity-50 font-black py-6 rounded-2xl transition-all flex items-center justify-center gap-4 active:scale-95 uppercase tracking-widest text-xs"
                 >
                   <RefreshCw className={cn("w-5 h-5", isSyncingUsers && "animate-spin")} />
                   {isSyncingUsers ? "Syncing..." : "Sync Registered Profiles"}
@@ -1387,9 +1395,9 @@ export default function AdminDashboard() {
                 <button 
                   onClick={purgeAllNonAdminUsers}
                   disabled={isCleaning}
-                  className="flex-1 bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-white font-black py-6 rounded-2xl transition-all flex items-center justify-center gap-4 shadow-2xl shadow-slate-900/10 active:scale-95 uppercase tracking-widest text-xs border border-slate-800"
+                  className="flex-1 bg-[#0B101D] hover:bg-[#26131C] disabled:opacity-50 text-white font-black py-6 rounded-2xl transition-all flex items-center justify-center gap-4 active:scale-95 uppercase tracking-widest text-xs border border-[#F43F5E]/30"
                 >
-                  <ShieldCheck className="w-5 h-5 text-rose-500" />
+                  <ShieldCheck className="w-5 h-5 text-[#FB7185]" />
                   {isCleaning ? "Purging Registry..." : "Wipe All Non-Admin Accounts"}
                 </button>
               </div>
@@ -1407,63 +1415,63 @@ export default function AdminDashboard() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setSelectedUserKYC(null)}
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+              className="absolute inset-0 bg-[#0B101D]/80 backdrop-blur-md"
             />
             <motion.div 
               initial={{ scale: 0.9, opacity: 0, y: 30 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 30 }}
-              className="relative w-full max-w-4xl bg-white rounded-[3rem] overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"
+              className="relative w-full max-w-4xl bg-[#131B2E] border border-white/[0.1] rounded-[3rem] overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"
             >
-              <div className="p-8 border-b border-slate-50 bg-white flex items-center justify-between">
+              <div className="p-8 border-b border-white/[0.08] bg-[#0F1629] flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center shadow-inner">
+                  <div className="w-14 h-14 bg-[#0D2524] border border-[#22C58B]/30 text-[#22C58B] rounded-2xl flex items-center justify-center">
                     <User className="w-8 h-8" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-black text-slate-900 tracking-tight">Identity Dossier</h3>
-                    <p className="text-[10px] text-indigo-600 uppercase tracking-[0.3em] font-black">{selectedUserKYC.email}</p>
+                    <h3 className="text-2xl font-black text-white tracking-tight">Identity Dossier</h3>
+                    <p className="text-[10px] text-[#22C58B] uppercase tracking-[0.3em] font-black">{selectedUserKYC.email}</p>
                   </div>
                 </div>
                 <button 
                   onClick={() => setSelectedUserKYC(null)}
-                  className="p-3 hover:bg-slate-100 rounded-2xl text-slate-400 hover:text-slate-900 transition-all"
+                  className="p-3 hover:bg-[#1A233A] rounded-2xl text-slate-400 hover:text-white transition-all"
                 >
                   <X className="w-8 h-8" />
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-12 space-y-12">
+              <div className="flex-1 overflow-y-auto p-8 sm:p-12 space-y-12">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  <div className="space-y-3 bg-slate-100 p-6 rounded-[2rem] border border-slate-200 shadow-inner">
+                  <div className="space-y-3 bg-[#1A233A] p-6 rounded-[2rem] border border-white/[0.08]">
                     <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Legal Identity</label>
-                    <p className="text-slate-900 font-black text-lg leading-tight">{selectedUserKYC.fullName || "UNREGISTERED"}</p>
+                    <p className="text-white font-black text-lg leading-tight">{selectedUserKYC.fullName || "UNREGISTERED"}</p>
                   </div>
-                  <div className="space-y-3 bg-slate-100 p-6 rounded-[2rem] border border-slate-200 shadow-inner">
+                  <div className="space-y-3 bg-[#1A233A] p-6 rounded-[2rem] border border-white/[0.08]">
                     <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Comm Vector</label>
                     <div className="flex items-start gap-3">
-                       <Phone className="w-5 h-5 text-indigo-400 shrink-0" />
-                       <p className="text-slate-900 font-black tracking-tight">{selectedUserKYC.phoneNumber || "UNLINKED"}</p>
+                       <Phone className="w-5 h-5 text-[#22C58B] shrink-0" />
+                       <p className="text-white font-black tracking-tight">{selectedUserKYC.phoneNumber || "UNLINKED"}</p>
                     </div>
                   </div>
-                  <div className="space-y-3 bg-slate-100 p-6 rounded-[2rem] border border-slate-200 shadow-inner">
+                  <div className="space-y-3 bg-[#1A233A] p-6 rounded-[2rem] border border-white/[0.08]">
                     <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Base Coordinates</label>
                     <div className="flex items-start gap-3">
-                       <MapPin className="w-5 h-5 text-indigo-400 shrink-0" />
-                       <p className="text-slate-900 font-black tracking-tight leading-snug">{selectedUserKYC.address || "OFF-GRID"}</p>
+                       <MapPin className="w-5 h-5 text-[#F5B400] shrink-0" />
+                       <p className="text-white font-black tracking-tight leading-snug">{selectedUserKYC.address || "OFF-GRID"}</p>
                     </div>
                   </div>
                 </div>
 
                 <div className="space-y-6">
                   <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] flex items-center gap-3">
-                    <div className="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center">
+                    <div className="w-8 h-8 bg-[#1A233A] border border-white/[0.08] text-[#22C58B] rounded-xl flex items-center justify-center">
                       <FileText className="w-4 h-4" />
                     </div>
                     Proof of Identity Objective
                   </label>
                   {selectedUserKYC.verificationDoc ? (
-                    <div className="rounded-[2.5rem] border-4 border-slate-100 bg-white overflow-hidden shadow-2xl relative group ring-1 ring-slate-100">
+                    <div className="rounded-[2.5rem] border border-white/[0.1] bg-[#0B101D] overflow-hidden shadow-2xl relative group">
                       <img 
                         src={selectedUserKYC.verificationDoc} 
                         referrerPolicy="no-referrer"
@@ -1471,17 +1479,17 @@ export default function AdminDashboard() {
                         className="w-full h-auto object-contain cursor-zoom-in group-hover:scale-[1.03] transition-transform duration-700"
                         onClick={() => window.open(selectedUserKYC.verificationDoc, "_blank")}
                       />
-                      <div className="absolute inset-0 bg-indigo-600/0 group-hover:bg-indigo-600/5 transition-colors pointer-events-none" />
+                      <div className="absolute inset-0 bg-[#22C58B]/0 group-hover:bg-[#22C58B]/5 transition-colors pointer-events-none" />
                     </div>
                   ) : (
-                    <div className="p-24 text-center bg-slate-100 rounded-[2.5rem] border border-slate-200 text-slate-400 font-black italic uppercase tracking-widest text-xs">
+                    <div className="p-24 text-center bg-[#0B101D] rounded-[2.5rem] border border-white/[0.08] text-slate-500 font-black italic uppercase tracking-widest text-xs">
                       No visual confirmation object available.
                     </div>
                   )}
                 </div>
               </div>
               
-              <div className="p-8 bg-slate-100 border-t border-slate-200 flex justify-between items-center">
+              <div className="p-8 bg-[#0F1629] border-t border-white/[0.08] flex justify-between items-center">
                 <div className="flex gap-4">
                   {selectedUserKYC.verificationStatus === "pending" && (
                     <>
@@ -1490,7 +1498,7 @@ export default function AdminDashboard() {
                           handleVerifyUser(selectedUserKYC.id, "verified");
                           setSelectedUserKYC(null);
                         }}
-                        className="px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-2xl transition-all shadow-xl uppercase tracking-widest text-xs"
+                        className="px-8 py-4 bg-[#22C58B] hover:brightness-110 text-[#0B101D] font-black rounded-2xl transition-all shadow-lg uppercase tracking-widest text-xs"
                       >
                         Verify User
                       </button>
@@ -1499,7 +1507,7 @@ export default function AdminDashboard() {
                           handleVerifyUser(selectedUserKYC.id, "rejected");
                           setSelectedUserKYC(null);
                         }}
-                        className="px-8 py-4 bg-rose-600 hover:bg-rose-700 text-white font-black rounded-2xl transition-all shadow-xl uppercase tracking-widest text-xs"
+                        className="px-8 py-4 bg-[#26131C] hover:bg-[#FB7185] text-[#FB7185] hover:text-[#0B101D] border border-[#F43F5E]/30 font-black rounded-2xl transition-all uppercase tracking-widest text-xs"
                       >
                         Reject
                       </button>
@@ -1508,7 +1516,7 @@ export default function AdminDashboard() {
                 </div>
                 <button 
                   onClick={() => setSelectedUserKYC(null)}
-                  className="px-12 py-4 bg-slate-900 hover:bg-black text-white font-black rounded-2xl transition-all shadow-xl uppercase tracking-widest text-xs"
+                  className="px-12 py-4 bg-[#1A233A] hover:bg-white/10 border border-white/[0.1] text-white font-black rounded-2xl transition-all uppercase tracking-widest text-xs"
                 >
                   Close Archive
                 </button>
@@ -1524,34 +1532,34 @@ export default function AdminDashboard() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setSelectedReceipt(null)}
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+              className="absolute inset-0 bg-[#0B101D]/80 backdrop-blur-md"
             />
             <motion.div 
               initial={{ scale: 0.9, opacity: 0, y: 30 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 30 }}
-              className="relative w-full max-w-4xl bg-white rounded-[3rem] overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"
+              className="relative w-full max-w-4xl bg-[#131B2E] border border-white/[0.1] rounded-[3rem] overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"
             >
-              <div className="p-8 border-b border-slate-50 bg-white flex items-center justify-between">
+              <div className="p-8 border-b border-white/[0.08] bg-[#0F1629] flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center">
+                  <div className="w-14 h-14 bg-[#0D2524] border border-[#22C58B]/30 text-[#22C58B] rounded-2xl flex items-center justify-center">
                     <FileText className="w-8 h-8" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-black text-slate-900 tracking-tight">Transmission Proof</h3>
-                    <p className="text-[10px] text-emerald-600 uppercase tracking-[0.3em] font-black">Financial Object</p>
+                    <h3 className="text-2xl font-black text-white tracking-tight">Transmission Proof</h3>
+                    <p className="text-[10px] text-[#22C58B] uppercase tracking-[0.3em] font-black">Financial Object</p>
                   </div>
                 </div>
                 <button 
                   onClick={() => setSelectedReceipt(null)}
-                  className="p-3 hover:bg-slate-100 rounded-2xl text-slate-400 hover:text-white transition-all shadow-xl"
+                  className="p-3 hover:bg-[#1A233A] rounded-2xl text-slate-400 hover:text-white transition-all"
                 >
                   <X className="w-8 h-8" />
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-12">
-                <div className="rounded-[2.5rem] border-4 border-slate-100 bg-white overflow-hidden shadow-2xl relative group ring-1 ring-slate-100">
+              <div className="flex-1 overflow-y-auto p-8 sm:p-12">
+                <div className="rounded-[2.5rem] border border-white/[0.1] bg-[#0B101D] overflow-hidden shadow-2xl relative group">
                   <img 
                     src={selectedReceipt} 
                     referrerPolicy="no-referrer"
@@ -1559,17 +1567,17 @@ export default function AdminDashboard() {
                     className="w-full h-auto object-contain cursor-zoom-in group-hover:scale-[1.03] transition-transform duration-700"
                     onClick={() => window.open(selectedReceipt, "_blank")}
                   />
-                  <div className="absolute inset-0 bg-emerald-600/0 group-hover:bg-emerald-600/5 transition-colors pointer-events-none" />
+                  <div className="absolute inset-0 bg-[#22C58B]/0 group-hover:bg-[#22C58B]/5 transition-colors pointer-events-none" />
                 </div>
                 <p className="mt-8 text-center text-slate-400 text-xs font-black uppercase tracking-[0.2em]">
                   Audit verified visual documentation.
                 </p>
               </div>
               
-              <div className="p-8 bg-slate-100 border-t border-slate-200 flex justify-end">
+              <div className="p-8 bg-[#0F1629] border-t border-white/[0.08] flex justify-end">
                 <button 
                   onClick={() => setSelectedReceipt(null)}
-                  className="px-12 py-4 bg-slate-900 hover:bg-black text-white font-black rounded-2xl transition-all shadow-xl uppercase tracking-widest text-xs"
+                  className="px-12 py-4 bg-[#1A233A] hover:bg-white/10 border border-white/[0.1] text-white font-black rounded-2xl transition-all uppercase tracking-widest text-xs"
                 >
                   Exit Review
                 </button>
@@ -1584,34 +1592,34 @@ export default function AdminDashboard() {
                animate={{ opacity: 1 }}
                exit={{ opacity: 0 }}
                onClick={() => setConfirmDelete(null)}
-               className="absolute inset-0 bg-slate-900/80 backdrop-blur-md"
+               className="absolute inset-0 bg-[#0B101D]/85 backdrop-blur-md"
             />
             <motion.div 
                initial={{ opacity: 0, scale: 0.95, y: 20 }}
                animate={{ opacity: 1, scale: 1, y: 0 }}
                exit={{ opacity: 0, scale: 0.95, y: 20 }}
-               className="relative bg-white w-full max-w-md rounded-[2.5rem] overflow-hidden shadow-2xl border border-slate-100"
+               className="relative bg-[#131B2E] w-full max-w-md rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/[0.1]"
             >
-              <div className="bg-rose-50 p-10 flex flex-col items-center text-center">
-                <div className="w-20 h-20 bg-rose-600 rounded-[1.5rem] flex items-center justify-center text-white shadow-xl shadow-rose-200 mb-6">
+              <div className="bg-[#26131C]/60 p-10 flex flex-col items-center text-center border-b border-white/[0.08]">
+                <div className="w-20 h-20 bg-[#26131C] border border-[#F43F5E]/40 rounded-[1.5rem] flex items-center justify-center text-[#FB7185] shadow-xl mb-6">
                   <Trash2 className="w-10 h-10" />
                 </div>
-                <h3 className="text-2xl font-black text-slate-900 tracking-tight mb-3">Permanent Deletion</h3>
-                <p className="text-slate-500 font-medium text-sm leading-relaxed">
-                  Are you sure you want to delete <span className="font-black text-slate-900 break-all">{confirmDelete.name}</span>? 
+                <h3 className="text-2xl font-black text-white tracking-tight mb-3">Permanent Deletion</h3>
+                <p className="text-slate-400 font-medium text-sm leading-relaxed">
+                  Are you sure you want to delete <span className="font-black text-white break-all">{confirmDelete.name}</span>? 
                   This operation is irreversible.
                 </p>
               </div>
               <div className="p-8 flex gap-4">
                 <button 
                   onClick={() => setConfirmDelete(null)}
-                  className="flex-1 py-4 bg-slate-100 hover:bg-slate-200 text-slate-900 font-black rounded-2xl transition-all uppercase tracking-widest text-xs"
+                  className="flex-1 py-4 bg-[#1A233A] hover:bg-white/10 text-white border border-white/[0.08] font-black rounded-2xl transition-all uppercase tracking-widest text-xs"
                 >
                   Cancel
                 </button>
                 <button 
                   onClick={executeDelete}
-                  className="flex-1 py-4 bg-rose-600 hover:bg-rose-700 text-white font-black rounded-2xl transition-all shadow-xl shadow-rose-100 uppercase tracking-widest text-xs"
+                  className="flex-1 py-4 bg-[#FB7185] hover:bg-rose-500 text-[#0B101D] font-black rounded-2xl transition-all uppercase tracking-widest text-xs"
                 >
                   Confirm Delete
                 </button>

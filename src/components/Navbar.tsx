@@ -20,50 +20,51 @@ export default function Navbar({ user, profile }: NavbarProps) {
   };
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur-md">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <Link to={user ? (isAdmin ? "/admin" : "/dashboard") : "/"} className="flex items-center gap-2 group">
-          <div className="p-2 bg-indigo-600 rounded-lg group-hover:bg-indigo-500 transition-colors">
-            <TrendingUp className="w-6 h-6 text-white" />
+    <nav className="sticky top-0 z-50 w-full border-b border-white/[0.08] bg-[#0F1629]/90 backdrop-blur-xl">
+      <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-8">
+        <Link to={user ? (isAdmin ? "/admin" : "/dashboard") : "/"} className="flex items-center gap-2.5 group whitespace-nowrap shrink-0">
+          <div className="p-2 bg-[#1A233A] border border-[#22C58B]/40 rounded-xl group-hover:border-[#22C58B] transition-colors">
+            <TrendingUp className="w-5 h-5 text-[#22C58B]" />
           </div>
-          <span className="text-xl font-bold tracking-tight text-slate-900 italic">QUANTUM<span className="text-indigo-600">TRADE</span></span>
+          <span className="text-xl font-display font-bold tracking-tight text-white italic">GAMMIX<span className="text-[#22C58B]">TRADE</span></span>
         </Link>
 
         <div className="hidden md:flex items-center gap-8">
           {!user && (
             <>
-              <Link to="/" className="text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors">Home</Link>
-              <Link to="/about" className="text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors">About</Link>
+              <Link to="/" className="text-sm font-medium text-slate-300 hover:text-white transition-colors whitespace-nowrap shrink-0">Home</Link>
+              <Link to="/about" className="text-sm font-medium text-slate-300 hover:text-white transition-colors whitespace-nowrap shrink-0">About</Link>
             </>
           )}
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 shrink-0">
           {user?.email === "habeshatilaye@gmail.com" && !profile?.role && (
-            <span className="text-[10px] bg-yellow-50 text-yellow-600 px-2 py-1 rounded border border-yellow-100">Syncing Admin...</span>
+            <span className="text-[11px] bg-amber-500/10 text-[#F5B400] px-2.5 py-1 rounded-lg border border-amber-500/20">Syncing Admin...</span>
           )}
           {user ? (
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               <Link 
                 to={isAdmin ? "/admin" : "/dashboard"} 
-                className="hidden sm:flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-900 bg-slate-200 hover:bg-slate-300 rounded-full transition-colors"
+                className="hidden sm:flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-[#1A233A] hover:bg-[#222E4A] border-2 border-[#22C58B]/70 rounded-full transition-colors whitespace-nowrap shrink-0"
               >
-                <LayoutDashboard className="w-4 h-4" />
+                <LayoutDashboard className="w-4 h-4 text-[#22C58B]" />
                 {isAdmin ? "Admin Panel" : "Dashboard"}
               </Link>
               <button 
                 onClick={handleLogout}
-                className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-slate-200 rounded-full transition-all"
+                title="Sign Out"
+                className="w-10 h-10 flex items-center justify-center text-slate-300 hover:text-white bg-[#1A233A] hover:bg-[#222E4A] border border-white/10 rounded-full transition-all"
               >
-                <LogOut className="w-5 h-5" />
+                <LogOut className="w-4 h-4" />
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-2">
-              <Link to="/login" className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors">
+            <div className="flex items-center gap-3">
+              <Link to="/login" className="px-4 py-2 text-sm font-semibold text-slate-300 hover:text-white transition-colors whitespace-nowrap shrink-0">
                 Login
               </Link>
-              <Link to="/register" className="px-6 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 rounded-full transition-all shadow-lg shadow-indigo-100">
+              <Link to="/register" className="px-5 py-2 text-sm font-bold text-[#0B101D] bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] hover:brightness-110 rounded-xl transition-all shadow-[0_4px_16px_rgba(245,158,11,0.28)] whitespace-nowrap shrink-0">
                 Start Trading
               </Link>
             </div>

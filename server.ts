@@ -1,14 +1,9 @@
 import express from "express";
 import { createServer as createViteServer } from "vite";
 import path from "path";
-import { fileURLToPath } from "url";
 import fs from "fs";
 import admin from "firebase-admin";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
-
-// ESM __dirname fix
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 // Initialize Firebase Admin SDK
 let adminApp: admin.app.App | undefined = undefined;
@@ -16,9 +11,11 @@ try {
   const configPath = path.join(process.cwd(), "firebase-applet-config.json");
   if (fs.existsSync(configPath)) {
     const firebaseConfig = JSON.parse(fs.readFileSync(configPath, "utf8"));
-    adminApp = admin.initializeApp({
-      projectId: firebaseConfig.projectId,
-    });
+    adminApp = admin.apps.length
+      ? admin.app()
+      : admin.initializeApp({
+          projectId: firebaseConfig.projectId,
+        });
     console.log("Firebase Admin initialized successfully under project ID:", firebaseConfig.projectId);
   } else {
     console.warn("firebase-applet-config.json not found. Firebase Admin might not be pre-initialized.");
@@ -44,7 +41,7 @@ function decodeJWT(token: string): any {
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = Number(process.env.PORT) || 3000;
 
   // Set body parser limits to support larger base64 file payloads
   app.use(express.json({ limit: "50mb" }));
@@ -324,4 +321,5 @@ async function startServer() {
 
 startServer().catch((err) => {
   console.error("Error starting server:", err);
+  process.exit(1);
 });

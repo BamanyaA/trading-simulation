@@ -120,8 +120,8 @@ function AppContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
+      <div className="min-h-screen bg-[#0B101D] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#22C58B]"></div>
       </div>
     );
   }
@@ -131,12 +131,12 @@ function AppContent() {
   const defaultRedirect = isAdmin ? "/admin" : "/dashboard";
 
   return (
-    <div className="min-h-screen bg-slate-50 transition-colors duration-500 flex flex-col">
+    <div className="min-h-screen bg-[#0B101D] text-slate-100 transition-colors duration-500 flex flex-col">
       <Navbar user={user} profile={profile} />
       <main className="flex-1">
         <Suspense fallback={
           <div className="min-h-[60vh] flex items-center justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#22C58B]"></div>
           </div>
         }>
           <Routes>
@@ -168,13 +168,13 @@ function AppContent() {
 
       <Toaster position="bottom-right" toastOptions={{
         style: {
-          background: '#ffffff',
-          color: '#1e293b',
-          border: '1px solid #e2e8f0',
+          background: '#131B2E',
+          color: '#F8FAFC',
+          border: '1px solid rgba(255,255,255,0.1)',
           fontWeight: '600',
           fontSize: '14px',
-          borderRadius: '12px',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+          borderRadius: '14px',
+          boxShadow: '0 10px 30px rgba(0,0,0,0.45)'
         }
       }} />
     </div>

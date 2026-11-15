@@ -17,8 +17,8 @@ export function TradingViewWidget({ symbol }: TradingViewWidgetProps) {
       hidesidetoolbar: "1",
       symboledit: "1",
       saveimage: "1",
-      toolbarbg: "f1f3f6",
-      theme: "light",
+      toolbarbg: "131B2E",
+      theme: "dark",
       style: "1",
       timezone: "Etc/UTC",
       locale: "en",
@@ -30,7 +30,7 @@ export function TradingViewWidget({ symbol }: TradingViewWidgetProps) {
   }, [symbol, containerId]);
 
   return (
-    <div className="tradingview-widget-container h-full w-full bg-gray-50 flex items-center justify-center relative overflow-hidden">
+    <div className="tradingview-widget-container h-full w-full bg-[#131B2E] flex items-center justify-center relative overflow-hidden">
       <iframe
         id={containerId}
         src={iframeUrl}
