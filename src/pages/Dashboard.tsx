@@ -180,12 +180,54 @@ interface DashboardProps {
 }
 
 const ASSET_DURATIONS = [
-  { s: 30, r: 3 },
-  { s: 60, r: 10 },
-  { s: 90, r: 15 },
-  { s: 120, r: 22 },
-  { s: 180, r: 30 },
-  { s: 300, r: 40 }
+  {
+    s: 30,
+    r: 5,
+    idleClass: "bg-amber-500/10 border-amber-500/25 text-amber-300/90 hover:border-amber-400/50",
+    activeClass: "bg-[#272010] border-[#F5B400] text-[#F5B400] shadow-[0_0_16px_rgba(245,180,0,0.22)]",
+    subIdleClass: "text-amber-200/70",
+    subActiveClass: "text-[#F5B400]"
+  },
+  {
+    s: 60,
+    r: 10,
+    idleClass: "bg-emerald-500/10 border-emerald-500/25 text-emerald-300/90 hover:border-emerald-400/50",
+    activeClass: "bg-[#0D2524] border-[#22C58B] text-[#22C58B] shadow-[0_0_16px_rgba(34,197,139,0.22)]",
+    subIdleClass: "text-emerald-200/70",
+    subActiveClass: "text-[#22C58B]"
+  },
+  {
+    s: 90,
+    r: 15,
+    idleClass: "bg-cyan-500/10 border-cyan-500/25 text-cyan-300/90 hover:border-cyan-400/50",
+    activeClass: "bg-[#0B2230] border-cyan-400 text-cyan-300 shadow-[0_0_16px_rgba(34,211,238,0.22)]",
+    subIdleClass: "text-cyan-200/70",
+    subActiveClass: "text-cyan-300"
+  },
+  {
+    s: 120,
+    r: 22,
+    idleClass: "bg-indigo-500/10 border-indigo-500/25 text-indigo-300/90 hover:border-indigo-400/50",
+    activeClass: "bg-[#161D3B] border-indigo-400 text-indigo-300 shadow-[0_0_16px_rgba(129,140,248,0.22)]",
+    subIdleClass: "text-indigo-200/70",
+    subActiveClass: "text-indigo-300"
+  },
+  {
+    s: 180,
+    r: 30,
+    idleClass: "bg-violet-500/10 border-violet-500/25 text-violet-300/90 hover:border-violet-400/50",
+    activeClass: "bg-[#1F1538] border-violet-400 text-violet-300 shadow-[0_0_16px_rgba(167,139,250,0.22)]",
+    subIdleClass: "text-violet-200/70",
+    subActiveClass: "text-violet-300"
+  },
+  {
+    s: 300,
+    r: 40,
+    idleClass: "bg-rose-500/10 border-rose-500/25 text-rose-300/90 hover:border-rose-400/50",
+    activeClass: "bg-[#26131C] border-[#FB7185] text-[#FB7185] shadow-[0_0_16px_rgba(251,113,133,0.22)]",
+    subIdleClass: "text-rose-200/70",
+    subActiveClass: "text-[#FB7185]"
+  }
 ];
 
 export default function Dashboard({ user, profile, refreshProfile }: DashboardProps) {
@@ -491,7 +533,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
 
     // Get return percentage based on duration
     const durationObj = ASSET_DURATIONS.find(d => d.s === seconds);
-    const returnPercent = durationObj ? durationObj.r / 100 : 0.03;
+    const returnPercent = durationObj ? durationObj.r / 100 : 0.05;
     
     // Loss percentage: 5% per 30s as requested
     const lossPercent = (seconds / 30) * 0.05;
@@ -1981,23 +2023,26 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                 <div>
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-3">Time</label>
                   <div className="grid grid-cols-3 gap-2.5">
-                    {ASSET_DURATIONS.map((dur) => (
-                      <button
-                        key={dur.s}
-                        onClick={() => setSelectedDuration(dur.s)}
-                        className={cn(
-                          "py-3 rounded-xl border transition-all text-center",
-                          selectedDuration === dur.s 
-                            ? "bg-[#272010] border-[#F5B400] text-[#F5B400] shadow-md scale-[1.02]" 
-                            : "bg-[#1A233A] border-white/[0.06] text-white hover:border-white/20"
-                        )}
-                      >
-                        <div className="text-sm font-mono font-black">{dur.s}s</div>
-                        <div className={cn("text-[11px] font-semibold", selectedDuration === dur.s ? "text-[#F5B400]/90" : "text-slate-400")}>
-                          Return {dur.r}%
-                        </div>
-                      </button>
-                    ))}
+                    {ASSET_DURATIONS.map((dur) => {
+                      const isSelected = selectedDuration === dur.s;
+                      return (
+                        <button
+                          key={dur.s}
+                          onClick={() => setSelectedDuration(dur.s)}
+                          className={cn(
+                            "py-3 rounded-xl border transition-all text-center",
+                            isSelected
+                              ? `${dur.activeClass} scale-[1.02]`
+                              : dur.idleClass
+                          )}
+                        >
+                          <div className="text-sm font-mono font-black">{dur.s}s</div>
+                          <div className={cn("text-[11px] font-semibold", isSelected ? dur.subActiveClass : dur.subIdleClass)}>
+                            Return {dur.r}%
+                          </div>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -2011,7 +2056,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                       Expected Profit: <span className="text-[#22C58B] font-mono">
                         +{(
                           (parseFloat(tradeAmount) || 0) * 
-                          ((ASSET_DURATIONS.find(d => d.s === selectedDuration)?.r || 3) / 100)
+                          ((ASSET_DURATIONS.find(d => d.s === selectedDuration)?.r || 5) / 100)
                         ).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USDT
                       </span>
                     </span>
