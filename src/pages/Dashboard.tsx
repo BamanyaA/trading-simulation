@@ -182,50 +182,57 @@ interface DashboardProps {
 const ASSET_DURATIONS = [
   {
     s: 30,
-    r: 5,
+    r: 10,
+    min: 1000,
+    max: 4999,
+    rangeLabel: "$1,000 - $4,999 USD",
     idleClass: "bg-amber-500/10 border-amber-500/25 text-amber-300/90 hover:border-amber-400/50",
     activeClass: "bg-[#272010] border-[#F5B400] text-[#F5B400] shadow-[0_0_16px_rgba(245,180,0,0.22)]",
-    subIdleClass: "text-amber-200/70",
+    subIdleClass: "text-amber-200/80",
     subActiveClass: "text-[#F5B400]"
   },
   {
     s: 60,
-    r: 10,
+    r: 12,
+    min: 5000,
+    max: 9999,
+    rangeLabel: "$5,000 - $9,999 USD",
     idleClass: "bg-emerald-500/10 border-emerald-500/25 text-emerald-300/90 hover:border-emerald-400/50",
     activeClass: "bg-[#0D2524] border-[#22C58B] text-[#22C58B] shadow-[0_0_16px_rgba(34,197,139,0.22)]",
-    subIdleClass: "text-emerald-200/70",
+    subIdleClass: "text-emerald-200/80",
     subActiveClass: "text-[#22C58B]"
   },
   {
     s: 90,
-    r: 15,
+    r: 18,
+    min: 10000,
+    max: 24999,
+    rangeLabel: "$10,000 - $24,999 USD",
     idleClass: "bg-cyan-500/10 border-cyan-500/25 text-cyan-300/90 hover:border-cyan-400/50",
     activeClass: "bg-[#0B2230] border-cyan-400 text-cyan-300 shadow-[0_0_16px_rgba(34,211,238,0.22)]",
-    subIdleClass: "text-cyan-200/70",
+    subIdleClass: "text-cyan-200/80",
     subActiveClass: "text-cyan-300"
   },
   {
     s: 120,
     r: 22,
+    min: 25000,
+    max: 49999,
+    rangeLabel: "$25,000 - $49,999 USD",
     idleClass: "bg-indigo-500/10 border-indigo-500/25 text-indigo-300/90 hover:border-indigo-400/50",
     activeClass: "bg-[#161D3B] border-indigo-400 text-indigo-300 shadow-[0_0_16px_rgba(129,140,248,0.22)]",
-    subIdleClass: "text-indigo-200/70",
+    subIdleClass: "text-indigo-200/80",
     subActiveClass: "text-indigo-300"
   },
   {
-    s: 180,
-    r: 30,
-    idleClass: "bg-violet-500/10 border-violet-500/25 text-violet-300/90 hover:border-violet-400/50",
-    activeClass: "bg-[#1F1538] border-violet-400 text-violet-300 shadow-[0_0_16px_rgba(167,139,250,0.22)]",
-    subIdleClass: "text-violet-200/70",
-    subActiveClass: "text-violet-300"
-  },
-  {
-    s: 300,
-    r: 40,
+    s: 150,
+    r: 27,
+    min: 50000,
+    max: Infinity,
+    rangeLabel: "$50,000 - Up USD",
     idleClass: "bg-rose-500/10 border-rose-500/25 text-rose-300/90 hover:border-rose-400/50",
     activeClass: "bg-[#26131C] border-[#FB7185] text-[#FB7185] shadow-[0_0_16px_rgba(251,113,133,0.22)]",
-    subIdleClass: "text-rose-200/70",
+    subIdleClass: "text-rose-200/80",
     subActiveClass: "text-[#FB7185]"
   }
 ];
@@ -531,12 +538,11 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
       }
     }
 
-    // Get return percentage based on duration
-    const durationObj = ASSET_DURATIONS.find(d => d.s === seconds);
-    const returnPercent = durationObj ? durationObj.r / 100 : 0.05;
-    
-    // Loss percentage: 5% per 30s as requested
-    const lossPercent = (seconds / 30) * 0.05;
+    // Get return & loss percentage based on duration tier
+    const durationObj = ASSET_DURATIONS.find(d => d.s === seconds) || ASSET_DURATIONS[0];
+    const tierPercent = durationObj.r / 100;
+    const returnPercent = tierPercent;
+    const lossPercent = tierPercent;
 
     try {
       // Deduct the initial amount first (the investment)
@@ -675,20 +681,26 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
     toast.success("Address copied!");
   };
 
-  const handlePlaceTrade = async () => {
-    const amount = parseFloat(tradeAmount);
+  const validateTradeTierAmount = (amount: number, durationSeconds: number) => {
     if (isNaN(amount) || amount <= 0) {
       toast.error("Please enter a valid amount");
-      return;
+      return false;
     }
-
-    if (amount < 100) {
-      toast.error("Minimum trade amount is $100");
-      return;
+    const tier = ASSET_DURATIONS.find(d => d.s === durationSeconds) || ASSET_DURATIONS[0];
+    if (amount < tier.min || (tier.max !== Infinity && amount > tier.max)) {
+      toast.error(`For ${tier.s}s (${tier.r}%), trade amount must be ${tier.rangeLabel}`);
+      return false;
     }
-
     if (!profile || profile.balance < amount) {
       toast.error("Insufficient balance");
+      return false;
+    }
+    return true;
+  };
+
+  const handlePlaceTrade = async () => {
+    const amount = parseFloat(tradeAmount);
+    if (!validateTradeTierAmount(amount, selectedDuration)) {
       return;
     }
     
@@ -1993,9 +2005,9 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
             <motion.div 
               initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="relative w-full max-w-lg bg-[#131B2E] border-t border-x border-white/[0.1] rounded-t-3xl overflow-hidden shadow-2xl p-6"
+              className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto bg-[#131B2E] border-t border-x border-white/[0.1] rounded-t-3xl shadow-2xl p-6"
             >
-              <div className="flex justify-between items-start mb-6">
+              <div className="flex justify-between items-start mb-4">
                 <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold", selectedAsset.color)}>
                   {selectedAsset.icon}
                 </div>
@@ -2004,7 +2016,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                 </button>
               </div>
 
-              <div className="mb-6 text-center tabular-nums">
+              <div className="mb-5 text-center tabular-nums">
                 <div className={cn(
                   "text-4xl font-mono font-black flex items-baseline justify-center gap-1",
                   marketData[selectedAsset.symbol]?.isUp ? "text-[#22C58B]" : "text-[#FB7185]"
@@ -2019,10 +2031,10 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                 </div>
               </div>
 
-              <div className="space-y-6">
+              <div className="space-y-5">
                 <div>
-                  <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-3">Time</label>
-                  <div className="grid grid-cols-3 gap-2.5">
+                  <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-2.5">Time & Investment Tiers</label>
+                  <div className="space-y-2">
                     {ASSET_DURATIONS.map((dur) => {
                       const isSelected = selectedDuration === dur.s;
                       return (
@@ -2030,16 +2042,27 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                           key={dur.s}
                           onClick={() => setSelectedDuration(dur.s)}
                           className={cn(
-                            "py-3 rounded-xl border transition-all text-center",
+                            "w-full px-4 py-3 rounded-xl border transition-all flex items-center justify-between gap-3 tabular-nums",
                             isSelected
-                              ? `${dur.activeClass} scale-[1.02]`
+                              ? `${dur.activeClass} scale-[1.01]`
                               : dur.idleClass
                           )}
                         >
-                          <div className="text-sm font-mono font-black">{dur.s}s</div>
-                          <div className={cn("text-[11px] font-semibold", isSelected ? dur.subActiveClass : dur.subIdleClass)}>
-                            Return {dur.r}%
+                          <div className="flex items-center gap-2.5">
+                            <span className="text-sm font-mono font-black">{dur.s}s</span>
+                            <span className={cn(
+                              "text-xs font-bold px-2 py-0.5 rounded-md bg-white/[0.06]",
+                              isSelected ? dur.subActiveClass : dur.subIdleClass
+                            )}>
+                              {dur.r}%
+                            </span>
                           </div>
+                          <span className={cn(
+                            "text-xs font-mono font-bold",
+                            isSelected ? dur.subActiveClass : dur.subIdleClass
+                          )}>
+                            {dur.rangeLabel}
+                          </span>
                         </button>
                       );
                     })}
@@ -2047,16 +2070,18 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                 </div>
 
                 <div>
-                  <div className="flex justify-between items-end mb-2">
+                  <div className="flex flex-wrap justify-between items-end gap-2 mb-2">
                     <div className="flex items-center gap-2">
                       <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Trade Value (USDT)</label>
-                      <span className="text-[11px] font-bold text-[#F5B400]">LIMIT: 100 - 100K</span>
+                      <span className="text-[11px] font-bold text-[#F5B400]">
+                        LIMIT: {(ASSET_DURATIONS.find(d => d.s === selectedDuration) || ASSET_DURATIONS[0]).rangeLabel}
+                      </span>
                     </div>
                     <span className="text-xs font-bold text-slate-400 tabular-nums">
                       Expected Profit: <span className="text-[#22C58B] font-mono">
                         +{(
                           (parseFloat(tradeAmount) || 0) * 
-                          ((ASSET_DURATIONS.find(d => d.s === selectedDuration)?.r || 5) / 100)
+                          ((ASSET_DURATIONS.find(d => d.s === selectedDuration)?.r || 10) / 100)
                         ).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USDT
                       </span>
                     </span>
@@ -2079,15 +2104,27 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 pb-20">
+                <div className="grid grid-cols-2 gap-4 pb-16">
                   <button 
-                    onClick={() => { setTradeSide("BUY"); setShowOptionModal(false); setShowTradeConfirm(true); }}
+                    onClick={() => {
+                      const amt = parseFloat(tradeAmount);
+                      if (!validateTradeTierAmount(amt, selectedDuration)) return;
+                      setTradeSide("BUY");
+                      setShowOptionModal(false);
+                      setShowTradeConfirm(true);
+                    }}
                     className="py-4 bg-[#22C58B] hover:brightness-110 text-[#0B101D] font-extrabold rounded-2xl shadow-lg active:scale-95 transition-all text-sm uppercase tracking-wider"
                   >
                     Buy / Long
                   </button>
                   <button 
-                    onClick={() => { setTradeSide("SELL"); setShowOptionModal(false); setShowTradeConfirm(true); }}
+                    onClick={() => {
+                      const amt = parseFloat(tradeAmount);
+                      if (!validateTradeTierAmount(amt, selectedDuration)) return;
+                      setTradeSide("SELL");
+                      setShowOptionModal(false);
+                      setShowTradeConfirm(true);
+                    }}
                     className="py-4 bg-[#F43F5E] hover:brightness-110 text-white font-extrabold rounded-2xl shadow-lg active:scale-95 transition-all text-sm uppercase tracking-wider"
                   >
                     Sell / Short
