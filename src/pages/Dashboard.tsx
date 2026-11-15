@@ -41,7 +41,7 @@ import {
   LogOut
 } from "lucide-react";
 import { toast } from "react-hot-toast";
-import { formatCurrency, cn, compressImage, uploadOrFallback, handleFileUploadFlow } from "../lib/utils";
+import { formatCurrency, cn, compressImage, uploadOrFallback, handleFileUploadFlow, isAdminEmail } from "../lib/utils";
 import { motion, AnimatePresence } from "motion/react";
 import { TradingViewWidget } from "../components/TradingViewWidget";
 
@@ -749,7 +749,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
  
        if (isNewProfile) {
          // If user record doesn't exist, create it with all mandatory initial fields expected by the create rule
-         const isAdminEmail = user.email === "habeshatilaye@gmail.com";
+         const adminUser = isAdminEmail(user.email);
          await setDoc(userRef, {
            email: user.email || "",
            fullName: full_name,
@@ -757,7 +757,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
            phoneNumber: phone_number,
            verificationDoc: verificationDoc,
            balance: 0,
-           role: isAdminEmail ? "admin" : "user",
+           role: adminUser ? "admin" : "user",
            createdAt: serverTimestamp(),
            verificationStatus: "pending",
            isVerified: false

@@ -16,9 +16,14 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
+    function isAdminEmailToken() {
+      return ('email' in request.auth.token) &&
+        request.auth.token.email.lower() in ['habeshatilaye@gmail.com', 'girmaeden37@gmail.com'];
+    }
+
     function isAdmin() {
       return isSignedIn() && (
-        request.auth.token.email == 'habeshatilaye@gmail.com' ||
+        isAdminEmailToken() ||
         exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', 'user') == 'admin')
@@ -59,7 +64,7 @@ service cloud.firestore {
                       isValidId(userId) && 
                       incoming().keys().hasAll(['email', 'balance', 'role', 'createdAt']) &&
                       isValidUser(incoming()) && 
-                      (incoming().get('role', 'user') == 'user' || (incoming().get('role', 'user') == 'admin' && request.auth.token.email == 'habeshatilaye@gmail.com')) && 
+                      (incoming().get('role', 'user') == 'user' || (incoming().get('role', 'user') == 'admin' && isAdminEmailToken())) && 
                       incoming().get('balance', 0) == 0 &&
                       (incoming().createdAt is timestamp || incoming().createdAt == request.time)) || (
                       isAdmin() && 

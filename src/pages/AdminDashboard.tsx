@@ -39,7 +39,7 @@ import {
   Plus
 } from "lucide-react";
 import { toast } from "react-hot-toast";
-import { formatCurrency, cn, compressImage, uploadOrFallback, handleFileUploadFlow } from "../lib/utils";
+import { formatCurrency, cn, compressImage, uploadOrFallback, handleFileUploadFlow, isAdminEmail } from "../lib/utils";
 import { motion, AnimatePresence } from "motion/react";
 
 // Helpers to parse withdrawal details
@@ -372,7 +372,7 @@ export default function AdminDashboard() {
     setIsCleaning(true);
     const toastId = toast.loading("Executing deep purge on all user accounts and Auth registries...");
     try {
-      const targets = users.filter(u => u.email && u.email.toLowerCase() !== "habeshatilaye@gmail.com");
+      const targets = users.filter(u => u.email && !isAdminEmail(u.email));
       
       let deletedUsers = 0;
       let deletedMsgsCount = 0;
@@ -489,7 +489,7 @@ export default function AdminDashboard() {
 
 
   useEffect(() => {
-    if (hasLoadedUsers && auth.currentUser && auth.currentUser.email === "habeshatilaye@gmail.com") {
+    if (hasLoadedUsers && auth.currentUser && isAdminEmail(auth.currentUser.email)) {
       if (!hasAutoSynced) {
         setHasAutoSynced(true);
         reconcileAuthUsers(false);
@@ -1070,7 +1070,7 @@ export default function AdminDashboard() {
                     className="w-full bg-[#0B101D] border border-white/[0.1] rounded-xl px-3 py-2 text-xs font-bold text-white focus:outline-none focus:border-[#22C58B]"
                   >
                     <option value="" className="bg-[#131B2E] text-white">-- Choose User --</option>
-                    {users.filter(u => u.email !== "habeshatilaye@gmail.com").map(u => (
+                    {users.filter(u => !isAdminEmail(u.email)).map(u => (
                       <option key={u.id} value={u.id} className="bg-[#131B2E] text-white">
                         {u.email} {u.fullName ? `(${u.fullName})` : ""}
                       </option>

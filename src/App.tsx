@@ -2,9 +2,10 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "r
 import { Toaster } from "react-hot-toast";
 import { useEffect, useState, lazy, Suspense } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
-import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc, onSnapshot } from "firebase/firestore";
 import { auth, db } from "./firebase";
 import { UserProfile } from "./types";
+import { isAdminEmail } from "./lib/utils";
 
 // Pages
 import Home from "./pages/Home";
@@ -31,7 +32,7 @@ function AppContent() {
       setProfile({ id: docSnap.id, ...docSnap.data() } as UserProfile);
     } else if (auth.currentUser) {
       const user = auth.currentUser;
-      const isAdminEmail = user.email === "habeshatilaye@gmail.com";
+      const adminUser = isAdminEmail(user.email);
       const newProfile = {
         email: user.email || "",
         fullName: user.displayName || "",
@@ -39,7 +40,7 @@ function AppContent() {
         phoneNumber: user.phoneNumber || "",
         verificationDoc: "",
         balance: 0,
-        role: isAdminEmail ? "admin" : "user",
+        role: adminUser ? "admin" : "user",
         createdAt: new Date(),
         verificationStatus: "unsubmitted",
         isVerified: false,
@@ -70,10 +71,18 @@ function AppContent() {
 
           profileUnsub = onSnapshot(docRef, (docSnap) => {
             if (docSnap.exists()) {
-              setProfile({ id: docSnap.id, ...docSnap.data() } as UserProfile);
+              const data = docSnap.data();
+              const adminUser = isAdminEmail(firebaseUser.email);
+              if (adminUser && data.role !== "admin") {
+                updateDoc(docRef, { role: "admin" }).catch((err) => {
+                  console.warn("Failed to sync admin role:", err);
+                });
+              }
+              setProfile({ id: docSnap.id, ...data, role: adminUser ? "admin" : data.role } as UserProfile);
+              setLoading(false);
             } else {
               // Auto-repair missing profile
-              const isAdminEmail = firebaseUser.email === "habeshatilaye@gmail.com";
+              const adminUser = isAdminEmail(firebaseUser.email);
               const newProfile = {
                 email: firebaseUser.email || "",
                 fullName: firebaseUser.displayName || "",
@@ -81,7 +90,7 @@ function AppContent() {
                 phoneNumber: firebaseUser.phoneNumber || "",
                 verificationDoc: "",
                 balance: 0,
-                role: isAdminEmail ? "admin" : "user",
+                role: adminUser ? "admin" : "user",
                 createdAt: new Date(),
                 verificationStatus: "unsubmitted",
                 isVerified: false,
@@ -89,12 +98,15 @@ function AppContent() {
               };
               setDoc(docRef, newProfile).then(() => {
                 setProfile({ id: firebaseUser.uid, ...newProfile } as any);
+                setLoading(false);
               }).catch(err => {
                 console.error("Failed to auto-repair on listener:", err);
+                setLoading(false);
               });
             }
           }, (err) => {
             console.error("Profile onSnapshot error:", err);
+            setLoading(false);
           });
         } else {
           if (profileUnsub) {
@@ -102,10 +114,10 @@ function AppContent() {
             profileUnsub = null;
           }
           setProfile(null);
+          setLoading(false);
         }
       } catch (error) {
         console.error("Auth initialization error:", error);
-      } finally {
         setLoading(false);
       }
     });
@@ -116,7 +128,7 @@ function AppContent() {
     };
   }, []);
 
-  const isAdmin = profile?.role === "admin" || user?.email === "habeshatilaye@gmail.com";
+  const isAdmin = profile?.role === "admin" || isAdminEmail(user?.email);
 
   if (loading) {
     return (

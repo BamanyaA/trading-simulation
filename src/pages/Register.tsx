@@ -6,6 +6,7 @@ import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { toast } from "react-hot-toast";
 import { TrendingUp, Mail, Lock, ArrowRight } from "lucide-react";
 import { motion } from "motion/react";
+import { isAdminEmail } from "../lib/utils";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -29,7 +30,7 @@ export default function Register() {
       const user = userCredential.user;
 
       // Create user profile in Firestore
-      const isAdminEmail = user.email === "habeshatilaye@gmail.com";
+      const adminUser = isAdminEmail(user.email);
       await setDoc(doc(db, "users", user.uid), {
         email: user.email,
         fullName: "",
@@ -37,14 +38,14 @@ export default function Register() {
         phoneNumber: "",
         verificationDoc: null,
         balance: 0,
-        role: isAdminEmail ? "admin" : "user",
+        role: adminUser ? "admin" : "user",
         createdAt: serverTimestamp(),
         verificationStatus: "unsubmitted",
         isVerified: false
       });
 
       toast.success("Account created successfully!");
-      navigate(isAdminEmail ? "/admin" : "/dashboard");
+      navigate(adminUser ? "/admin" : "/dashboard");
     } catch (error) {
       const errMsg = error instanceof Error ? error.message : "Registration failed";
       if (errMsg.includes("email-already-in-use") || errMsg.includes("already-in-use") || errMsg.includes("already exists")) {

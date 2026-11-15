@@ -3,7 +3,7 @@ import { User } from "firebase/auth";
 import { auth } from "../firebase";
 import { UserProfile } from "../types";
 import { LogOut, LayoutDashboard, Settings, TrendingUp } from "lucide-react";
-import { cn } from "../lib/utils";
+import { cn, isAdminEmail } from "../lib/utils";
 
 interface NavbarProps {
   user: User | null;
@@ -12,7 +12,7 @@ interface NavbarProps {
 
 export default function Navbar({ user, profile }: NavbarProps) {
   const navigate = useNavigate();
-  const isAdmin = profile?.role === "admin" || user?.email === "habeshatilaye@gmail.com";
+  const isAdmin = profile?.role === "admin" || isAdminEmail(user?.email);
 
   const handleLogout = async () => {
     await auth.signOut();
@@ -39,7 +39,7 @@ export default function Navbar({ user, profile }: NavbarProps) {
         </div>
 
         <div className="flex items-center gap-3 shrink-0">
-          {user?.email === "habeshatilaye@gmail.com" && !profile?.role && (
+          {isAdminEmail(user?.email) && !profile?.role && (
             <span className="text-[11px] bg-amber-500/10 text-[#F5B400] px-2.5 py-1 rounded-lg border border-amber-500/20">Syncing Admin...</span>
           )}
           {user ? (

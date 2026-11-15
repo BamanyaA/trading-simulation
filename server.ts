@@ -39,6 +39,16 @@ function decodeJWT(token: string): any {
   }
 }
 
+const ADMIN_EMAILS = [
+  "habeshatilaye@gmail.com",
+  "girmaeden37@gmail.com",
+];
+
+function isAdminEmail(email?: string | null): boolean {
+  if (!email) return false;
+  return ADMIN_EMAILS.includes(email.trim().toLowerCase());
+}
+
 async function startServer() {
   const app = express();
   const PORT = Number(process.env.PORT) || 3000;
@@ -81,7 +91,7 @@ async function startServer() {
         decodedToken = decodeJWT(token);
       }
 
-      if (!decodedToken || decodedToken.email !== "habeshatilaye@gmail.com") {
+      if (!decodedToken || !isAdminEmail(decodedToken.email)) {
         return res.status(403).json({ error: "Forbidden: Admin access only" });
       }
 
@@ -124,7 +134,7 @@ async function startServer() {
         decodedToken = decodeJWT(token);
       }
 
-      if (!decodedToken || decodedToken.email !== "habeshatilaye@gmail.com") {
+      if (!decodedToken || !isAdminEmail(decodedToken.email)) {
         return res.status(403).json({ error: "Forbidden: Admin access only" });
       }
 
@@ -136,7 +146,7 @@ async function startServer() {
         do {
           const listUsersResult = await admin.auth().listUsers(1000, nextPageToken);
           listUsersResult.users.forEach((userRecord) => {
-            if (userRecord.email && userRecord.email.toLowerCase() !== "habeshatilaye@gmail.com") {
+            if (userRecord.email && !isAdminEmail(userRecord.email)) {
               usersToDelete.push(userRecord.uid);
             }
           });
@@ -188,7 +198,7 @@ async function startServer() {
         decodedToken = decodeJWT(token);
       }
 
-      if (!decodedToken || decodedToken.email !== "habeshatilaye@gmail.com") {
+      if (!decodedToken || !isAdminEmail(decodedToken.email)) {
         return res.status(403).json({ error: "Forbidden: Admin access only" });
       }
 
@@ -240,7 +250,7 @@ async function startServer() {
         const docSnap = await userDocRef.get();
 
         if (!docSnap.exists) {
-          const isAdminEmail = authUser.email === "habeshatilaye@gmail.com";
+          const adminUser = isAdminEmail(authUser.email);
           await userDocRef.set({
             email: authUser.email || "",
             fullName: authUser.displayName || "",
@@ -248,7 +258,7 @@ async function startServer() {
             phoneNumber: authUser.phoneNumber || "",
             verificationDoc: null,
             balance: 0,
-            role: isAdminEmail ? "admin" : "user",
+            role: adminUser ? "admin" : "user",
             createdAt: FieldValue.serverTimestamp(),
             verificationStatus: "unsubmitted",
             isVerified: false,

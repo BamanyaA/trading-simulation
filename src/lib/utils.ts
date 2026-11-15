@@ -13,6 +13,16 @@ export function formatCurrency(amount: number) {
   }).format(amount);
 }
 
+export const ADMIN_EMAILS = [
+  "habeshatilaye@gmail.com",
+  "girmaeden37@gmail.com",
+];
+
+export function isAdminEmail(email?: string | null): boolean {
+  if (!email) return false;
+  return ADMIN_EMAILS.includes(email.trim().toLowerCase());
+}
+
 export const compressImage = (base64Str: string, maxWidth = 800, maxHeight = 800, quality = 0.4): Promise<string> => {
   return new Promise((resolve) => {
     try {

@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { auth } from "../firebase";
+import { auth, db } from "../firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
 import { toast } from "react-hot-toast";
 import { TrendingUp, Mail, Lock, ArrowRight } from "lucide-react";
 import { motion } from "motion/react";
+import { isAdminEmail } from "../lib/utils";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -17,9 +19,22 @@ export default function Login() {
     setLoading(true);
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const normalizedEmail = email.trim();
+      const userCredential = await signInWithEmailAndPassword(auth, normalizedEmail, password);
+      let isAdmin = isAdminEmail(userCredential.user.email || normalizedEmail);
+
+      if (!isAdmin) {
+        try {
+          const userDoc = await getDoc(doc(db, "users", userCredential.user.uid));
+          if (userDoc.exists() && userDoc.data()?.role === "admin") {
+            isAdmin = true;
+          }
+        } catch (roleErr) {
+          console.warn("Unable to check Firestore role during login:", roleErr);
+        }
+      }
+
       toast.success("Welcome back!");
-      const isAdmin = email === "habeshatilaye@gmail.com";
       navigate(isAdmin ? "/admin" : "/dashboard");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Login failed");
