@@ -25,6 +25,17 @@ export default function Login() {
 
       if (!isAdmin) {
         try {
+          const deletedSnap = await getDoc(doc(db, "deleted_users", userCredential.user.uid));
+          if (deletedSnap.exists()) {
+            await auth.signOut();
+            toast.error("This account has been permanently deleted by an administrator.");
+            return;
+          }
+        } catch (delErr) {
+          console.warn("Unable to check deleted_users status during login:", delErr);
+        }
+
+        try {
           const userDoc = await getDoc(doc(db, "users", userCredential.user.uid));
           if (userDoc.exists() && userDoc.data()?.role === "admin") {
             isAdmin = true;

@@ -100,8 +100,13 @@ async function startServer() {
         return res.status(400).json({ error: "Missing required uid parameter" });
       }
 
+      if (decodedToken.uid === uid) {
+        return res.status(400).json({ error: "Cannot delete current administrator account" });
+      }
+
       let authDeleted = false;
       try {
+        await admin.auth().revokeRefreshTokens(uid);
         await admin.auth().deleteUser(uid);
         authDeleted = true;
         console.log(`Successfully deleted auth user: ${uid}`);
@@ -241,11 +246,29 @@ async function startServer() {
         });
       }
 
+      // Fetch deleted_users tombstones so permanently deleted accounts are never recreated
+      const deletedUids = new Set<string>();
+      try {
+        const deletedSnap = await dbInstance.collection("deleted_users").get();
+        deletedSnap.docs.forEach((d: any) => deletedUids.add(d.id));
+      } catch (tombstoneErr) {
+        console.warn("Unable to read deleted_users collection during reconciliation:", tombstoneErr);
+      }
+
       let createdCount = 0;
       const details: string[] = [];
 
       // Reconcile each Auth user with Firestore users collection
       for (const authUser of authUsers) {
+        if (deletedUids.has(authUser.uid) && !isAdminEmail(authUser.email)) {
+          try {
+            await admin.auth().deleteUser(authUser.uid);
+          } catch {
+            // Ignore if Auth API deletion is restricted
+          }
+          continue;
+        }
+
         const userDocRef = dbInstance.collection("users").doc(authUser.uid);
         const docSnap = await userDocRef.get();
 

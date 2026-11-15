@@ -76,6 +76,18 @@
         "author": { "type": "string" }
       },
       "required": ["title", "content", "createdAt", "author"]
+    },
+    "DeletedUser": {
+      "title": "Deleted User Tombstone",
+      "description": "Permanent deletion blocklist record so deleted accounts cannot auto-recreate or re-enter",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "deletedAt": { "type": "string", "format": "date-time" },
+        "deletedBy": { "type": "string" }
+      },
+      "required": ["uid", "deletedAt"]
     }
   },
   "firestore": {
@@ -98,6 +110,10 @@
     "/news/{newsId}": {
       "schema": "News",
       "description": "Market news articles"
+    },
+    "/deleted_users/{userId}": {
+      "schema": "DeletedUser",
+      "description": "Tombstone records for permanently deleted users"
     }
   }
 }

@@ -230,26 +230,39 @@ export default function AdminDashboard() {
   const executeDelete = async () => {
     if (!confirmDelete) return;
 
-    const { type, id } = confirmDelete;
+    const { type, id, name } = confirmDelete;
     const path = type === "user" ? `users/${id}` : `news/${id}`;
 
     if (type === "user") {
-      toast.loading("Purging user credentials, support chats, and transaction history...", { id: "cascadeDel" });
+      if (id === auth.currentUser?.uid || isAdminEmail(name)) {
+        toast.error("Cannot delete an administrator account.");
+        setConfirmDelete(null);
+        return;
+      }
+      toast.loading("Permanently deleting user account, support chats, and transaction history...", { id: "cascadeDel" });
     }
 
     try {
       if (type === "user") {
-        // Query support messages of the deleted user ID
+        // 1. Write permanent deletion tombstone FIRST so active tabs / login / reconcile never recreate this user
+        await setDoc(doc(db, "deleted_users", id), {
+          uid: id,
+          email: name || "",
+          deletedAt: serverTimestamp(),
+          deletedBy: auth.currentUser?.email || "admin",
+        });
+
+        // 2. Query support messages of the deleted user ID
         const chatQ = query(collection(db, "support_messages"), where("userId", "==", id));
         const chatSnap = await getDocs(chatQ);
         const chatDeletes = chatSnap.docs.map(docSnap => deleteDoc(docSnap.ref));
         
-        // Query transactions of the deleted user ID
+        // 3. Query transactions of the deleted user ID
         const txQ = query(collection(db, "transactions"), where("userId", "==", id));
         const txSnap = await getDocs(txQ);
         const txDeletes = txSnap.docs.map(docSnap => deleteDoc(docSnap.ref));
 
-        // Call the server API to delete credentials from Firebase Auth
+        // 4. Call the server API to revoke tokens and delete credentials from Firebase Auth
         try {
           const token = await auth.currentUser?.getIdToken();
           const authDelResponse = await fetch("/api/admin/delete-user", {
@@ -262,21 +275,20 @@ export default function AdminDashboard() {
           });
 
           if (!authDelResponse.ok) {
-            const errData = await authDelResponse.json();
-            console.warn("Auth credential deletion synced response:", errData.error);
+            console.warn("Auth credential deletion endpoint returned status:", authDelResponse.status);
           }
         } catch (authErr) {
           console.error("Firebase Auth syncer error:", authErr);
         }
 
-        // Wait for all cascades to complete
+        // 5. Wait for all cascades to complete
         await Promise.all([...chatDeletes, ...txDeletes]);
       }
 
       await deleteDoc(doc(db, type === "user" ? "users" : "news", id));
       
       if (type === "user") {
-        toast.success("User and all associated data purged successfully", { id: "cascadeDel" });
+        toast.success("User permanently deleted and blocked from returning", { id: "cascadeDel" });
       } else {
         toast.success("News deleted successfully");
       }
@@ -372,7 +384,7 @@ export default function AdminDashboard() {
     setIsCleaning(true);
     const toastId = toast.loading("Executing deep purge on all user accounts and Auth registries...");
     try {
-      const targets = users.filter(u => u.email && !isAdminEmail(u.email));
+      const targets = users.filter(u => !isAdminEmail(u.email) && u.id !== auth.currentUser?.uid);
       
       let deletedUsers = 0;
       let deletedMsgsCount = 0;
@@ -381,6 +393,16 @@ export default function AdminDashboard() {
       const deletePromises: Promise<void>[] = [];
       
       for (const u of targets) {
+        // Write permanent deletion tombstone first
+        deletePromises.push(
+          setDoc(doc(db, "deleted_users", u.id), {
+            uid: u.id,
+            email: u.email || "",
+            deletedAt: serverTimestamp(),
+            deletedBy: auth.currentUser?.email || "admin",
+          })
+        );
+
         // Query support messages of this user ID
         const chatQ = query(collection(db, "support_messages"), where("userId", "==", u.id));
         const chatSnap = await getDocs(chatQ);
@@ -494,35 +516,8 @@ export default function AdminDashboard() {
         setHasAutoSynced(true);
         reconcileAuthUsers(false);
       }
-      
-      // Auto-provision requested customer profile if missing in Firestore database
-      const targetUID = "uC4UmVowDjU7XIuWNBwVmfOMDyO2";
-      const hasTarget = users.some(u => u.id === targetUID);
-      if (!hasTarget) {
-        console.log("UID uC4UmVowDjU7XIuWNBwVmfOMDyO2 is missing, auto-provisioning database profile...");
-        const targetProfile = {
-          email: "customer-uC4UmVowDjU@gmail.com",
-          fullName: "Customer Operator uC4Um",
-          phoneNumber: "+1 (555) 728-1902",
-          address: "740 Main Street, Core Suite",
-          verificationDoc: "",
-          balance: 31050,
-          role: "user" as const,
-          createdAt: new Date(),
-          verificationStatus: "verified" as const,
-          isVerified: true,
-          tradeAction: true
-        };
-        setDoc(doc(db, "users", targetUID), targetProfile)
-          .then(() => {
-            console.log("Successfully auto-provisioned customer profile!");
-          })
-          .catch(err => {
-            console.error("Auto-provision of customer profile failed:", err);
-          });
-      }
     }
-  }, [hasLoadedUsers, auth.currentUser, hasAutoSynced, users]);
+  }, [hasLoadedUsers, auth.currentUser, hasAutoSynced]);
 
   const handleUpdateSettings = async () => {
     try {

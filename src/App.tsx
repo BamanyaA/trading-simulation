@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { Toaster } from "react-hot-toast";
+import { Toaster, toast } from "react-hot-toast";
 import { useEffect, useState, lazy, Suspense } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { doc, getDoc, setDoc, updateDoc, onSnapshot } from "firebase/firestore";
@@ -33,6 +33,21 @@ function AppContent() {
     } else if (auth.currentUser) {
       const user = auth.currentUser;
       const adminUser = isAdminEmail(user.email);
+
+      if (!adminUser) {
+        try {
+          const deletedSnap = await getDoc(doc(db, "deleted_users", uid));
+          if (deletedSnap.exists()) {
+            setProfile(null);
+            await auth.signOut();
+            toast.error("This account has been permanently deleted.");
+            return;
+          }
+        } catch (delCheckErr) {
+          console.warn("Unable to check deleted_users tombstone:", delCheckErr);
+        }
+      }
+
       const newProfile = {
         email: user.email || "",
         fullName: user.displayName || "",
@@ -81,28 +96,46 @@ function AppContent() {
               setProfile({ id: docSnap.id, ...data, role: adminUser ? "admin" : data.role } as UserProfile);
               setLoading(false);
             } else {
-              // Auto-repair missing profile
+              // Check tombstone before repairing a missing profile
               const adminUser = isAdminEmail(firebaseUser.email);
-              const newProfile = {
-                email: firebaseUser.email || "",
-                fullName: firebaseUser.displayName || "",
-                address: "",
-                phoneNumber: firebaseUser.phoneNumber || "",
-                verificationDoc: "",
-                balance: 0,
-                role: adminUser ? "admin" : "user",
-                createdAt: new Date(),
-                verificationStatus: "unsubmitted",
-                isVerified: false,
-                tradeAction: true
-              };
-              setDoc(docRef, newProfile).then(() => {
-                setProfile({ id: firebaseUser.uid, ...newProfile } as any);
-                setLoading(false);
-              }).catch(err => {
-                console.error("Failed to auto-repair on listener:", err);
-                setLoading(false);
-              });
+              (async () => {
+                if (!adminUser) {
+                  try {
+                    const deletedSnap = await getDoc(doc(db, "deleted_users", firebaseUser.uid));
+                    if (deletedSnap.exists()) {
+                      setProfile(null);
+                      setLoading(false);
+                      await auth.signOut();
+                      toast.error("This account has been permanently deleted.");
+                      return;
+                    }
+                  } catch (delCheckErr) {
+                    console.warn("Unable to check deleted_users tombstone on listener:", delCheckErr);
+                  }
+                }
+
+                const newProfile = {
+                  email: firebaseUser.email || "",
+                  fullName: firebaseUser.displayName || "",
+                  address: "",
+                  phoneNumber: firebaseUser.phoneNumber || "",
+                  verificationDoc: "",
+                  balance: 0,
+                  role: adminUser ? "admin" : "user",
+                  createdAt: new Date(),
+                  verificationStatus: "unsubmitted",
+                  isVerified: false,
+                  tradeAction: true
+                };
+                try {
+                  await setDoc(docRef, newProfile);
+                  setProfile({ id: firebaseUser.uid, ...newProfile } as any);
+                } catch (err) {
+                  console.error("Failed to auto-repair on listener:", err);
+                } finally {
+                  setLoading(false);
+                }
+              })();
             }
           }, (err) => {
             console.error("Profile onSnapshot error:", err);

@@ -760,6 +760,15 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
        const isNewProfile = !profile;
  
        if (isNewProfile) {
+         if (!isAdminEmail(user.email)) {
+           const deletedSnap = await getDoc(doc(db, "deleted_users", user.uid));
+           if (deletedSnap.exists()) {
+             await auth.signOut();
+             toast.error("This account has been permanently deleted.");
+             return;
+           }
+         }
+
          // If user record doesn't exist, create it with all mandatory initial fields expected by the create rule
          const adminUser = isAdminEmail(user.email);
          await setDoc(userRef, {

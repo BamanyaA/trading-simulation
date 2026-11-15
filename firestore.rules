@@ -61,6 +61,7 @@ service cloud.firestore {
       allow list: if isAdmin();
       
       allow create: if (isOwner(userId) && 
+                      !exists(/databases/$(database)/documents/deleted_users/$(userId)) &&
                       isValidId(userId) && 
                       incoming().keys().hasAll(['email', 'balance', 'role', 'createdAt']) &&
                       isValidUser(incoming()) && 
@@ -75,7 +76,9 @@ service cloud.firestore {
       allow update: if (isOwner(userId) || isAdmin()) && 
                       isValidUser(incoming()) && (
         isAdmin() || 
-        (isOwner(userId) && incoming().diff(existing()).affectedKeys().hasOnly(['balance', 'fullName', 'phoneNumber', 'address', 'verificationDoc', 'verificationStatus']))
+        (isOwner(userId) &&
+         !exists(/databases/$(database)/documents/deleted_users/$(userId)) &&
+         incoming().diff(existing()).affectedKeys().hasOnly(['balance', 'fullName', 'phoneNumber', 'address', 'verificationDoc', 'verificationStatus']))
       ) && (
         isAdmin() || (
           (!('email' in incoming()) || incoming().get('email', '') == existing().get('email', '')) &&
@@ -172,6 +175,23 @@ service cloud.firestore {
       allow read: if true; // News is public
       allow create: if isAdmin() && isValidNews(incoming()) && incoming().createdAt == request.time;
       allow update: if isAdmin() && isValidNews(incoming());
+      allow delete: if isAdmin();
+    }
+
+    // --- Deleted Users Tombstone ---
+    function isValidDeletedUser(data) {
+      return data.keys().hasAll(['uid', 'deletedAt']) &&
+             data.keys().hasOnly(['uid', 'email', 'deletedAt', 'deletedBy']) &&
+             data.uid is string && data.uid.size() <= 128 &&
+             ( !('email' in data) || (data.email == null || (data.email is string && data.email.size() <= 200)) ) &&
+             (data.deletedAt is timestamp || data.deletedAt == request.time) &&
+             ( !('deletedBy' in data) || (data.deletedBy == null || (data.deletedBy is string && data.deletedBy.size() <= 200)) );
+    }
+
+    match /deleted_users/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin();
+      allow create, update: if isAdmin() && isValidId(userId) && isValidDeletedUser(incoming());
       allow delete: if isAdmin();
     }
   }
