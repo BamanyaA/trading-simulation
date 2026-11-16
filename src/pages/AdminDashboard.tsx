@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { db, auth, handleFirestoreError } from "../firebase";
+import { updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth";
 import { 
   collection, 
   query, 
@@ -36,7 +37,10 @@ import {
   Phone,
   Trash2,
   RefreshCw,
-  Plus
+  Plus,
+  Lock,
+  Eye,
+  EyeOff
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { formatCurrency, cn, compressImage, uploadOrFallback, handleFileUploadFlow, isAdminEmail } from "../lib/utils";
@@ -91,6 +95,15 @@ export default function AdminDashboard() {
   const [isSyncingUsers, setIsSyncingUsers] = useState(false);
   const [hasAutoSynced, setHasAutoSynced] = useState(false);
   const [hasLoadedUsers, setHasLoadedUsers] = useState(false);
+
+  // Admin password change states
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
 
 
@@ -530,6 +543,64 @@ export default function AdminDashboard() {
       } catch (e) {
         console.error("Settings update sync error:", e);
       }
+    }
+  };
+
+  const handleChangeAdminPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const currentUser = auth.currentUser;
+    if (!currentUser || !currentUser.email) {
+      toast.error("No authenticated administrator account found.");
+      return;
+    }
+
+    if (!currentPassword) {
+      toast.error("Please enter your current password");
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      toast.error("New password must be at least 8 characters");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      toast.error("New passwords do not match");
+      return;
+    }
+
+    if (newPassword === currentPassword) {
+      toast.error("New password must be different from your current password");
+      return;
+    }
+
+    setIsChangingPassword(true);
+    try {
+      const credential = EmailAuthProvider.credential(currentUser.email, currentPassword);
+      await reauthenticateWithCredential(currentUser, credential);
+      await updatePassword(currentUser, newPassword);
+
+      toast.success("Admin password updated successfully!");
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      setShowCurrentPassword(false);
+      setShowNewPassword(false);
+      setShowConfirmPassword(false);
+    } catch (error) {
+      console.error("Admin password change error:", error);
+      const code = (error as { code?: string })?.code;
+      if (code === "auth/wrong-password" || code === "auth/invalid-credential") {
+        toast.error("Incorrect current password");
+      } else if (code === "auth/weak-password") {
+        toast.error("Password is too weak. Choose a stronger password.");
+      } else if (code === "auth/too-many-requests") {
+        toast.error("Too many attempts. Please try again later.");
+      } else {
+        toast.error(error instanceof Error ? error.message : "Failed to update password");
+      }
+    } finally {
+      setIsChangingPassword(false);
     }
   };
 
@@ -1298,6 +1369,110 @@ export default function AdminDashboard() {
 
         {activeTab === "settings" && (
           <div className="space-y-10 max-w-4xl">
+            {/* Admin Security & Password Change Card */}
+            <div className="bg-[#131B2E] border border-white/[0.08] rounded-[2.5rem] p-8 sm:p-12 shadow-2xl">
+              <div className="flex items-center gap-6 mb-10">
+                <div className="p-4 bg-[#0D2524] border border-[#22C58B]/25 rounded-[1.5rem]">
+                  <Lock className="w-8 h-8 text-[#22C58B]" />
+                </div>
+                <div>
+                  <h3 className="text-3xl font-black text-white tracking-tight">Admin Security</h3>
+                  <p className="text-slate-400 font-medium">
+                    Change password for <span className="text-white font-bold">{auth.currentUser?.email || "administrator"}</span>
+                  </p>
+                </div>
+              </div>
+
+              <form onSubmit={handleChangeAdminPassword} className="space-y-6">
+                <div className="space-y-3">
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">
+                    Current Password
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showCurrentPassword ? "text" : "password"}
+                      required
+                      placeholder="Enter current password"
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      className="w-full bg-[#0B101D] border border-white/[0.1] rounded-2xl py-4 pl-6 pr-14 text-white placeholder:text-slate-600 focus:ring-2 focus:ring-[#22C58B]/20 focus:border-[#22C58B] outline-none text-sm transition-all"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowCurrentPassword((prev) => !prev)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1.5 transition-colors"
+                      aria-label={showCurrentPassword ? "Hide current password" : "Show current password"}
+                    >
+                      {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-3">
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">
+                      New Password
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showNewPassword ? "text" : "password"}
+                        required
+                        minLength={8}
+                        placeholder="Min 8 characters"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="w-full bg-[#0B101D] border border-white/[0.1] rounded-2xl py-4 pl-6 pr-14 text-white placeholder:text-slate-600 focus:ring-2 focus:ring-[#22C58B]/20 focus:border-[#22C58B] outline-none text-sm transition-all"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowNewPassword((prev) => !prev)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1.5 transition-colors"
+                        aria-label={showNewPassword ? "Hide new password" : "Show new password"}
+                      >
+                        {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">
+                      Confirm New Password
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showConfirmPassword ? "text" : "password"}
+                        required
+                        minLength={8}
+                        placeholder="Re-enter new password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className="w-full bg-[#0B101D] border border-white/[0.1] rounded-2xl py-4 pl-6 pr-14 text-white placeholder:text-slate-600 focus:ring-2 focus:ring-[#22C58B]/20 focus:border-[#22C58B] outline-none text-sm transition-all"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword((prev) => !prev)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1.5 transition-colors"
+                        aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
+                      >
+                        {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-4">
+                  <button
+                    type="submit"
+                    disabled={isChangingPassword}
+                    className="w-full bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] hover:brightness-105 disabled:opacity-50 text-[#0B101D] font-black py-5 rounded-2xl transition-all flex items-center justify-center gap-3 shadow-lg active:scale-95 uppercase tracking-widest text-sm"
+                  >
+                    <Lock className="w-5 h-5" />
+                    {isChangingPassword ? "Updating Password..." : "Update Admin Password"}
+                  </button>
+                </div>
+              </form>
+            </div>
+
             {/* Protocol Gateways Card */}
             <div className="bg-[#131B2E] border border-white/[0.08] rounded-[2.5rem] p-8 sm:p-12 shadow-2xl">
               <div className="flex items-center gap-6 mb-12">

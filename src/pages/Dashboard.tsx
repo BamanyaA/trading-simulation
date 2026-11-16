@@ -1412,7 +1412,7 @@ export default function Dashboard({ user, profile, refreshProfile }: DashboardPr
               <Clock className="w-5 h-5" />
               <p className="text-xs font-bold uppercase tracking-wider">Verification Pending</p>
             </div>
-            <p className="text-xs text-slate-300 mt-2 font-medium">Your credentials have been submitted for review. This typically takes 24-48 business hours.</p>
+            <p className="text-xs text-slate-300 mt-2 font-medium">Your credentials have been submitted for review. This typically takes about 5 mins.</p>
           </div>
         )}
         
